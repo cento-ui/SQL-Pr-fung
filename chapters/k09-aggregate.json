@@ -1,0 +1,912 @@
+{
+  "id": "k09",
+  "titel": "Zählen, summieren, vergleichen",
+  "untertitel": "Aggregatfunktionen: COUNT, MIN, MAX, SUM, AVG – eine Zahl statt vieler Zeilen.",
+  "db": "bibliothek",
+  "lernziele": ["L19", "L14", "L20"],
+  "dauer": 40,
+  "schritte": [
+    {
+      "id": "s-aggregate",
+      "typ": "info",
+      "titel": "Eine Zahl statt vieler Zeilen",
+      "story": [
+        {"sprecher": "ammann", "text": "Willkommen zurück in der Stadtbibliothek! Die Leitung will wissen, wie viele Bücher wir haben und was sie im Schnitt kosten. Dafür muss ich nicht alle Zeilen anschauen: Die Datenbank rechnet für mich."},
+        {"sprecher": "tabea", "text": "Und vielleicht rechnet sie auch aus, auf welchen Büchern mein Kater am liebsten geschlafen hat."}
+      ],
+      "text": [
+        "Bisher hat jede Abfrage **Zeilen** geliefert: einzelne Bücher, einzelne Kunden. Oft interessiert dich aber nur eine **Zahl** über viele Zeilen hinweg: Wie viele Bücher gibt es? Was ist das teuerste? Was kostet alles zusammen?",
+        "Dafür gibt es die **Aggregatfunktionen** (aggregieren = zusammenfassen). Sie nehmen viele Werte einer Spalte und liefern **einen** Wert:",
+        "| Funktion | Bedeutung |",
+        "|---|---|",
+        "| `COUNT(*)` | Anzahl der Zeilen |",
+        "| `MIN(x)` | kleinster Wert der Spalte x |",
+        "| `MAX(x)` | grösster Wert der Spalte x |",
+        "| `SUM(x)` | Summe aller Werte der Spalte x |",
+        "| `AVG(x)` | Durchschnitt (Mittelwert) aller Werte der Spalte x |",
+        "Die erste kennst du schon vom Hilfsblatt. Ein Beispiel:",
+        "```sql",
+        "SELECT COUNT(*)",
+        "FROM buch",
+        "```",
+        "- Du schreibst die Funktion einfach dorthin, wo sonst die Spalten stehen.",
+        "- In die Klammer kommt, **was** gezählt oder gerechnet wird. Bei `COUNT(*)` ist es der Stern: «zähle ganze Zeilen».",
+        "- Das Ergebnis ist **eine einzige Zeile mit einer Zahl**.",
+        "> Merke: Bei Aggregatfunktionen werden keine Einzelzeilen mehr ausgegeben. Du bekommst eine Zeile mit einer Zahl.",
+        "In diesem Kapitel gehen wir die fünf Funktionen der Reihe nach durch und bleiben bei der Bibliothek."
+      ]
+    },
+    {
+      "id": "a-count-alle",
+      "typ": "sql",
+      "titel": "Wie viele Bücher?",
+      "lz": ["L19", "L12"],
+      "thema": "COUNT(*)",
+      "stufe": 1,
+      "story": [{"sprecher": "ammann", "text": "Die erste Frage der Leitung: Wie viele Bücher stehen im Katalog?"}],
+      "frage": "Bestimme mit einer Aggregatfunktion, wie viele Bücher (Datensätze der Tabelle `buch`) es gibt.",
+      "vorlage": "SELECT COUNT(*)\nFROM ",
+      "loesung": "SELECT COUNT(*) FROM buch",
+      "muss": [{"muster": "\\bCOUNT\\s*\\(", "meldung": "Verwende COUNT."}],
+      "hinweise": [
+        "Du willst Zeilen zählen. Welche Funktion zählt?",
+        "SELECT COUNT(*) FROM … – setze den Tabellennamen ein."
+      ],
+      "erklaerung": "`SELECT COUNT(*) FROM buch` zählt alle Zeilen der Tabelle und gibt eine einzige Zahl zurück: **46**. Du siehst keine Titel mehr, nur die Anzahl."
+    },
+    {
+      "id": "a-eine-zeile",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "titel": "Wie viele Zeilen liefert die Abfrage?",
+      "lz": ["L10", "L19"],
+      "thema": "Aggregat = eine Zeile",
+      "stufe": 1,
+      "story": "Achtung, Verwechslungsgefahr: Der *Wert* von COUNT und die *Anzahl Zeilen* des Ergebnisses sind zwei verschiedene Dinge.",
+      "frage": "In der Tabelle `buch` haben 11 Bücher das Erscheinungsjahr 1989 oder früher. Wie viele **Zeilen** hat die Ergebnistabelle dieser Abfrage?",
+      "abfrage": "SELECT COUNT(*)\nFROM buch\nWHERE jahr < 1990",
+      "hinweise": [
+        "Was liefert eine Aggregatfunktion: viele Zeilen oder eine?",
+        "Die Zahl 11 steht *in* der Ergebniszeile. Das Ergebnis selbst hat nur eine Zeile."
+      ],
+      "erklaerung": "Ein Aggregat fasst alle passenden Zeilen zu **einer** Zeile zusammen. Die Ergebnistabelle hat also **1 Zeile**; in ihr steht die Zahl 11 (die Anzahl der Bücher vor 1990)."
+    },
+    {
+      "id": "s-aggregat-where",
+      "typ": "info",
+      "titel": "Nur gewisse Zeilen zählen",
+      "story": "Die Leitung will es genauer wissen: nicht alle Bücher, sondern nur bestimmte.",
+      "text": [
+        "Ein Aggregat kannst du mit **WHERE** kombinieren. Die Datenbank arbeitet dabei in zwei Schritten:",
+        "1. **Zuerst** filtert `WHERE` die Zeilen (wie bisher).",
+        "2. **Dann** rechnet die Aggregatfunktion nur über die übrig gebliebenen Zeilen.",
+        "```sql",
+        "SELECT COUNT(*)",
+        "FROM buch",
+        "WHERE waehrung = 'EUR'",
+        "```",
+        "Hier bleiben nur die Bücher mit Preisangabe in Euro übrig, und `COUNT(*)` zählt diese: **6**.",
+        "Das Gleiche gilt für alle Aggregatfunktionen: Sie rechnen immer nur über die Zeilen, die `WHERE` durchlässt.",
+        "> Merke: WHERE filtert zuerst, dann rechnet das Aggregat."
+      ]
+    },
+    {
+      "id": "a-count-where",
+      "typ": "sql",
+      "titel": "Bücher einer Währung zählen",
+      "lz": ["L19", "L12"],
+      "thema": "COUNT mit WHERE",
+      "stufe": 1,
+      "story": [{"sprecher": "ammann", "text": "Die Preise sind in verschiedenen Währungen erfasst. Wie viele Bücher haben ihren Preis in einer bestimmten Währung?"}],
+      "frage": "Wie viele Bücher haben die Währung **{{w}}**? (Spalte `waehrung`)",
+      "parameter": [
+        {"w": "CHF"},
+        {"w": "EUR"},
+        {"w": "DM"}
+      ],
+      "loesung": "SELECT COUNT(*) FROM buch WHERE waehrung = '{{w}}'",
+      "muss": [{"muster": "\\bCOUNT\\s*\\(", "meldung": "Verwende COUNT."}],
+      "hinweise": [
+        "Du brauchst COUNT(*) und eine Bedingung mit WHERE.",
+        "Text steht in einfachen Anführungszeichen: waehrung = '{{w}}'"
+      ],
+      "erklaerung": "`WHERE waehrung = '{{w}}'` lässt nur die passenden Bücher durch, `COUNT(*)` zählt sie. Text-Werte stehen wie immer in einfachen Anführungszeichen."
+    },
+    {
+      "id": "s-min-max-sum-avg",
+      "typ": "info",
+      "titel": "Kleinster, grösster, Summe, Durchschnitt",
+      "story": "COUNT zählt. Die vier anderen Funktionen rechnen mit den **Werten** einer Spalte.",
+      "text": [
+        "Bei `MIN`, `MAX`, `SUM` und `AVG` schreibst du den **Spaltennamen** in die Klammer. Beispiel mit vier Preisen:",
+        "| preis |",
+        "|---|",
+        "| 10 |",
+        "| 20 |",
+        "| 30 |",
+        "| 40 |",
+        "- `MIN(preis)` → **10** (kleinster Wert)",
+        "- `MAX(preis)` → **40** (grösster Wert)",
+        "- `SUM(preis)` → **100** (10 + 20 + 30 + 40)",
+        "- `AVG(preis)` → **25** (100 geteilt durch 4 Werte)",
+        "Du darfst mehrere Aggregate in einer Abfrage mischen. Das Ergebnis ist trotzdem **eine Zeile**, mit einer Spalte pro Funktion:",
+        "```sql",
+        "SELECT MIN(jahr), MAX(jahr)",
+        "FROM buch",
+        "```",
+        "Das liefert in einer Zeile das älteste und das neueste Erscheinungsjahr.",
+        "- `SUM` und `AVG` gibt es nur für Zahlen. Für Text wäre eine Summe sinnlos.",
+        "- `MIN` und `MAX` funktionieren auch für Text (alphabetisch) und für Datum.",
+        "> Merke: MIN/MAX = kleinster/grösster Wert · SUM = Summe · AVG = Durchschnitt = Summe geteilt durch Anzahl."
+      ]
+    },
+    {
+      "id": "a-min-max",
+      "typ": "sql",
+      "titel": "Ältestes und neuestes Buch",
+      "lz": ["L19"],
+      "thema": "MIN und MAX",
+      "stufe": 1,
+      "story": [{"sprecher": "ammann", "text": "Ich möchte wissen, aus welchem Zeitraum unsere Bücher stammen."}],
+      "frage": "Zeige in **einer** Abfrage das kleinste und das grösste Erscheinungsjahr (Spalte `jahr`) aller Bücher, zuerst das kleinste.",
+      "loesung": "SELECT MIN(jahr), MAX(jahr) FROM buch",
+      "muss": [
+        {"muster": "\\bMIN\\s*\\(", "meldung": "Verwende MIN."},
+        {"muster": "\\bMAX\\s*\\(", "meldung": "Verwende MAX."}
+      ],
+      "hinweise": [
+        "Zwei Aggregate, getrennt durch ein Komma, in einem SELECT.",
+        "SELECT MIN(jahr), MAX(jahr) FROM …"
+      ],
+      "erklaerung": "`SELECT MIN(jahr), MAX(jahr) FROM buch` liefert eine Zeile mit zwei Zahlen: **1956** und **2002**. Zwei Aggregate gehören durch Komma getrennt hinter das SELECT, genau wie zwei normale Spalten."
+    },
+    {
+      "id": "a-summe-avg",
+      "typ": "sql",
+      "titel": "Summe und Durchschnitt",
+      "lz": ["L19", "L12"],
+      "thema": "SUM und AVG",
+      "stufe": 2,
+      "story": [{"sprecher": "ammann", "text": "Die Euro-Bücher haben wir alle neu gekauft. Was haben sie zusammen gekostet, und wie teuer war ein Buch im Schnitt?"}],
+      "frage": "Zeige für alle Bücher mit Währung `EUR` die **Summe** und den **Durchschnitt** der Preise (Spalte `preis`), in dieser Reihenfolge.",
+      "loesung": "SELECT SUM(preis), AVG(preis) FROM buch WHERE waehrung = 'EUR'",
+      "muss": [
+        {"muster": "\\bSUM\\s*\\(", "meldung": "Verwende SUM."},
+        {"muster": "\\bAVG\\s*\\(", "meldung": "Verwende AVG."}
+      ],
+      "hinweise": [
+        "Erst filtern (WHERE), dann rechnen (SUM, AVG).",
+        "SELECT SUM(preis), AVG(preis) FROM buch WHERE waehrung = …"
+      ],
+      "erklaerung": "WHERE lässt die 6 Euro-Bücher durch. `SUM(preis)` addiert ihre Preise (213.45), `AVG(preis)` teilt durch 6 und gibt den Durchschnitt (rund 35.57)."
+    },
+    {
+      "id": "s-count-null",
+      "typ": "info",
+      "titel": "COUNT(*) oder COUNT(spalte)? Die Sache mit NULL",
+      "story": [{"sprecher": "ammann", "text": "Nicht bei jedem Buch ist der Preis erfasst. Das macht das Zählen heikel."}],
+      "text": [
+        "Manche Zellen sind **leer**. In SQL heisst das **NULL** (siehe [Kapitel «Unscharfe Zeugenaussagen»](#/kapitel/k08/s-null)). Schau dir drei Bücher an:",
+        "| buchid | titel | preis |",
+        "|---|---|---|",
+        "| 3009 | Relationale Datenbanken | 18.0 |",
+        "| 3010 | Relationale Datenbanken in der Praxis | NULL |",
+        "| 3011 | Computer Graphics: Principles and Practice | 120.0 |",
+        "Jetzt gibt es einen wichtigen Unterschied:",
+        "- `COUNT(*)` zählt **Zeilen**. Egal, was drinsteht: **3**.",
+        "- `COUNT(preis)` zählt die Zeilen, in denen `preis` **nicht NULL** ist: **2**.",
+        "Auch die anderen Funktionen **ignorieren NULL**. Sie tun so, als wäre die Zeile für diese Spalte gar nicht da:",
+        "- `SUM(preis)` → 138 (18 + 120)",
+        "- `AVG(preis)` → **69**, also 138 geteilt durch 2. NULL zählt **nicht** als 0! Sonst wäre der Durchschnitt 46.",
+        "- `MIN(preis)` → 18, `MAX(preis)` → 120",
+        "> Merke: COUNT(*) zählt alle Zeilen. COUNT(spalte) zählt nur Zeilen mit einem Wert (nicht NULL). SUM, AVG, MIN, MAX überspringen NULL."
+      ]
+    },
+    {
+      "id": "a-null-tabelle",
+      "typ": "tabelle",
+      "titel": "Aggregate mit NULL von Hand",
+      "lz": ["L19", "L10"],
+      "thema": "NULL in Aggregaten",
+      "stufe": 2,
+      "story": "In der Prüfung rechnest du ohne Computer. Übe es mit den drei Büchern von eben.",
+      "frage": [
+        "Gegeben ist dieser Ausschnitt der Tabelle `buch`:",
+        "",
+        "| buchid | titel | preis |",
+        "|---|---|---|",
+        "| 3009 | Relationale Datenbanken | 18.0 |",
+        "| 3010 | Relationale Datenbanken in der Praxis | NULL |",
+        "| 3011 | Computer Graphics: Principles and Practice | 120.0 |",
+        "",
+        "Trage ein, was `SELECT COUNT(*), COUNT(preis), SUM(preis), AVG(preis) FROM buch` für diese drei Zeilen liefert."
+      ],
+      "tabellenname": "Ergebnis",
+      "spalten": ["COUNT(*)", "COUNT(preis)", "SUM(preis)", "AVG(preis)"],
+      "zeilen": [
+        [{"loesung": "3"}, {"loesung": "2"}, {"loesung": ["138", "138.0"]}, {"loesung": ["69", "69.0"]}]
+      ],
+      "hinweise": [
+        "COUNT(*) zählt alle Zeilen. COUNT(preis) überspringt NULL.",
+        "SUM: 18 + 120. AVG: Summe geteilt durch die Anzahl der Zeilen **mit Wert**."
+      ],
+      "erklaerung": "COUNT(*) = 3 Zeilen. COUNT(preis) = 2, weil NULL nicht zählt. SUM = 138. AVG = 138 / 2 = **69** (nicht 138 / 3 = 46): NULL wird bei AVG übersprungen, nicht als 0 gerechnet."
+    },
+    {
+      "id": "a-count-preis",
+      "typ": "sql",
+      "titel": "Wie viele Bücher haben einen Preis?",
+      "lz": ["L19", "L18"],
+      "thema": "COUNT(spalte)",
+      "stufe": 2,
+      "story": [{"sprecher": "ammann", "text": "Bei manchen Büchern fehlt der Preis. Wie viele haben ihn eingetragen?"}],
+      "frage": "Zähle die Bücher, bei denen die Spalte `preis` einen Wert hat (nicht NULL). Verwende dafür **nicht** WHERE, sondern die passende Form von COUNT.",
+      "loesung": "SELECT COUNT(preis) FROM buch",
+      "muss": [{"muster": "\\bCOUNT\\s*\\(\\s*PREIS\\s*\\)", "meldung": "Schreibe die Spalte in die Klammer: COUNT(preis)."}],
+      "verboten": [{"muster": "\\bWHERE\\b", "meldung": "Hier geht es ohne WHERE: COUNT(spalte) überspringt NULL von selbst."}],
+      "hinweise": [
+        "COUNT(*) zählt alle Zeilen. Wie zählst du nur Zeilen mit einem Wert in einer bestimmten Spalte?",
+        "SELECT COUNT(preis) FROM buch"
+      ],
+      "erklaerung": "`COUNT(preis)` zählt nur die Zeilen, in denen `preis` nicht NULL ist: **40**. `COUNT(*)` hätte 46 geliefert. Die Differenz (6) sind die Bücher ohne Preis."
+    },
+    {
+      "id": "s-count-distinct",
+      "typ": "info",
+      "titel": "Verschiedene Werte zählen: COUNT(DISTINCT …)",
+      "story": "Manche Werte kommen mehrfach vor. Willst du wissen, **wie viele verschiedene** es gibt, brauchst du DISTINCT.",
+      "text": [
+        "DISTINCT kennst du schon: Es entfernt doppelte Zeilen (siehe [Kapitel «Ordnung in der Akte»](#/kapitel/k06/s-distinct)). In einer Aggregatfunktion zählt es nur verschiedene Werte:",
+        "```sql",
+        "SELECT COUNT(DISTINCT jahr)",
+        "FROM buch",
+        "```",
+        "Beispiel mit der Spalte `jahr` von fünf Büchern: 1998, 1998, 2001, 1998, 2001.",
+        "- `COUNT(jahr)` → **5** (alle Werte)",
+        "- `COUNT(DISTINCT jahr)` → **2** (nur 1998 und 2001)",
+        "Auch hier wird NULL nicht mitgezählt.",
+        "> Merke: COUNT(DISTINCT x) = Anzahl **verschiedener** Werte in der Spalte x. Das Ergebnis ist wieder eine Zahl in einer Zeile.",
+        "Aufgepasst, zwei ähnliche Abfragen: `SELECT DISTINCT jahr FROM buch` liefert **viele Zeilen** (jedes Jahr einmal), `SELECT COUNT(DISTINCT jahr) FROM buch` liefert **eine Zeile** mit der Anzahl dieser Jahre."
+      ]
+    },
+    {
+      "id": "a-count-distinct",
+      "typ": "sql",
+      "titel": "Wie viele verschiedene Jahre?",
+      "lz": ["L14", "L19"],
+      "thema": "COUNT(DISTINCT)",
+      "stufe": 2,
+      "story": [{"sprecher": "ammann", "text": "In wie vielen verschiedenen Jahren sind unsere Bücher erschienen?"}],
+      "frage": "Bestimme die Anzahl **verschiedener** Erscheinungsjahre (Spalte `jahr`) in der Tabelle `buch`.",
+      "loesung": "SELECT COUNT(DISTINCT jahr) FROM buch",
+      "muss": [{"muster": "\\bCOUNT\\s*\\(\\s*DISTINCT\\b", "meldung": "Verwende COUNT(DISTINCT …)."}],
+      "hinweise": [
+        "Du willst nicht alle Jahre zählen, sondern nur die verschiedenen.",
+        "SELECT COUNT(DISTINCT jahr) FROM buch"
+      ],
+      "erklaerung": "`COUNT(DISTINCT jahr)` zählt jedes Jahr nur einmal und überspringt NULL: Ergebnis **22**. Mit `COUNT(jahr)` wären es 45 gewesen (jedes Buch mit Jahr)."
+    },
+    {
+      "id": "s-alias-aggr",
+      "typ": "info",
+      "titel": "Der Ergebnisspalte einen Namen geben",
+      "story": "Die Spalte in deinem Ergebnis heisst bisher `COUNT(*)`. Das ist kein schöner Titel.",
+      "text": [
+        "Mit **AS** gibst du einer Ergebnisspalte einen eigenen Namen, einen **Alias** (siehe [Kapitel «Ordnung in der Akte»](#/kapitel/k06/s-alias)):",
+        "```sql",
+        "SELECT COUNT(*) AS anzahl",
+        "FROM buch",
+        "```",
+        "Die Ergebnisspalte heisst jetzt `anzahl` statt `COUNT(*)`. Das ist bei Aggregaten besonders nützlich, weil du mehrere nebeneinander hast:",
+        "```sql",
+        "SELECT MIN(jahr) AS aeltestes, MAX(jahr) AS neuestes",
+        "FROM buch",
+        "```",
+        "- `AS name` kommt **direkt hinter** die Funktion, vor das Komma.",
+        "- Ein Alias besteht aus einem Wort ohne Leerzeichen.",
+        "- Der Alias ändert nichts am Wert, nur an der Spaltenüberschrift.",
+        "> Merke: SELECT funktion AS alias – der Alias benennt die Ergebnisspalte."
+      ]
+    },
+    {
+      "id": "a-alias",
+      "typ": "sql",
+      "titel": "Spalten benennen",
+      "lz": ["L20", "L19"],
+      "thema": "Alias bei Aggregaten",
+      "stufe": 2,
+      "story": [{"sprecher": "ammann", "text": "Für den Bericht an die Leitung brauche ich lesbare Spaltentitel."}],
+      "frage": "Zeige die Anzahl der Bücher unter dem Namen `anzahl` und das neueste Erscheinungsjahr unter dem Namen `neuestes` (in dieser Reihenfolge).",
+      "spaltennamen": true,
+      "loesung": "SELECT COUNT(*) AS anzahl, MAX(jahr) AS neuestes FROM buch",
+      "muss": [{"muster": "\\bAS\\b", "meldung": "Benenne die Spalten mit AS."}],
+      "hinweise": [
+        "Hinter jede Funktion kommt AS und der neue Name.",
+        "SELECT COUNT(*) AS anzahl, MAX(jahr) AS … FROM buch"
+      ],
+      "erklaerung": "Der Alias steht direkt hinter der Funktion: `COUNT(*) AS anzahl, MAX(jahr) AS neuestes`. Ergebnis: eine Zeile mit den Spalten `anzahl` (46) und `neuestes` (2002)."
+    },
+    {
+      "id": "a-zuordnen",
+      "typ": "zuordnen",
+      "titel": "Welche Funktion passt?",
+      "lz": ["L19"],
+      "thema": "Funktion wählen",
+      "stufe": 1,
+      "story": "Bevor du schreibst, musst du entscheiden, welche Funktion die Frage beantwortet.",
+      "frage": "Ordne jede Frage der passenden Aggregatfunktion zu.",
+      "kategorien": ["COUNT", "MIN", "MAX", "SUM", "AVG"],
+      "elemente": [
+        {"text": "Wie viele Bücher gibt es?", "antwort": "COUNT", "warum": "«Wie viele» heisst zählen."},
+        {"text": "Was kostet das billigste Buch?", "antwort": "MIN", "warum": "Das kleinste Preis-Mass ist das Minimum."},
+        {"text": "Was kostet das teuerste Buch?", "antwort": "MAX", "warum": "Der grösste Preis ist das Maximum."},
+        {"text": "Was kosten alle Bücher zusammen?", "antwort": "SUM", "warum": "«Zusammen» heisst addieren."},
+        {"text": "Was kostet ein Buch im Durchschnitt?", "antwort": "AVG", "warum": "Durchschnitt = AVG (average)."}
+      ],
+      "hinweise": [
+        "Stichworte: «wie viele» = zählen, «kleinster/grösster» = MIN/MAX, «zusammen» = Summe, «im Schnitt» = Durchschnitt.",
+        "Es kommt jede Funktion genau einmal vor."
+      ],
+      "erklaerung": "COUNT zählt, MIN/MAX liefern den kleinsten/grössten Wert, SUM addiert, AVG bildet den Durchschnitt. Das richtige Stichwort in der Frage verrät die Funktion."
+    },
+    {
+      "id": "a-insel",
+      "typ": "sql",
+      "db": "insel",
+      "titel": "Gold auf der Insel",
+      "lz": ["L19", "L12"],
+      "thema": "SUM mit WHERE",
+      "stufe": 2,
+      "story": [{"sprecher": "tabea", "text": "Ein kleiner Ausblick: Die Spur führt später auf eine Insel. Dort besitzen die Bewohner Gold. Die Datenbank hat die Tabellen `dorf`, `bewohner` und `gegenstand`. Wie reich ist das Dorf mit der Nummer 2?"}],
+      "frage": "Berechne, wie viel Gold (Spalte `gold` der Tabelle `bewohner`) die Bewohner des Dorfs mit `dorfnr` = 2 **zusammen** besitzen.",
+      "loesung": "SELECT SUM(gold) FROM bewohner WHERE dorfnr = 2",
+      "muss": [{"muster": "\\bSUM\\s*\\(", "meldung": "Verwende SUM."}],
+      "hinweise": [
+        "Erst die Bewohner des Dorfs 2 auswählen (WHERE), dann das Gold addieren.",
+        "SELECT SUM(gold) FROM bewohner WHERE dorfnr = …"
+      ],
+      "erklaerung": "`WHERE dorfnr = 2` lässt die sechs Bewohner dieses Dorfs durch, `SUM(gold)` addiert ihr Gold: **2540**."
+    },
+    {
+      "id": "s-nur-aggregate",
+      "typ": "info",
+      "titel": "Auf einen Blick: Aggregate in der Prüfung",
+      "story": "Zum Schluss ein Überblick, was du für die Prüfung mitnehmen solltest.",
+      "text": [
+        "- **Ergebnis:** Ein Aggregat gibt **eine Zeile** zurück. Zahl der Zeilen im Ergebnis = 1, auch wenn der Wert 0 ist.",
+        "- **Keine Einzelzeilen:** Neben einer Aggregatfunktion stehen keine normalen Spalten wie `titel`. Das Hilfsblatt sagt es so: «Bei Aggregatfunktionen werden keine Einzelzeilen mehr ausgegeben.»",
+        "- **WHERE zuerst, Aggregat danach.**",
+        "- **NULL:** `COUNT(*)` zählt Zeilen, `COUNT(spalte)` zählt Werte. SUM, AVG, MIN und MAX überspringen NULL.",
+        "- **Verschiedene Werte:** `COUNT(DISTINCT spalte)`.",
+        "- **Alias:** `AS name` hinter der Funktion.",
+        "```sql",
+        "SELECT COUNT(*) AS anzahl, AVG(preis) AS schnitt",
+        "FROM buch",
+        "WHERE waehrung = 'DM'",
+        "```",
+        "Mehr brauchst du für Aggregate nicht. Im Training findest du noch viele Aufgaben dazu, auch ohne Computer zum Ausrechnen."
+      ]
+    }
+  ],
+  "pool": [
+    {
+      "id": "p-count-jahr",
+      "typ": "sql",
+      "lz": ["L19", "L12"],
+      "thema": "COUNT mit WHERE",
+      "stufe": 1,
+      "frage": "Wie viele Bücher sind im Jahr **{{j}}** oder später erschienen? (Spalte `jahr`)",
+      "parameter": [
+        {"j": 1990},
+        {"j": 1995},
+        {"j": 1998},
+        {"j": 2000}
+      ],
+      "loesung": "SELECT COUNT(*) FROM buch WHERE jahr >= {{j}}",
+      "muss": [{"muster": "\\bCOUNT\\s*\\(", "meldung": "Verwende COUNT."}],
+      "hinweise": [
+        "Filtere mit WHERE, zähle mit COUNT.",
+        "«oder später» heisst >="
+      ],
+      "erklaerung": "`WHERE jahr >= {{j}}` filtert, `COUNT(*)` zählt die übrig gebliebenen Bücher."
+    },
+    {
+      "id": "p-max-preis",
+      "typ": "sql",
+      "lz": ["L19"],
+      "thema": "MAX",
+      "stufe": 1,
+      "frage": "Wie teuer ist das teuerste Buch mit der Währung **{{w}}**? Zeige nur diese eine Zahl.",
+      "parameter": [
+        {"w": "EUR"},
+        {"w": "CHF"},
+        {"w": "DM"}
+      ],
+      "loesung": "SELECT MAX(preis) FROM buch WHERE waehrung = '{{w}}'",
+      "muss": [{"muster": "\\bMAX\\s*\\(", "meldung": "Verwende MAX."}],
+      "hinweise": [
+        "Zuerst nach Währung filtern, dann den grössten Preis suchen.",
+        "SELECT MAX(preis) FROM buch WHERE waehrung = '{{w}}'"
+      ],
+      "erklaerung": "Preise in verschiedenen Währungen darf man nicht mischen. Darum filtert WHERE zuerst auf die Währung {{w}}, dann findet `MAX(preis)` den höchsten Preis."
+    },
+    {
+      "id": "p-min-max-verlag",
+      "typ": "sql",
+      "lz": ["L19", "L20"],
+      "thema": "MIN und MAX mit Alias",
+      "stufe": 2,
+      "frage": "Zeige für den Verlag mit `verlagsid` = **{{v}}** das früheste und das späteste Erscheinungsjahr seiner Bücher unter den Namen `frueh` und `spaet`.",
+      "spaltennamen": true,
+      "parameter": [
+        {"v": 1},
+        {"v": 3},
+        {"v": 4}
+      ],
+      "loesung": "SELECT MIN(jahr) AS frueh, MAX(jahr) AS spaet FROM buch WHERE verlagsid = {{v}}",
+      "muss": [
+        {"muster": "\\bMIN\\s*\\(", "meldung": "Verwende MIN."},
+        {"muster": "\\bMAX\\s*\\(", "meldung": "Verwende MAX."},
+        {"muster": "\\bAS\\b", "meldung": "Benenne die Spalten mit AS."}
+      ],
+      "hinweise": [
+        "Zwei Aggregate, beide mit Alias, plus eine Bedingung auf die Verlagsnummer.",
+        "SELECT MIN(jahr) AS frueh, MAX(jahr) AS spaet FROM buch WHERE verlagsid = …"
+      ],
+      "erklaerung": "WHERE schränkt auf die Bücher des Verlags {{v}} ein, MIN/MAX liefern dann das älteste und das jüngste Jahr. `AS` benennt die beiden Ergebnisspalten."
+    },
+    {
+      "id": "p-sum-dorf",
+      "typ": "sql",
+      "db": "insel",
+      "lz": ["L19", "L12"],
+      "thema": "SUM",
+      "stufe": 1,
+      "frage": "Wie viel Gold besitzen die Bewohner des Dorfs mit `dorfnr` = **{{d}}** zusammen?",
+      "parameter": [
+        {"d": 1},
+        {"d": 3},
+        {"d": 2}
+      ],
+      "loesung": "SELECT SUM(gold) FROM bewohner WHERE dorfnr = {{d}}",
+      "muss": [{"muster": "\\bSUM\\s*\\(", "meldung": "Verwende SUM."}],
+      "hinweise": [
+        "Filtere auf das Dorf, addiere dann das Gold.",
+        "SELECT SUM(gold) FROM bewohner WHERE dorfnr = {{d}}"
+      ],
+      "erklaerung": "`SUM(gold)` addiert das Gold aller Bewohner, die `WHERE dorfnr = {{d}}` durchlässt."
+    },
+    {
+      "id": "p-wertetabelle",
+      "typ": "tabelle",
+      "lz": ["L19", "L10"],
+      "thema": "NULL in Aggregaten",
+      "stufe": 2,
+      "frage": [
+        "Die Tabelle `t` hat eine Spalte `wert`:",
+        "",
+        "| wert |",
+        "|---|",
+        "| {{w1}} |",
+        "| {{w2}} |",
+        "| {{w3}} |",
+        "| {{w4}} |",
+        "| {{w5}} |",
+        "",
+        "Trage ein, was die Abfrage `SELECT COUNT(*), COUNT(wert), SUM(wert), AVG(wert), MIN(wert), MAX(wert) FROM t` liefert."
+      ],
+      "parameter": [
+        {"w1": "4", "w2": "8", "w3": "NULL", "w4": "6", "w5": "2", "c1": "5", "c2": "4", "s": "20", "a": "5", "mi": "2", "ma": "8"},
+        {"w1": "10", "w2": "NULL", "w3": "20", "w4": "NULL", "w5": "30", "c1": "5", "c2": "3", "s": "60", "a": "20", "mi": "10", "ma": "30"}
+      ],
+      "tabellenname": "Ergebnis",
+      "spalten": ["COUNT(*)", "COUNT(wert)", "SUM(wert)", "AVG(wert)", "MIN(wert)", "MAX(wert)"],
+      "zeilen": [
+        [{"loesung": "{{c1}}"}, {"loesung": "{{c2}}"}, {"loesung": "{{s}}"}, {"loesung": ["{{a}}", "{{a}}.0"]}, {"loesung": "{{mi}}"}, {"loesung": "{{ma}}"}]
+      ],
+      "hinweise": [
+        "COUNT(*) zählt alle 5 Zeilen. COUNT(wert) zählt nur Zeilen ohne NULL.",
+        "SUM, AVG, MIN und MAX lassen NULL weg. AVG = Summe geteilt durch die Anzahl der Werte (ohne NULL)."
+      ],
+      "erklaerung": "Alle fünf Zeilen zählen für COUNT(*) = {{c1}}. Ohne NULL bleiben {{c2}} Werte: Summe {{s}}, Durchschnitt {{a}} (Summe geteilt durch {{c2}}), kleinster Wert {{mi}}, grösster {{ma}}."
+    },
+    {
+      "id": "p-count-ort",
+      "typ": "text",
+      "lz": ["L19", "L18"],
+      "thema": "COUNT(spalte) und NULL",
+      "stufe": 2,
+      "frage": "In der Tabelle `verlag` ist bei einem Verlag kein Ort erfasst (NULL). Welche Zahl liefert `SELECT COUNT(ort) FROM verlag`?",
+      "zeigen": ["verlag"],
+      "antworten": ["19"],
+      "eingabeLabel": "Zahl",
+      "hinweise": [
+        "Zähle zuerst alle Zeilen der Tabelle. COUNT(ort) lässt NULL aus.",
+        "Die Tabelle hat 20 Verlage."
+      ],
+      "erklaerung": "Die Tabelle hat 20 Zeilen, `COUNT(*)` wäre also 20. Bei `Prentice Hall` ist der Ort NULL, darum zählt `COUNT(ort)` nur **19** Werte."
+    },
+    {
+      "id": "p-count-zusatz",
+      "typ": "text",
+      "lz": ["L19", "L18"],
+      "thema": "COUNT(spalte) und NULL",
+      "stufe": 2,
+      "frage": "Die Spalte `zusatz` in `autor` (z. B. «von», «van den») ist fast überall leer. Welche Zahl liefert `SELECT COUNT(zusatz) FROM autor`?",
+      "zeigen": ["autor"],
+      "antworten": ["2"],
+      "eingabeLabel": "Zahl",
+      "hinweise": [
+        "Suche in der Spalte zusatz nur die Zeilen, in denen etwas steht.",
+        "Leere Zellen (NULL) werden nicht gezählt."
+      ],
+      "erklaerung": "Nur zwei Autoren haben einen Zusatz (von Neumann, van den Berg). `COUNT(zusatz)` ignoriert NULL und liefert **2**; `COUNT(*)` wäre 36."
+    },
+    {
+      "id": "p-avg-null",
+      "typ": "choice",
+      "db": "insel",
+      "lz": ["L19", "L18"],
+      "thema": "AVG und NULL",
+      "stufe": 3,
+      "frage": [
+        "In der Tabelle `bewohner` (20 Zeilen) hat «Kater NULL» beim Attribut `gold` den Wert NULL. Alle anderen Bewohner haben eine Zahl.",
+        "Wie rechnet `AVG(gold)`?"
+      ],
+      "zeigen": [{"titel": "Auszug bewohner", "sql": "SELECT bewohnernr, name, gold FROM bewohner WHERE bewohnernr >= 17"}],
+      "optionen": [
+        {"text": "Summe geteilt durch 19: Der Kater wird übersprungen.", "richtig": true, "warum": "NULL wird ignoriert, es zählen nur die 19 vorhandenen Werte."},
+        {"text": "Summe geteilt durch 20: Der Kater zählt als 0.", "warum": "NULL ist nicht 0. Es bedeutet «unbekannt» und wird bei AVG gar nicht mitgezählt."},
+        {"text": "Die Abfrage liefert einen Fehler.", "warum": "Es gibt keinen Fehler; Aggregate kommen mit NULL zurecht."},
+        {"text": "Das Ergebnis ist NULL.", "warum": "Das gäbe es nur, wenn *alle* Werte NULL wären."}
+      ],
+      "hinweise": [
+        "Ist NULL dasselbe wie 0?",
+        "Aggregatfunktionen überspringen NULL."
+      ],
+      "erklaerung": "AVG überspringt NULL: Summe aller vorhandenen Goldwerte (6290) geteilt durch die **19** Werte, nicht durch 20. NULL ist nicht 0."
+    },
+    {
+      "id": "p-avg-beruf",
+      "typ": "text",
+      "db": "insel",
+      "lz": ["L19", "L10"],
+      "thema": "AVG von Hand",
+      "stufe": 2,
+      "frage": "Wie viel Gold besitzen die Bewohner mit dem Beruf **{{beruf}}** im Durchschnitt? (Wert von `AVG(gold)` mit `WHERE beruf = '{{beruf}}'`)",
+      "parameter": [
+        {"beruf": "Kaufmann", "a": "875", "a2": "875.0"},
+        {"beruf": "Pilot", "a": "200", "a2": "200.0"},
+        {"beruf": "Baecker", "a": "287.5", "a2": "287,5"}
+      ],
+      "zeigen": [{"titel": "Bewohner mit Beruf {{beruf}}", "sql": "SELECT name, beruf, gold FROM bewohner WHERE beruf = '{{beruf}}'"}],
+      "antworten": ["{{a}}", "{{a2}}"],
+      "eingabeLabel": "Durchschnitt",
+      "hinweise": [
+        "Addiere das Gold der angezeigten Bewohner.",
+        "Teile die Summe durch die Anzahl der Bewohner."
+      ],
+      "erklaerung": "Summe des Golds der Bewohner mit Beruf {{beruf}}, geteilt durch ihre Anzahl, ergibt **{{a}}**."
+    },
+    {
+      "id": "p-count-besitzer",
+      "typ": "sql",
+      "db": "insel",
+      "lz": ["L19", "L18"],
+      "thema": "COUNT(spalte) und NULL",
+      "stufe": 2,
+      "frage": "In der Tabelle `gegenstand` hat nicht jeder Gegenstand einen Besitzer (Spalte `besitzer` kann NULL sein). Wie viele Gegenstände **haben** einen Besitzer?",
+      "loesung": "SELECT COUNT(besitzer) FROM gegenstand",
+      "muss": [{"muster": "\\bCOUNT\\s*\\(\\s*BESITZER\\s*\\)", "meldung": "Zähle die Spalte: COUNT(besitzer)."}],
+      "hinweise": [
+        "COUNT(*) zählt alle Zeilen, auch die ohne Besitzer.",
+        "COUNT(besitzer) überspringt NULL."
+      ],
+      "erklaerung": "`COUNT(besitzer)` zählt nur Gegenstände, bei denen ein Besitzer eingetragen ist: **9**. `COUNT(*)` hätte alle 12 gezählt."
+    },
+    {
+      "id": "p-count-null-warum",
+      "typ": "choice",
+      "lz": ["L19", "L18"],
+      "thema": "COUNT(*) vs COUNT(spalte)",
+      "stufe": 2,
+      "frage": [
+        "In der Tabelle `buch` liefert `SELECT COUNT(*) FROM buch` die Zahl **46**, aber `SELECT COUNT(preis) FROM buch` nur **40**.",
+        "Was erklärt den Unterschied?"
+      ],
+      "optionen": [
+        {"text": "Bei 6 Büchern ist der Preis NULL; COUNT(preis) zählt diese nicht.", "richtig": true, "warum": "COUNT(spalte) zählt nur Zeilen mit einem Wert."},
+        {"text": "COUNT(preis) zählt nur Bücher, die mehr als 0 kosten.", "warum": "Die Höhe des Preises spielt keine Rolle, nur ob ein Wert da ist."},
+        {"text": "Sechs Bücher kommen doppelt vor.", "warum": "Doppelte Zeilen würde nur DISTINCT entfernen; COUNT(preis) ohne DISTINCT zählt auch doppelte Werte."},
+        {"text": "Eine der beiden Abfragen ist fehlerhaft.", "warum": "Beide sind korrekt, sie zählen nur Verschiedenes."}
+      ],
+      "hinweise": [
+        "Was unterscheidet COUNT(*) von COUNT(spalte)?",
+        "Denk an leere Zellen."
+      ],
+      "erklaerung": "`COUNT(*)` zählt Zeilen (46), `COUNT(preis)` nur Zeilen mit einem Preis (40). Bei **6 Büchern** ist der Preis NULL."
+    },
+    {
+      "id": "p-zuordnen-funktion",
+      "typ": "zuordnen",
+      "lz": ["L19", "L9"],
+      "thema": "Funktion wählen",
+      "stufe": 1,
+      "frage": "Welche Aggregatfunktion beantwortet die Frage zur Tabelle `bewohner`?",
+      "kategorien": ["COUNT", "MIN", "MAX", "SUM", "AVG"],
+      "elemente": [
+        {"text": "Wie viele Bewohner gibt es?", "antwort": "COUNT", "warum": "Anzahl = COUNT."},
+        {"text": "Wie viel Gold besitzen alle Bewohner zusammen?", "antwort": "SUM", "warum": "Zusammen = Summe."},
+        {"text": "Wie viel Gold hat der Ärmste?", "antwort": "MIN", "warum": "Der kleinste Wert."},
+        {"text": "Wie viel Gold hat der Reichste?", "antwort": "MAX", "warum": "Der grösste Wert."},
+        {"text": "Wie viel Gold besitzt ein Bewohner im Mittel?", "antwort": "AVG", "warum": "Mittelwert = AVG."}
+      ],
+      "hinweise": [
+        "Achte auf Stichworte wie «wie viele», «zusammen», «im Mittel».",
+        "Ärmster = kleinster Wert, Reichster = grösster Wert."
+      ],
+      "erklaerung": "COUNT zählt, SUM addiert, MIN/MAX nehmen den kleinsten/grössten Wert, AVG ist der Mittelwert."
+    },
+    {
+      "id": "p-distinct-verlag",
+      "typ": "sql",
+      "lz": ["L14", "L19", "L9"],
+      "thema": "COUNT(DISTINCT)",
+      "stufe": 2,
+      "frage": "Wie viele **verschiedene** Verlage (Spalte `verlagsid` in `buch`) haben Bücher veröffentlicht, die im Jahr **{{j}}** oder später erschienen sind?",
+      "parameter": [
+        {"j": 1998},
+        {"j": 1990},
+        {"j": 2000}
+      ],
+      "loesung": "SELECT COUNT(DISTINCT verlagsid) FROM buch WHERE jahr >= {{j}}",
+      "muss": [{"muster": "\\bCOUNT\\s*\\(\\s*DISTINCT\\b", "meldung": "Verwende COUNT(DISTINCT …)."}],
+      "hinweise": [
+        "Mehrere Bücher können vom gleichen Verlag sein. Du willst jeden Verlag nur einmal zählen.",
+        "SELECT COUNT(DISTINCT verlagsid) FROM buch WHERE jahr >= {{j}}"
+      ],
+      "erklaerung": "WHERE filtert die Bücher ab {{j}}, `COUNT(DISTINCT verlagsid)` zählt, wie viele verschiedene Verlage darunter vorkommen. Ohne DISTINCT würdest du Bücher zählen."
+    },
+    {
+      "id": "p-distinct-nachname",
+      "typ": "text",
+      "lz": ["L14", "L19"],
+      "thema": "COUNT(DISTINCT) von Hand",
+      "stufe": 2,
+      "frage": "Die Tabelle `autor` hat 36 Zeilen. Welche Zahl liefert `SELECT COUNT(DISTINCT nachname) FROM autor`? Achtung: Gross-/Kleinschreibung und Schreibweise zählen, «Müller» und «Mueller» sind verschiedene Werte.",
+      "zeigen": [{"titel": "Nachnamen der Autoren", "sql": "SELECT nachname FROM autor ORDER BY nachname"}],
+      "antworten": ["34"],
+      "eingabeLabel": "Zahl",
+      "hinweise": [
+        "Suche Nachnamen, die mehrmals vorkommen.",
+        "«Meier» und «Müller» kommen je zweimal vor. Jeder doppelte Name verringert die Zahl um 1."
+      ],
+      "erklaerung": "36 Autoren, aber «Meier» und «Müller» je zweimal: 36 − 2 = **34** verschiedene Nachnamen. «Maier», «Mueller» und «Meyer» sind eigene Werte."
+    },
+    {
+      "id": "p-distinct-beruf",
+      "typ": "sql",
+      "db": "insel",
+      "lz": ["L14", "L19"],
+      "thema": "COUNT(DISTINCT)",
+      "stufe": 2,
+      "frage": "Wie viele **verschiedene** Berufe (Spalte `beruf`) kommen in der Tabelle `bewohner` vor?",
+      "loesung": "SELECT COUNT(DISTINCT beruf) FROM bewohner",
+      "muss": [{"muster": "\\bCOUNT\\s*\\(\\s*DISTINCT\\b", "meldung": "Verwende COUNT(DISTINCT …)."}],
+      "hinweise": [
+        "Mehrere Bewohner haben den gleichen Beruf. Du zählst die Berufe, nicht die Bewohner.",
+        "SELECT COUNT(DISTINCT beruf) FROM bewohner"
+      ],
+      "erklaerung": "`COUNT(DISTINCT beruf)` zählt jeden Beruf einmal und überspringt NULL (beim Kater und beim Gast ist kein Beruf erfasst): **13**."
+    },
+    {
+      "id": "p-distinct-zeilen",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "lz": ["L14", "L10", "L18"],
+      "thema": "DISTINCT und NULL",
+      "stufe": 3,
+      "frage": "Wie viele **Zeilen** liefert diese Abfrage? Die Spalte `waehrung` enthält die Werte EUR, CHF, DM und bei einigen Büchern NULL.",
+      "abfrage": "SELECT DISTINCT waehrung\nFROM buch",
+      "zeigen": [{"titel": "Währungen aller Bücher", "sql": "SELECT buchid, waehrung FROM buch"}],
+      "hinweise": [
+        "DISTINCT entfernt doppelte Zeilen. Wie viele verschiedene Werte gibt es?",
+        "Auch NULL ist als Zeile im Ergebnis möglich."
+      ],
+      "erklaerung": "`SELECT DISTINCT waehrung` gibt jeden vorkommenden Wert **einmal als Zeile** aus: EUR, CHF, DM und NULL, also **4 Zeilen**. Zum Vergleich: `COUNT(DISTINCT waehrung)` zählt NULL nicht mit und ergibt eine Zeile mit der Zahl 3."
+    },
+    {
+      "id": "p-distinct-vergleich",
+      "typ": "choice",
+      "lz": ["L14", "L19"],
+      "thema": "DISTINCT vs COUNT(DISTINCT)",
+      "stufe": 2,
+      "frage": [
+        "Was ist der Unterschied zwischen diesen beiden Abfragen?",
+        "```sql",
+        "SELECT DISTINCT jahr FROM buch",
+        "SELECT COUNT(DISTINCT jahr) FROM buch",
+        "```"
+      ],
+      "optionen": [
+        {"text": "Die erste liefert jedes vorkommende Jahr als eigene Zeile, die zweite eine einzige Zeile mit der Anzahl der Jahre.", "richtig": true, "warum": "DISTINCT entfernt Duplikate, COUNT(DISTINCT …) zählt die verschiedenen Werte."},
+        {"text": "Beide liefern dasselbe, nur die Schreibweise ist anders.", "warum": "Die erste liefert viele Zeilen, die zweite genau eine."},
+        {"text": "Die erste zählt die Jahre, die zweite listet sie auf.", "warum": "Es ist umgekehrt: die erste listet auf, die zweite zählt."},
+        {"text": "Die zweite ist ein Fehler, weil DISTINCT nicht in COUNT stehen darf.", "warum": "COUNT(DISTINCT …) ist erlaubt und steht sogar auf dem Hilfsblatt."}
+      ],
+      "hinweise": [
+        "Eine Abfrage liefert viele Zeilen, die andere eine.",
+        "COUNT(…) heisst zählen."
+      ],
+      "erklaerung": "`SELECT DISTINCT jahr` listet die verschiedenen Jahre auf (22 Zeilen plus eine für NULL). `SELECT COUNT(DISTINCT jahr)` gibt nur die **Zahl** 22 in einer Zeile aus."
+    },
+    {
+      "id": "p-alias-sql",
+      "typ": "sql",
+      "lz": ["L20", "L19"],
+      "thema": "Alias bei Aggregaten",
+      "stufe": 2,
+      "frage": "Zeige den kleinsten und den grössten Preis der Bücher mit Währung `EUR` unter den Namen `guenstigstes` und `teuerstes` (in dieser Reihenfolge).",
+      "spaltennamen": true,
+      "loesung": "SELECT MIN(preis) AS guenstigstes, MAX(preis) AS teuerstes FROM buch WHERE waehrung = 'EUR'",
+      "muss": [{"muster": "\\bAS\\b", "meldung": "Benenne die Spalten mit AS."}],
+      "hinweise": [
+        "MIN und MAX, jeweils mit AS und neuem Namen.",
+        "SELECT MIN(preis) AS guenstigstes, MAX(preis) AS … FROM buch WHERE …"
+      ],
+      "erklaerung": "Der Alias steht direkt hinter dem Aggregat. Das Ergebnis ist eine Zeile mit zwei Spalten `guenstigstes` und `teuerstes`."
+    },
+    {
+      "id": "p-alias-param",
+      "typ": "sql",
+      "lz": ["L20", "L19"],
+      "thema": "Alias bei Aggregaten",
+      "stufe": 1,
+      "frage": "Zähle die Bücher mit Währung `{{w}}` und nenne die Ergebnisspalte `{{n}}`.",
+      "spaltennamen": true,
+      "parameter": [
+        {"w": "DM", "n": "anzahl_dm"},
+        {"w": "EUR", "n": "anzahl_eur"},
+        {"w": "CHF", "n": "anzahl_chf"}
+      ],
+      "loesung": "SELECT COUNT(*) AS {{n}} FROM buch WHERE waehrung = '{{w}}'",
+      "muss": [{"muster": "\\bAS\\b", "meldung": "Benenne die Spalte mit AS."}],
+      "hinweise": [
+        "COUNT(*) AS name",
+        "SELECT COUNT(*) AS {{n}} FROM buch WHERE …"
+      ],
+      "erklaerung": "`COUNT(*) AS {{n}}` zählt die Bücher und gibt der Ergebnisspalte den Namen `{{n}}`."
+    },
+    {
+      "id": "p-alias-choice",
+      "typ": "choice",
+      "lz": ["L20"],
+      "thema": "Alias-Syntax",
+      "stufe": 1,
+      "frage": "Welche Abfrage liefert eine Ergebnisspalte mit dem Namen `gesamt`?",
+      "optionen": [
+        {"text": "SELECT SUM(preis) AS gesamt FROM buch", "richtig": true, "warum": "Der Alias folgt mit AS direkt hinter der Funktion."},
+        {"text": "SELECT AS gesamt SUM(preis) FROM buch", "warum": "AS steht nach dem Ausdruck, nicht davor."},
+        {"text": "SELECT SUM(preis) FROM buch AS gesamt", "warum": "Hinter FROM benennt AS die Tabelle, nicht die Ergebnisspalte."},
+        {"text": "SELECT gesamt = SUM(preis) FROM buch", "warum": "Mit = vergleicht man in SQL, einen Namen vergibt man mit AS."}
+      ],
+      "hinweise": [
+        "Wo steht AS: vor oder nach der Spalte bzw. Funktion?",
+        "AS direkt hinter dem Ausdruck im SELECT."
+      ],
+      "erklaerung": "`SELECT SUM(preis) AS gesamt FROM buch`: AS kommt direkt hinter die Funktion und vergibt der Ergebnisspalte den Namen."
+    },
+    {
+      "id": "p-eine-zeile-param",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "lz": ["L10", "L19"],
+      "thema": "Aggregat = eine Zeile",
+      "stufe": 1,
+      "frage": "Wie viele **Zeilen** hat das Ergebnis dieser Abfrage?",
+      "abfrage": "SELECT MIN(preis), MAX(preis)\nFROM buch\nWHERE waehrung = '{{w}}'",
+      "parameter": [
+        {"w": "EUR"},
+        {"w": "DM"},
+        {"w": "CHF"}
+      ],
+      "hinweise": [
+        "Aggregatfunktionen fassen alles zu einer Zeile zusammen.",
+        "Zwei Spalten, aber nur eine Zeile."
+      ],
+      "erklaerung": "Auch zwei Aggregate nebeneinander ergeben **eine Zeile** (mit zwei Spalten)."
+    },
+    {
+      "id": "p-eine-zeile-null",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "lz": ["L10", "L19"],
+      "thema": "Aggregat über keine Zeile",
+      "stufe": 3,
+      "frage": "In der Tabelle `buch` gibt es kein Buch mit Erscheinungsjahr nach 2100. Wie viele **Zeilen** hat das Ergebnis dieser Abfrage?",
+      "abfrage": "SELECT COUNT(*)\nFROM buch\nWHERE jahr > 2100",
+      "hinweise": [
+        "Wie viele Bücher werden gezählt? Und wie viele Ergebniszeilen gibt COUNT aus?",
+        "COUNT liefert immer eine Zeile, notfalls mit der Zahl 0."
+      ],
+      "erklaerung": "WHERE lässt keine Zeile durch, aber `COUNT(*)` gibt trotzdem **eine** Ergebniszeile aus, mit dem Wert **0**. Die Ergebnistabelle ist nicht leer."
+    },
+    {
+      "id": "p-sql-dm-preis",
+      "typ": "sql",
+      "lz": ["L19", "L15", "L9"],
+      "thema": "COUNT mit Bedingungen",
+      "stufe": 3,
+      "frage": "Wie viele Bücher mit Währung `DM` kosten **weniger als 30**? Gib die Zahl in einer Abfrage aus.",
+      "loesung": "SELECT COUNT(*) FROM buch WHERE waehrung = 'DM' AND preis < 30",
+      "muss": [
+        {"muster": "\\bCOUNT\\s*\\(", "meldung": "Verwende COUNT."},
+        {"muster": "\\bAND\\b", "meldung": "Zwei Bedingungen brauchen AND."}
+      ],
+      "hinweise": [
+        "Zwei Bedingungen, mit AND verknüpft: Währung und Preis.",
+        "SELECT COUNT(*) FROM buch WHERE waehrung = 'DM' AND preis < 30"
+      ],
+      "erklaerung": "WHERE kombiniert beide Bedingungen mit AND. Das Aggregat zählt nur die Bücher, die beide erfüllen: **9**. Ein Preis NULL erfüllt `preis < 30` nie."
+    },
+    {
+      "id": "p-sql-summe-alt",
+      "typ": "sql",
+      "lz": ["L19", "L20", "L9"],
+      "thema": "SUM mit Bedingungen und Alias",
+      "stufe": 3,
+      "frage": "Berechne die Summe der Preise aller Bücher mit Währung `DM`, die **vor 1990** erschienen sind. Nenne die Ergebnisspalte `summe`.",
+      "spaltennamen": true,
+      "loesung": "SELECT SUM(preis) AS summe FROM buch WHERE waehrung = 'DM' AND jahr < 1990",
+      "muss": [
+        {"muster": "\\bSUM\\s*\\(", "meldung": "Verwende SUM."},
+        {"muster": "\\bAS\\b", "meldung": "Benenne die Spalte mit AS."}
+      ],
+      "hinweise": [
+        "Filtere mit AND auf Währung und Jahr, addiere dann die Preise.",
+        "SELECT SUM(preis) AS summe FROM buch WHERE waehrung = 'DM' AND jahr < 1990"
+      ],
+      "erklaerung": "Zuerst filtert WHERE die DM-Bücher vor 1990, dann addiert `SUM(preis)` deren Preise (240.6). `AS summe` benennt die Spalte."
+    },
+    {
+      "id": "p-keine-einzelzeilen",
+      "typ": "choice",
+      "lz": ["L19"],
+      "thema": "Keine Einzelzeilen",
+      "stufe": 2,
+      "frage": "Was gibt `SELECT MAX(preis) FROM buch` aus?",
+      "optionen": [
+        {"text": "Eine Zeile mit einer Zahl: dem höchsten Preis.", "richtig": true, "warum": "Aggregate liefern eine Zeile mit dem berechneten Wert."},
+        {"text": "Alle Bücher, sortiert nach Preis.", "warum": "Dafür bräuchtest du ORDER BY. MAX liefert keine Einzelzeilen."},
+        {"text": "Den Titel des teuersten Buchs.", "warum": "MAX(preis) gibt nur die Zahl zurück, nicht den Titel dazu."},
+        {"text": "Eine Spalte mit dem Preis jedes Buchs.", "warum": "Aggregate fassen zusammen und geben nicht mehr jede Zeile aus."}
+      ],
+      "hinweise": [
+        "Hilfsblatt: «Bei Aggregatfunktionen werden keine Einzelzeilen mehr ausgegeben.»",
+        "MAX liefert nur einen Wert."
+      ],
+      "erklaerung": "`MAX(preis)` fasst alle Preise zu einem Wert zusammen (120.0). Du siehst weder die Titel noch die anderen Bücher."
+    },
+    {
+      "id": "p-count-ohne-where",
+      "typ": "text",
+      "lz": ["L19", "L10"],
+      "thema": "COUNT von Hand",
+      "stufe": 1,
+      "frage": "Welche Zahl liefert `SELECT COUNT(*) FROM {{t}}`?",
+      "parameter": [
+        {"t": "verlag", "z": "20"},
+        {"t": "autor", "z": "36"},
+        {"t": "schlagwort", "z": "20"}
+      ],
+      "zeigen": ["{{t}}"],
+      "antworten": ["{{z}}"],
+      "eingabeLabel": "Zahl",
+      "hinweise": [
+        "COUNT(*) zählt alle Zeilen der Tabelle.",
+        "Zähle die Datenzeilen, die Kopfzeile nicht."
+      ],
+      "erklaerung": "`COUNT(*)` zählt alle Datensätze der Tabelle `{{t}}`: **{{z}}**."
+    }
+  ]
+}

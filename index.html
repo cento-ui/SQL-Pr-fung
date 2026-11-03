@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SQL-Detektei</title>
+  <meta name="description" content="Lernumgebung zur Prüfung Relationale Datenbanken und SQL: Schritt für Schritt, mit Aufgaben direkt im Browser.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23c2410c'/%3E%3Ctext x='16' y='22' font-size='15' font-family='sans-serif' font-weight='700' text-anchor='middle' fill='white'%3ESQL%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- sql.js (SQLite als WebAssembly), exakt gepinnte Version von cdnjs. Fallback: vendor/ (siehe README). -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"
+          integrity="sha384-8D3Rsfo535FqoC1pHCCQMrNf75UgzyoG/HQm9zOzITRrz3QKzecc2E7JXKGCXoWu"
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#app">Zum Inhalt springen</a>
+  <header class="topbar">
+    <div class="topbar-row">
+      <a class="brand" href="#/">SQL-Detektei</a>
+      <nav class="mainnav" aria-label="Hauptnavigation">
+        <a href="#/">Lernpfad</a>
+        <a href="#/training/faellig">Wiederholen <span id="due-badge" class="badge-count" hidden></span></a>
+        <a href="#/fortschritt">Fortschritt</a>
+        <a href="#/pruefung">Probeprüfung</a>
+        <a href="#/spielwiese">Spielwiese</a>
+      </nav>
+      <div class="tools">
+        <button type="button" class="btn btn-small" data-drawer-tab="hilfsblatt" aria-pressed="false" title="Hilfsblatt (Taste H)">Hilfsblatt</button>
+        <button type="button" class="btn btn-small hide-exam" data-drawer-tab="schema" aria-pressed="false">Schema</button>
+        <label class="switch" title="Prüfungsmodus: keine Hinweise, keine Lösungen, kein freies Ausführen – nur das Hilfsblatt">
+          <input type="checkbox" id="exam-toggle"> <span>Prüfungsmodus</span>
+        </label>
+      </div>
+    </div>
+    <div id="top-progress" class="top-progress"></div>
+  </header>
+  <p id="sql-status" class="error banner" hidden></p>
+  <div class="layout">
+    <main id="app" tabindex="-1">
+      <p class="muted">Lade Inhalte …</p>
+      <noscript><p class="error">Diese Lernumgebung braucht JavaScript.</p></noscript>
+    </main>
+    <aside id="drawer" class="drawer" hidden aria-label="Hilfsblatt und Schema">
+      <div class="drawer-head">
+        <div class="drawer-tabs" role="tablist" aria-label="Panel">
+          <button type="button" role="tab" data-tab="hilfsblatt" id="tab-hilfsblatt">Hilfsblatt</button>
+          <button type="button" role="tab" data-tab="schema" id="tab-schema">Schema</button>
+        </div>
+        <button type="button" class="btn btn-small" id="drawer-close" aria-label="Panel schliessen">Schliessen</button>
+      </div>
+      <div id="drawer-body" class="drawer-body" tabindex="-1"></div>
+    </aside>
+  </div>
+  <footer class="footer small muted">
+    Lernumgebung zur Prüfung «Relationale Datenbanken» (5.11.2026). SQL läuft lokal im Browser (sql.js 1.10.3). Fortschritt wird nur in diesem Browser gespeichert.
+  </footer>
+</body>
+</html>

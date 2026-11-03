@@ -1,0 +1,1356 @@
+{
+  "id": "k02",
+  "titel": "Das Chaos in der Bibliothek",
+  "untertitel": "Warum eine einzige grosse Tabelle Ärger macht: Redundanz, ihre Probleme und die Lösung durch Aufteilen.",
+  "db": "bibliothek",
+  "lernziele": [
+    "L1",
+    "L2",
+    "L3"
+  ],
+  "dauer": 35,
+  "schritte": [
+    {
+      "id": "s-start",
+      "typ": "info",
+      "titel": "Das Chaos in der Bibliothek",
+      "story": [
+        {
+          "sprecher": "tabea",
+          "text": "Mein Kater NULL hat sich auf Büchern in der Stadtbibliothek ausgeruht. Herr Ammann führt dort die Bücherliste, und die ist ein Durcheinander."
+        },
+        {
+          "sprecher": "ammann",
+          "text": "Ich pflege alles in einer einzigen Liste. Aber irgendwie wird sie immer unübersichtlicher. Schauen Sie selbst."
+        }
+      ],
+      "text": [
+        "## Eine einzige grosse Liste",
+        "Stell dir vor, die Stadtbibliothek führt ihre Bücher in **einer einzigen Tabelle**, wie in Excel. Pro Zeile steht ein Buch mit Titel, Autor, ISBN, Jahr und Verlag. Das sieht praktisch aus. Hier ein Ausschnitt (die sieben ersten Zeilen):",
+        "",
+        "| titel | autor nachname | autor vornamen | isbn | jahr | verlag name |",
+        "|---|---|---|---|---|---|",
+        "| 3-D computer animation | Vince | John | 0-201-62756-6 | 1993 | Addison Wesley |",
+        "| 3D computer graphics | Watt | Alan | 0-201-63186-5 | 1996 | Addison Wesley |",
+        "| 3D Grafik: Grundlagen und Konzepte | Beier | Ekkehard | 3-929821-61-3 | 1988 | Thomson |",
+        "| 3D-Computergrafik und -animation | Brugger | Ralf N. | 3-89319-522-X | 1993 | Addison Wesley |",
+        "| 3D-Computergrafik und -animation : mit Autodesk 3D Studio | Brugger | Ralf | 3-89319-782-6 | 1994 | Addison-Wesley |",
+        "| 3D-computergrafische Darstellungen | Tönnies | Klaus D. | 3-486-20790-3 | 1994 | Oldenbourg |",
+        "| 3D-computergrafische Darstellungen | Lemke | Heinz U. | 3-486-20790-3 | 1994 | Oldenbourg |",
+        "",
+        "Schau genau hin. Es gibt zwei Zeilen für *«3D-computergrafische Darstellungen»*, weil das Buch zwei Autoren hat. Der Autor *Brugger* steht zweimal, aber einmal mit «Ralf N.» und einmal nur mit «Ralf». Und der Verlag heisst einmal «Addison Wesley» und einmal «Addison-Wesley».",
+        "Etwas stimmt hier nicht. In diesem Kapitel findest du heraus, **was** und **warum**, und wie man es besser macht.",
+        "Die Datenbank *bibliothek* kennst du später genauer. Jetzt reicht dir diese Liste."
+      ]
+    },
+    {
+      "id": "s-redundanz",
+      "typ": "info",
+      "titel": "Redundanz: Dasselbe mehrfach gespeichert",
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Ich tippe die Verlage jedes Mal neu ein, bei jedem Buch. Ist das schlimm?"
+        },
+        {
+          "sprecher": "tabea",
+          "text": "Das hat einen Namen: Redundanz. Schauen wir, warum das Ärger macht."
+        }
+      ],
+      "text": [
+        "## Was ist Redundanz?",
+        "Ein Alltagsbeispiel: Eine Klassenliste hat in jeder Zeile den Namen des Schulhauses und die Adresse der Schule. 25 Schülerinnen und Schüler, 25-mal dieselbe Adresse. Die Adresse wird **mehrfach gespeichert**, obwohl einmal genügen würde.",
+        "Das nennt man **Redundanz** (von lateinisch *redundare*, überfliessen).",
+        "> **Redundanz** heisst: Dieselbe Information ist mehr als einmal gespeichert.",
+        "## Wo steckt Redundanz in der Bibliotheksliste?",
+        "- Der Verlag «Addison Wesley» steht in drei Zeilen. Der Verlagsname wird dreimal gespeichert.",
+        "- Das Buch «3D-computergrafische Darstellungen» hat zwei Autoren, darum stehen Titel, ISBN, Jahr und Verlag **zweimal** in der Liste.",
+        "- Der Autor «Brugger» steht in zwei Zeilen.",
+        "Nicht jeder Wert, der zweimal vorkommt, ist Redundanz. Zwei Bücher können zufällig 1994 erschienen sein. Redundant ist es, wenn **dieselbe Tatsache** mehrfach festgehalten wird, etwa «Das Buch mit der ISBN 3-486-20790-3 erschien bei Oldenbourg».",
+        "Ohne Redundanz würde der Verlagsname **einmal** irgendwo stehen, und die Bücher würden nur darauf verweisen. Wie das geht, siehst du am Ende des Kapitels."
+      ]
+    },
+    {
+      "id": "a-redundanz-begriff",
+      "typ": "choice",
+      "titel": "Der Begriff Redundanz",
+      "lz": [
+        "L1"
+      ],
+      "thema": "Begriff Redundanz",
+      "stufe": 1,
+      "story": "Zuerst die Definition.",
+      "frage": "Was bedeutet **Redundanz** in einer Datenbank?",
+      "optionen": [
+        {
+          "text": "Dieselbe Information ist mehrfach gespeichert.",
+          "richtig": true,
+          "warum": "Genau, das ist die Definition."
+        },
+        {
+          "text": "Eine Information fehlt in der Datenbank.",
+          "warum": "Fehlende Werte sind etwas anderes (sie heissen später NULL)."
+        },
+        {
+          "text": "Die Datenbank ist zu langsam.",
+          "warum": "Redundanz ist keine Geschwindigkeitsangabe, sondern bezieht sich auf doppelt gespeicherte Daten."
+        },
+        {
+          "text": "Eine Tabelle hat zu viele Spalten.",
+          "warum": "Viele Spalten sind nicht automatisch Redundanz. Entscheidend ist, ob dieselbe Information wiederholt wird."
+        }
+      ],
+      "hinweise": [
+        "Denk an die Klassenliste mit der Schuladresse in jeder Zeile.",
+        "Es geht darum, wie oft eine Information gespeichert ist."
+      ],
+      "erklaerung": "**Redundanz** heisst, dass dieselbe Information mehrfach gespeichert ist. Die Daten sind dadurch nicht falsch, aber sie nehmen Platz weg und machen Probleme (das siehst du gleich)."
+    },
+    {
+      "id": "a-wie-oft",
+      "typ": "text",
+      "titel": "Wie oft steht das da?",
+      "lz": [
+        "L1"
+      ],
+      "thema": "Redundanz erkennen",
+      "stufe": 1,
+      "story": "Zähl mit, damit du die Wiederholungen siehst.",
+      "frage": [
+        "Hier ist die Liste noch einmal:",
+        "",
+        "| titel | autor nachname | autor vornamen | isbn | jahr | verlag name |",
+        "|---|---|---|---|---|---|",
+        "| 3-D computer animation | Vince | John | 0-201-62756-6 | 1993 | Addison Wesley |",
+        "| 3D computer graphics | Watt | Alan | 0-201-63186-5 | 1996 | Addison Wesley |",
+        "| 3D Grafik: Grundlagen und Konzepte | Beier | Ekkehard | 3-929821-61-3 | 1988 | Thomson |",
+        "| 3D-Computergrafik und -animation | Brugger | Ralf N. | 3-89319-522-X | 1993 | Addison Wesley |",
+        "| 3D-Computergrafik und -animation : mit Autodesk 3D Studio | Brugger | Ralf | 3-89319-782-6 | 1994 | Addison-Wesley |",
+        "| 3D-computergrafische Darstellungen | Tönnies | Klaus D. | 3-486-20790-3 | 1994 | Oldenbourg |",
+        "| 3D-computergrafische Darstellungen | Lemke | Heinz U. | 3-486-20790-3 | 1994 | Oldenbourg |",
+        "",
+        "Wie oft steht der Wert **«{{wert}}»** in der Liste? (Zähle die Zeilen, in denen er genau so vorkommt.)"
+      ],
+      "antworten": [
+        "{{n}}"
+      ],
+      "eingabeLabel": "Anzahl",
+      "parameter": [
+        {
+          "wert": "Addison Wesley",
+          "n": 3
+        },
+        {
+          "wert": "Oldenbourg",
+          "n": 2
+        },
+        {
+          "wert": "3-486-20790-3",
+          "n": 2
+        },
+        {
+          "wert": "1994",
+          "n": 3
+        }
+      ],
+      "hinweise": [
+        "Gehe die Spalte von oben nach unten durch und mache einen Strich pro Treffer.",
+        "Achte auf die genaue Schreibweise. «Addison-Wesley» mit Bindestrich ist ein anderer Wert als «Addison Wesley»."
+      ],
+      "erklaerung": "Der Wert «{{wert}}» steht genau {{n}}-mal in der Liste. Jedes zusätzliche Vorkommen ist eine Wiederholung. Bei Namen und ISBN zeigt das Redundanz, bei einer Jahreszahl ist es nicht unbedingt Redundanz (mehrere Bücher können im selben Jahr erscheinen)."
+    },
+    {
+      "id": "a-redundanz-finden",
+      "typ": "choice",
+      "titel": "Wo steckt Redundanz?",
+      "lz": [
+        "L1"
+      ],
+      "thema": "Redundanz erkennen",
+      "stufe": 2,
+      "story": "Finde die Wiederholungen.",
+      "frage": [
+        "Hier ist die Liste noch einmal:",
+        "",
+        "| titel | autor nachname | autor vornamen | isbn | jahr | verlag name |",
+        "|---|---|---|---|---|---|",
+        "| 3-D computer animation | Vince | John | 0-201-62756-6 | 1993 | Addison Wesley |",
+        "| 3D computer graphics | Watt | Alan | 0-201-63186-5 | 1996 | Addison Wesley |",
+        "| 3D Grafik: Grundlagen und Konzepte | Beier | Ekkehard | 3-929821-61-3 | 1988 | Thomson |",
+        "| 3D-Computergrafik und -animation | Brugger | Ralf N. | 3-89319-522-X | 1993 | Addison Wesley |",
+        "| 3D-Computergrafik und -animation : mit Autodesk 3D Studio | Brugger | Ralf | 3-89319-782-6 | 1994 | Addison-Wesley |",
+        "| 3D-computergrafische Darstellungen | Tönnies | Klaus D. | 3-486-20790-3 | 1994 | Oldenbourg |",
+        "| 3D-computergrafische Darstellungen | Lemke | Heinz U. | 3-486-20790-3 | 1994 | Oldenbourg |",
+        "",
+        "Welche Aussagen beschreiben **Redundanz** in dieser Liste? (Mehrere sind richtig.)"
+      ],
+      "mehrfach": true,
+      "optionen": [
+        {
+          "text": "Der Verlagsname «Addison Wesley» steht in mehreren Zeilen.",
+          "richtig": true,
+          "warum": "Ja, dreimal derselbe Name."
+        },
+        {
+          "text": "Titel, ISBN, Jahr und Verlag von «3D-computergrafische Darstellungen» stehen zweimal.",
+          "richtig": true,
+          "warum": "Ja, nur wegen der zwei Autoren wird das ganze Buch doppelt eingetragen."
+        },
+        {
+          "text": "Der Verlag «Thomson» ist redundant.",
+          "warum": "Thomson steht nur einmal, also wird nichts doppelt gespeichert."
+        },
+        {
+          "text": "Der Titel «3-D computer animation» ist redundant.",
+          "warum": "Er steht nur in einer Zeile."
+        }
+      ],
+      "hinweise": [
+        "Redundant ist, was mehrfach gespeichert wird, obwohl einmal genügen würde.",
+        "Thomson steht nur in einer Zeile."
+      ],
+      "erklaerung": "Redundant sind der Verlagsname «Addison Wesley» (dreimal) und die Angaben zum Buch mit zwei Autoren (Titel, ISBN, Jahr, Verlag stehen zweimal). Der Verlag «Thomson» steht nur einmal und der Titel «3-D computer animation» ebenso."
+    },
+    {
+      "id": "s-probleme",
+      "typ": "info",
+      "titel": "Welche Probleme macht Redundanz?",
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Dass «Addison Wesley» und «Addison-Wesley» nicht dasselbe sind, hätte ich nie bemerkt."
+        }
+      ],
+      "text": [
+        "## Problem 1: Verschwendeter Speicherplatz",
+        "Jede Wiederholung braucht Platz. Bei 5000 Büchern steht der Verlagsname 5000-mal, auch wenn es nur 20 Verlage gibt. Bei kleinen Listen merkt man es nicht, bei sehr grossen Datenmengen schon.",
+        "## Problem 2: Tippfehler und Inkonsistenz",
+        "Wer denselben Verlagsnamen immer wieder von Hand eintippt, macht irgendwann einen Fehler. In unserer Liste steht einmal «Addison Wesley» und einmal «Addison-Wesley». Und Brugger heisst einmal «Ralf N.» und einmal «Ralf».",
+        "Für uns Menschen ist klar, dass das dasselbe ist. Ein Computer vergleicht aber Zeichen für Zeichen. Er hält «Addison Wesley» und «Addison-Wesley» für zwei verschiedene Verlage. Wenn die Daten sich so widersprechen, nennt man das **Inkonsistenz** (die Daten passen nicht mehr zusammen).",
+        "> Wer etwas mehrfach speichert, kann es auch **verschieden** speichern. Das ist die Gefahr der Redundanz."
+      ]
+    },
+    {
+      "id": "a-tippfehler",
+      "typ": "choice",
+      "titel": "Eine Suche geht schief",
+      "lz": [
+        "L2"
+      ],
+      "thema": "Inkonsistenz",
+      "stufe": 1,
+      "story": "Was geschieht, wenn dieselbe Sache zwei Namen hat?",
+      "frage": "In der Liste steht bei den Verlagen einmal «Addison Wesley» und einmal «Addison-Wesley». Du suchst alle Bücher des Verlags «Addison Wesley». Was passiert?",
+      "optionen": [
+        {
+          "text": "Das Buch mit «Addison-Wesley» fehlt im Suchergebnis, obwohl es zum gleichen Verlag gehört.",
+          "richtig": true,
+          "warum": "Genau. Die zwei Schreibweisen gelten als verschiedene Werte."
+        },
+        {
+          "text": "Der Computer findet beide, weil er den Unterschied erkennt.",
+          "warum": "Ein Computer vergleicht genau. Er erkennt keinen «ähnlichen» Namen."
+        },
+        {
+          "text": "Die Datenbank meldet automatisch einen Fehler.",
+          "warum": "Es ist kein Fehler im Sinne der Datenbank. Beide Schreibweisen sind gültiger Text."
+        },
+        {
+          "text": "Das Problem betrifft nur den Speicherplatz.",
+          "warum": "Es ist ein Inkonsistenz-Problem, es geht um widersprüchliche Daten."
+        }
+      ],
+      "hinweise": [
+        "Der Computer vergleicht die Zeichen genau.",
+        "Ist ein Bindestrich dasselbe Zeichen wie ein Leerschlag?"
+      ],
+      "erklaerung": "Ein Computer erkennt «Addison-Wesley» nicht als denselben Verlag, weil die Zeichenkette anders ist. Die Suche findet nur Treffer mit genau der gesuchten Schreibweise. Das ist ein Problem der **Inkonsistenz**: Dieselbe Sache ist unterschiedlich gespeichert."
+    },
+    {
+      "id": "s-aenderung",
+      "typ": "info",
+      "titel": "Ändern, Einfügen, Zählen",
+      "story": [
+        {
+          "sprecher": "tabea",
+          "text": "Fünf Probleme: Speicher, Inkonsistenz, Änderungsaufwand, Eintragen ohne Buch, Zählen. Prüfen wir, ob du sie erkennst."
+        }
+      ],
+      "text": [
+        "## Problem 3: Der Änderungsaufwand",
+        "Der Verlag «Thomson» wird umbenannt. In einer Liste mit Redundanz musst du **jede** Zeile mit «Thomson» anpassen. Vergisst du eine, steht danach derselbe Verlag unter zwei Namen in der Datenbank: wieder Inkonsistenz. Je öfter ein Wert gespeichert ist, desto mehr Arbeit und desto grösser die Fehlergefahr.",
+        "## Problem 4: Neue Daten ohne Buch",
+        "Eine neue Autorin, die noch kein Buch geschrieben hat, möchte Herr Ammann trotzdem erfassen. In der grossen Liste hat aber jede Zeile ein Buch. Eine Zeile nur mit Autorin und leeren Buchfeldern wäre unschön. Die Autorin kann nicht sauber eingetragen werden.",
+        "Dasselbe gilt für einen neuen Verlag ohne Bücher. Und umgekehrt: Wird das einzige Buch eines Autors gelöscht, verschwindet der Autor gleich mit.",
+        "## Problem 5: Abfragen werden schwierig",
+        "Wie viele Bücher stehen in der Liste? Die Liste hat 7 Zeilen, aber nur 6 verschiedene Bücher (eines steht doppelt). Zählt man die Zeilen, bekommt man ein falsches Ergebnis. Auch bei Suchergebnissen tauchen Bücher mehrfach auf."
+      ]
+    },
+    {
+      "id": "a-umbenennen",
+      "typ": "choice",
+      "titel": "Ein Verlag wird umbenannt",
+      "lz": [
+        "L2"
+      ],
+      "thema": "Änderungsaufwand",
+      "stufe": 2,
+      "story": "Namen ändern sich. Was dann?",
+      "frage": "Der Verlag «Thomson» (in der Liste in einer Zeile) wird in «Thomson Learning» umbenannt. Und «Oldenbourg» (in der Liste in zwei Zeilen) in «De Gruyter Oldenbourg». Wo steckt bei der Liste mit Redundanz das Problem?",
+      "optionen": [
+        {
+          "text": "Jede Zeile mit dem Namen muss einzeln geändert werden. Wird eine vergessen, passen die Daten nicht mehr zusammen.",
+          "richtig": true,
+          "warum": "Genau, das ist das Änderungsproblem."
+        },
+        {
+          "text": "Die Änderung wirkt automatisch in allen Zeilen.",
+          "warum": "Nur wenn der Name an einer einzigen Stelle gespeichert ist. In der grossen Liste ist er in jeder Zeile einzeln gespeichert."
+        },
+        {
+          "text": "Es gibt kein Problem, weil der Computer schnell ist.",
+          "warum": "Schnell oder langsam spielt keine Rolle. Das Risiko ist, dass eine Zeile vergessen geht."
+        },
+        {
+          "text": "Man muss nur die erste Zeile ändern.",
+          "warum": "Dann würden die anderen Zeilen den alten Namen behalten."
+        }
+      ],
+      "hinweise": [
+        "Wie viele Zeilen musst du bei «Oldenbourg» anfassen?",
+        "Was passiert, wenn du eine davon übersiehst?"
+      ],
+      "erklaerung": "Bei Oldenbourg musst du **jede** Zeile ändern. Vergisst du eine, hat derselbe Verlag zwei Namen (**Inkonsistenz**). Bei 5000 Büchern wären es hunderte Zeilen. Wenn der Verlagsname nur einmal gespeichert ist, ändert man ihn an **einer** Stelle."
+    },
+    {
+      "id": "a-neue-autorin",
+      "typ": "choice",
+      "titel": "Eine Autorin ohne Buch",
+      "lz": [
+        "L2"
+      ],
+      "thema": "Einfügen ohne Buch",
+      "stufe": 2,
+      "story": "Es gibt eine neue Autorin, aber noch kein Buch.",
+      "frage": "Herr Ammann möchte die Autorin **Mira Lux** erfassen. Sie hat noch kein Buch veröffentlicht. Warum geht das in der grossen Liste nicht sauber?",
+      "optionen": [
+        {
+          "text": "Jede Zeile gehört zu einem Buch. Für die Autorin gäbe es nur eine Zeile mit lauter leeren Buchfeldern.",
+          "richtig": true,
+          "warum": "Das ist das Problem der einen Tabelle."
+        },
+        {
+          "text": "Die Autorin ist zu neu und darf nicht eingetragen werden.",
+          "warum": "Das ist keine Regel der Datenbank. Das Problem liegt am Aufbau der Tabelle."
+        },
+        {
+          "text": "Die Tabelle ist voll.",
+          "warum": "Eine Tabelle hat keine feste Höchstzahl an Zeilen."
+        },
+        {
+          "text": "Der Autorenname ist zu lang.",
+          "warum": "Die Länge hat nichts damit zu tun."
+        }
+      ],
+      "hinweise": [
+        "In welcher Spalte stehen Autorinnen? Und was steht in der gleichen Zeile?",
+        "Jede Zeile beschreibt ein Buch."
+      ],
+      "erklaerung": "In der grossen Liste ist **jede Zeile ein Buch** mit seinen Autoren. Eine Autorin ohne Buch hat keinen Platz, ausser in einer Zeile mit lauter leeren Buchfeldern. Besser ist eine eigene Tabelle für Autoren. Dann kann Mira Lux dort stehen, auch ohne Buch."
+    },
+    {
+      "id": "a-zaehlen-liste",
+      "typ": "text",
+      "titel": "Wie viele Bücher?",
+      "lz": [
+        "L2"
+      ],
+      "thema": "Zählen wird schwierig",
+      "stufe": 2,
+      "story": "Herr Ammann hat die Zeilen gezählt: 7.",
+      "frage": [
+        "Die Liste:",
+        "",
+        "| titel | autor nachname | autor vornamen | isbn | jahr | verlag name |",
+        "|---|---|---|---|---|---|",
+        "| 3-D computer animation | Vince | John | 0-201-62756-6 | 1993 | Addison Wesley |",
+        "| 3D computer graphics | Watt | Alan | 0-201-63186-5 | 1996 | Addison Wesley |",
+        "| 3D Grafik: Grundlagen und Konzepte | Beier | Ekkehard | 3-929821-61-3 | 1988 | Thomson |",
+        "| 3D-Computergrafik und -animation | Brugger | Ralf N. | 3-89319-522-X | 1993 | Addison Wesley |",
+        "| 3D-Computergrafik und -animation : mit Autodesk 3D Studio | Brugger | Ralf | 3-89319-782-6 | 1994 | Addison-Wesley |",
+        "| 3D-computergrafische Darstellungen | Tönnies | Klaus D. | 3-486-20790-3 | 1994 | Oldenbourg |",
+        "| 3D-computergrafische Darstellungen | Lemke | Heinz U. | 3-486-20790-3 | 1994 | Oldenbourg |",
+        "",
+        "Wie viele **verschiedene Bücher** stehen in diesen 7 Zeilen? (Ein Buch erkennst du an seiner ISBN.)"
+      ],
+      "antworten": [
+        "6",
+        "sechs"
+      ],
+      "eingabeLabel": "Anzahl Bücher",
+      "hinweise": [
+        "Die Zeilen sind nicht gleich Bücher. Welche ISBN kommt doppelt vor?",
+        "7 Zeilen minus die doppelte ISBN."
+      ],
+      "erklaerung": "Es sind **6** Bücher. Das Buch «3D-computergrafische Darstellungen» steht wegen seiner zwei Autoren in zwei Zeilen. Wer einfach die Zeilen zählt, kommt auf 7. Das ist ein Problem der Redundanz: Zählen muss mit Duplikaten umgehen."
+    },
+    {
+      "id": "a-probleme-zuordnen",
+      "typ": "zuordnen",
+      "titel": "Probleme zuordnen",
+      "lz": [
+        "L2"
+      ],
+      "thema": "Probleme erkennen",
+      "stufe": 2,
+      "story": "Gehen wir die Probleme durch.",
+      "frage": "Welches Problem einer einzigen Tabelle mit Redundanz beschreibt jede Aussage? Ordne zu.",
+      "kategorien": [
+        "Speicherplatz",
+        "Inkonsistenz",
+        "Änderungsaufwand",
+        "Einfügen",
+        "Zählen"
+      ],
+      "elemente": [
+        {
+          "text": "Der Verlagsname steht 5000-mal in der Tabelle.",
+          "antwort": "Speicherplatz",
+          "warum": "Viele Wiederholungen verbrauchen Platz."
+        },
+        {
+          "text": "«Ralf N.» und «Ralf» sind derselbe Autor, aber verschieden geschrieben.",
+          "antwort": "Inkonsistenz",
+          "warum": "Widersprüchliche Schreibweisen für dasselbe."
+        },
+        {
+          "text": "Beim Umbenennen eines Verlags muss man viele Zeilen ändern und darf keine vergessen.",
+          "antwort": "Änderungsaufwand",
+          "warum": "Viele Stellen, hohe Fehlergefahr."
+        },
+        {
+          "text": "Eine Autorin ohne Buch kann nicht erfasst werden.",
+          "antwort": "Einfügen",
+          "warum": "Jede Zeile gehört zu einem Buch."
+        },
+        {
+          "text": "Die Zeilenzahl ist nicht die Zahl der Bücher.",
+          "antwort": "Zählen",
+          "warum": "Ein Buch kann in mehreren Zeilen stehen."
+        }
+      ],
+      "hinweise": [
+        "Lies jede Aussage und frage dich: Geht es um Platz, um widersprüchliche Daten, um viel Arbeit beim Ändern, um Neues eintragen oder ums Zählen?",
+        "Das Wort «vergessen» deutet auf das Ändern hin."
+      ],
+      "erklaerung": "Die fünf Probleme einer Tabelle mit Redundanz: **Speicherplatz**, **Inkonsistenz** (Tippfehler), **Änderungsaufwand**, **Einfügen ohne Buch**, **Zählen/Abfragen**."
+    },
+    {
+      "id": "s-loesung",
+      "typ": "info",
+      "titel": "Die Lösung: Aufteilen in mehrere Tabellen",
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Und woher weiss ich dann, welcher Verlag zu welchem Buch gehört?"
+        },
+        {
+          "sprecher": "tabea",
+          "text": "Über die Nummern. Das nennt man eine logische Verknüpfung."
+        }
+      ],
+      "text": [
+        "## Jede Information nur einmal",
+        "Die Lösung heisst: **aufteilen**. Statt einer grossen Tabelle gibt es mehrere kleine, jede für eine Sorte von Dingen:",
+        "- `buch`: ein Buch pro Zeile (Titel, ISBN, Jahr)",
+        "- `autor`: eine Autorin oder ein Autor pro Zeile",
+        "- `verlag`: ein Verlag pro Zeile",
+        "- `buch_aut`: sagt, welches Buch von wem geschrieben wurde",
+        "Damit man weiss, was zusammengehört, bekommt jede Zeile eine Nummer (eine *Id*). Der Verlag «Addison Wesley» hat die `verlagsid` 1. Die Bücher merken sich nur diese 1, nicht den Namen.",
+        "Tabelle `verlag`:",
+        "| verlagsid | name |",
+        "|---|---|",
+        "| 1 | Addison Wesley |",
+        "| 5 | Oldenbourg |",
+        "| 18 | Thomson |",
+        "Tabelle `buch` (Ausschnitt):",
+        "| buchid | titel | jahr | verlagsid |",
+        "|---|---|---|---|",
+        "| 2882 | 3-D computer animation | 1993 | 1 |",
+        "| 122 | 3D-Computergrafik und -animation | 1993 | 1 |",
+        "| 2712 | 3D Grafik: Grundlagen und Konzepte | 1988 | 18 |",
+        "| 138 | 3D-computergrafische Darstellungen | 1994 | 5 |",
+        "Der Name «Addison Wesley» steht nur **einmal**. Bei Büchern mit `verlagsid` 1 weiss man dank der Tabelle `verlag`, wer der Verlag ist. Bei einer Umbenennung ändert man **eine** Zeile in `verlag`.",
+        "Die Zahl 1 steht in `buch` mehrmals. Das ist **keine** Redundanz im Sinne von Platzverschwendung und Inkonsistenz: Die 1 ist nur ein **Verweis**. Die Information selbst (der Name) ist einmal gespeichert.",
+        "> **Logische Verknüpfung:** Datensätze verschiedener Tabellen sind über gemeinsame Werte (hier `verlagsid`) miteinander verbunden. So erreicht man von einem Buch den Verlag.",
+        "Deshalb löst das Aufteilen alle fünf Probleme: weniger Platz, keine Tippfehler-Varianten, Ändern an einer Stelle, Autoren und Verlage können ohne Buch erfasst werden, und Bücher werden nicht mehr doppelt gezählt."
+      ]
+    },
+    {
+      "id": "a-verlage-ansehen",
+      "typ": "sql",
+      "titel": "Jeder Verlag nur einmal",
+      "lz": [
+        "L1",
+        "L12"
+      ],
+      "thema": "Verlage einmal gespeichert",
+      "stufe": 1,
+      "story": "Schau in die aufgeteilte Datenbank. Die Abfrage steht bereit.",
+      "frage": "Zeige alle Datensätze der Tabelle `verlag` mit allen Spalten. Du siehst: Jeder Verlag steht nur einmal.",
+      "vorlage": "SELECT *\nFROM verlag",
+      "loesung": "SELECT * FROM verlag",
+      "hinweise": [
+        "Alle Spalten wählst du mit dem Stern.",
+        "Die Tabelle heisst `verlag`."
+      ],
+      "erklaerung": "In der Tabelle `verlag` hat jeder Verlag **eine** Zeile (20 Zeilen für 20 Verlage). Der Name «Addison Wesley» steht nur einmal, auch wenn viele Bücher von ihm stammen."
+    },
+    {
+      "id": "a-verlag-anzahl",
+      "typ": "ergebnis",
+      "titel": "Wie viele Verlage?",
+      "lz": [
+        "L1",
+        "L10"
+      ],
+      "thema": "Aufgeteilte Tabelle",
+      "stufe": 1,
+      "story": "Zähle, wie viele Verlage die Datenbank hat.",
+      "frage": "Die Tabelle `verlag` siehst du unten. Wie viele Zeilen liefert diese Abfrage?",
+      "modus": "anzahl",
+      "abfrage": "SELECT name\nFROM verlag",
+      "zeigen": [
+        "verlag"
+      ],
+      "hinweise": [
+        "Es gibt kein WHERE. Es wird keine Zeile weggelassen.",
+        "Zähle die Zeilen der Tabelle."
+      ],
+      "erklaerung": "Ohne WHERE bleiben alle Zeilen. Die Tabelle `verlag` hat **20** Zeilen, also gibt es 20 verschiedene Verlage. In der grossen Liste hätte jeder Verlag so oft gestanden, wie er Bücher hat."
+    },
+    {
+      "id": "a-verknuepfung-verlag",
+      "typ": "text",
+      "titel": "Vom Buch zum Verlag",
+      "lz": [
+        "L3",
+        "L1"
+      ],
+      "thema": "Logische Verknüpfung",
+      "stufe": 2,
+      "story": "Folge der Nummer von der einen zur anderen Tabelle.",
+      "frage": "Zu welchem **Verlag** (Name) gehört das Buch mit `buchid` = {{buchid}}? Schau in `buch` die `verlagsid` an und suche sie in `verlag`.",
+      "zeigen": [
+        {
+          "titel": "buch (Ausschnitt)",
+          "sql": "SELECT buchid, titel, verlagsid FROM buch WHERE buchid IN (122, 138, 2712, 3005)"
+        },
+        "verlag"
+      ],
+      "antworten": [
+        "{{name}}"
+      ],
+      "parameter": [
+        {
+          "buchid": 122,
+          "vid": 1,
+          "name": "Addison Wesley"
+        },
+        {
+          "buchid": 138,
+          "vid": 5,
+          "name": "Oldenbourg"
+        },
+        {
+          "buchid": 2712,
+          "vid": 18,
+          "name": "Thomson"
+        },
+        {
+          "buchid": 3005,
+          "vid": 5,
+          "name": "Oldenbourg"
+        }
+      ],
+      "hinweise": [
+        "Suche in der Tabelle `buch` die Zeile mit der buchid {{buchid}} und lies die verlagsid ab.",
+        "Suche diese verlagsid in der Tabelle `verlag`."
+      ],
+      "erklaerung": "Das Buch {{buchid}} hat die `verlagsid` {{vid}}. In der Tabelle `verlag` gehört zur {{vid}} der Name **{{name}}**. Diese Verbindung über gleiche Werte ist die **logische Verknüpfung**."
+    },
+    {
+      "id": "a-verknuepfung-autoren",
+      "typ": "choice",
+      "titel": "Zwei Autoren, ein Buch",
+      "lz": [
+        "L3",
+        "L2"
+      ],
+      "thema": "Logische Verknüpfung",
+      "stufe": 2,
+      "story": "Ein Buch mit zwei Autoren: wie geht das ohne Doppelzeile?",
+      "frage": "Das Buch 138 («3D-computergrafische Darstellungen») hat in der Tabelle `buch_aut` zwei Einträge. Welche Autoren gehören dazu? Schau in `buch_aut` und dann in `autor`.",
+      "mehrfach": true,
+      "zeigen": [
+        {
+          "titel": "buch_aut (Ausschnitt)",
+          "sql": "SELECT buchid, autorid FROM buch_aut WHERE buchid IN (122, 138, 2712)"
+        },
+        {
+          "titel": "autor (Ausschnitt)",
+          "sql": "SELECT autorid, nachname, vornamen FROM autor WHERE autorid IN (141, 158, 159, 3287)"
+        }
+      ],
+      "optionen": [
+        {
+          "text": "Tönnies",
+          "richtig": true,
+          "warum": "Autorid 158."
+        },
+        {
+          "text": "Lemke",
+          "richtig": true,
+          "warum": "Autorid 159."
+        },
+        {
+          "text": "Brugger",
+          "warum": "Brugger (141) schrieb die Bücher 122 und 1037, nicht 138."
+        },
+        {
+          "text": "Beier",
+          "warum": "Beier (3287) gehört zu Buch 2712."
+        }
+      ],
+      "hinweise": [
+        "Suche in buch_aut alle Zeilen mit buchid = 138 und notiere die autorid.",
+        "Suche diese autorid in der Tabelle autor."
+      ],
+      "erklaerung": "In `buch_aut` stehen für Buch 138 die Autoren 158 und 159. In `autor` sind das **Tönnies** und **Lemke**. Dank der Zwischentabelle `buch_aut` muss das Buch nicht doppelt gespeichert werden, obwohl es zwei Autoren hat."
+    },
+    {
+      "id": "a-teilen-zuordnen",
+      "typ": "zuordnen",
+      "titel": "Wo gehört das hin?",
+      "lz": [
+        "L1",
+        "L3"
+      ],
+      "thema": "Aufteilen",
+      "stufe": 2,
+      "story": "Zum Abschluss: Sortiere die Informationen in die richtigen Tabellen.",
+      "frage": "In welcher der vier Tabellen wird jede Information gespeichert?",
+      "kategorien": [
+        "buch",
+        "autor",
+        "verlag",
+        "buch_aut"
+      ],
+      "elemente": [
+        {
+          "text": "Der Titel «Entwurfsmuster»",
+          "antwort": "buch",
+          "warum": "Titel ist eine Eigenschaft des Buchs."
+        },
+        {
+          "text": "Der Nachname «Knuth»",
+          "antwort": "autor",
+          "warum": "Nachname ist eine Eigenschaft einer Person."
+        },
+        {
+          "text": "Der Ort «Heidelberg» des Verlags dpunkt",
+          "antwort": "verlag",
+          "warum": "Der Ort gehört zum Verlag."
+        },
+        {
+          "text": "Die Aussage «Autor 158 hat Buch 138 geschrieben»",
+          "antwort": "buch_aut",
+          "warum": "Die Verbindung zwischen Autor und Buch steht in der Zwischentabelle."
+        },
+        {
+          "text": "Das Erscheinungsjahr eines Buchs",
+          "antwort": "buch",
+          "warum": "Das Jahr gehört zum Buch."
+        }
+      ],
+      "hinweise": [
+        "Frage dich: Ist es eine Eigenschaft eines Buchs, eines Autors oder eines Verlags? Oder die Verbindung zwischen zwei Dingen?",
+        "Die Verbindung Buch-Autor steht in der Zwischentabelle."
+      ],
+      "erklaerung": "Jede Tabelle hat eine Aufgabe: `buch` (Buchdaten), `autor` (Personen), `verlag` (Verlage), `buch_aut` (die Verbindung zwischen Buch und Autor). So wird jede Information genau einmal gespeichert."
+    },
+    {
+      "id": "s-ende",
+      "typ": "info",
+      "titel": "Chaos geordnet",
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Jetzt sieht es viel sauberer aus. Danke!"
+        },
+        {
+          "sprecher": "tabea",
+          "text": "Gut gemacht. Der nächste Hinweis liegt bei den Schlüsseln."
+        }
+      ],
+      "text": [
+        "## Zusammenfassung",
+        "- **Redundanz:** dieselbe Information ist mehrfach gespeichert.",
+        "- **Probleme einer einzigen Tabelle mit Redundanz:** Speicherplatz, Tippfehler/Inkonsistenz, Änderungsaufwand, Einfügen ohne Buch, Zählen/Abfragen.",
+        "- **Lösung:** Aufteilen in mehrere Tabellen (`buch`, `autor`, `verlag`, `buch_aut`). Die Tabellen sind über Id-Nummern **logisch verknüpft**.",
+        "Im nächsten Kapitel lernst du, wie diese Id-Nummern heissen und warum sie so wichtig sind: **Primärschlüssel** und **Fremdschlüssel**."
+      ]
+    }
+  ],
+  "pool": [
+    {
+      "id": "p-red-definition",
+      "typ": "choice",
+      "lz": [
+        "L1"
+      ],
+      "thema": "Begriff Redundanz",
+      "stufe": 1,
+      "frage": "Eine Schule speichert zu jedem Kind die Adresse des Schulhauses, in jeder Zeile der Schülerliste. Was ist das?",
+      "optionen": [
+        {
+          "text": "Redundanz",
+          "richtig": true,
+          "warum": "Dieselbe Information ist mehrfach gespeichert."
+        },
+        {
+          "text": "Ein Primärschlüssel",
+          "warum": "Ein Primärschlüssel identifiziert Datensätze, er hat nichts mit mehrfachem Speichern zu tun."
+        },
+        {
+          "text": "Ein Datentyp",
+          "warum": "Ein Datentyp legt fest, welche Art von Wert in einer Spalte steht."
+        },
+        {
+          "text": "Eine Verknüpfung",
+          "warum": "Eine Verknüpfung verbindet Tabellen. Hier wird einfach dasselbe wiederholt."
+        }
+      ],
+      "hinweise": [
+        "Dieselbe Adresse steht oft in der Tabelle.",
+        "Wie nennt man mehrfach gespeicherte Information?"
+      ],
+      "erklaerung": "Dieselbe Information (die Schuladresse) ist immer wieder gespeichert: **Redundanz**."
+    },
+    {
+      "id": "p-red-wie-oft",
+      "typ": "text",
+      "lz": [
+        "L1"
+      ],
+      "thema": "Redundanz erkennen",
+      "stufe": 1,
+      "frage": [
+        "Die Liste:",
+        "",
+        "| titel | autor nachname | autor vornamen | isbn | jahr | verlag name |",
+        "|---|---|---|---|---|---|",
+        "| 3-D computer animation | Vince | John | 0-201-62756-6 | 1993 | Addison Wesley |",
+        "| 3D computer graphics | Watt | Alan | 0-201-63186-5 | 1996 | Addison Wesley |",
+        "| 3D Grafik: Grundlagen und Konzepte | Beier | Ekkehard | 3-929821-61-3 | 1988 | Thomson |",
+        "| 3D-Computergrafik und -animation | Brugger | Ralf N. | 3-89319-522-X | 1993 | Addison Wesley |",
+        "| 3D-Computergrafik und -animation : mit Autodesk 3D Studio | Brugger | Ralf | 3-89319-782-6 | 1994 | Addison-Wesley |",
+        "| 3D-computergrafische Darstellungen | Tönnies | Klaus D. | 3-486-20790-3 | 1994 | Oldenbourg |",
+        "| 3D-computergrafische Darstellungen | Lemke | Heinz U. | 3-486-20790-3 | 1994 | Oldenbourg |",
+        "",
+        "In wie vielen Zeilen steht der Autor mit dem Nachnamen **«{{name}}»**?"
+      ],
+      "antworten": [
+        "{{n}}"
+      ],
+      "eingabeLabel": "Anzahl Zeilen",
+      "parameter": [
+        {
+          "name": "Brugger",
+          "n": 2
+        },
+        {
+          "name": "Vince",
+          "n": 1
+        },
+        {
+          "name": "Lemke",
+          "n": 1
+        },
+        {
+          "name": "Watt",
+          "n": 1
+        }
+      ],
+      "hinweise": [
+        "Zähle in der Spalte «autor nachname».",
+        "Vergiss die Zeilen mit anderer Schreibweise des Vornamens nicht (es zählt der Nachname)."
+      ],
+      "erklaerung": "Der Nachname {{name}} steht in {{n}} Zeile(n)."
+    },
+    {
+      "id": "p-red-vermeiden",
+      "typ": "choice",
+      "lz": [
+        "L1",
+        "L2"
+      ],
+      "thema": "Redundanz vermeiden",
+      "stufe": 2,
+      "frage": "Wie wird Redundanz in einer relationalen Datenbank vermieden?",
+      "optionen": [
+        {
+          "text": "Die Daten werden auf mehrere Tabellen aufgeteilt, die miteinander verknüpft sind.",
+          "richtig": true,
+          "warum": "Genau."
+        },
+        {
+          "text": "Man macht die Tabelle noch breiter, mit mehr Spalten.",
+          "warum": "Mehr Spalten lösen das Problem nicht, die Wiederholung bleibt."
+        },
+        {
+          "text": "Man sortiert die Tabelle nach dem Titel.",
+          "warum": "Sortieren ändert nichts daran, wie oft etwas gespeichert ist."
+        },
+        {
+          "text": "Man löscht alle Zeilen, die doppelt aussehen.",
+          "warum": "Dabei gingen Daten verloren (z. B. der zweite Autor eines Buchs)."
+        }
+      ],
+      "hinweise": [
+        "Die Folien sagen: «Aufteilen in …»",
+        "Dieselbe Information soll nur an einer Stelle stehen."
+      ],
+      "erklaerung": "Man teilt die Daten auf mehrere Tabellen auf. Jede Information steht nur einmal, die Tabellen verweisen über Nummern aufeinander."
+    },
+    {
+      "id": "p-red-verweis",
+      "typ": "choice",
+      "lz": [
+        "L1",
+        "L3"
+      ],
+      "thema": "Verweis ist keine Redundanz",
+      "stufe": 3,
+      "frage": "In der Tabelle `buch` steht bei vielen Büchern dieselbe `verlagsid` 1. Der Name «Addison Wesley» steht nur einmal in `verlag`. Stimmt es, dass der Name des Verlags redundant gespeichert ist?",
+      "optionen": [
+        {
+          "text": "Nein, der Name ist nur einmal gespeichert, die Nummer in buch ist ein Verweis.",
+          "richtig": true,
+          "warum": "Genau."
+        },
+        {
+          "text": "Ja, der Name steht indirekt in jedem Buch.",
+          "warum": "Er steht nicht in `buch`, nur die Nummer."
+        },
+        {
+          "text": "Ja, weil die Zahl 1 oft vorkommt, ist das Redundanz im Sinne des Problems.",
+          "warum": "Eine Nummer als Verweis ist gewollt. Probleme wie Tippfehler oder Änderungsaufwand betreffen den Namen."
+        }
+      ],
+      "hinweise": [
+        "Wo steht der Name «Addison Wesley»? Wie oft?",
+        "Die Zahl 1 ist ein Verweis."
+      ],
+      "erklaerung": "Der **Name** steht nur einmal, in `verlag`. Die `verlagsid` in `buch` ist nur ein **Verweis**: Sie wiederholt die Nummer, nicht die Information selbst. Beim Umbenennen reicht eine Änderung in `verlag`."
+    },
+    {
+      "id": "p-inkonsistenz-ralf",
+      "typ": "choice",
+      "lz": [
+        "L2"
+      ],
+      "thema": "Inkonsistenz",
+      "stufe": 1,
+      "frage": "Brugger steht in der Liste einmal als «Ralf N.» und einmal als «Ralf». Welches Problem ist das?",
+      "optionen": [
+        {
+          "text": "Inkonsistenz",
+          "richtig": true,
+          "warum": "Die Daten widersprechen sich."
+        },
+        {
+          "text": "Zu wenig Speicherplatz",
+          "warum": "Es geht nicht um Platz, sondern um die unterschiedliche Schreibweise."
+        },
+        {
+          "text": "Ein Datentyp-Fehler",
+          "warum": "Beide Werte sind Text, der Typ ist in Ordnung."
+        },
+        {
+          "text": "Ein Primärschlüssel-Fehler",
+          "warum": "Ein Schlüssel fehlt hier nicht, das Problem sind die Schreibvarianten."
+        }
+      ],
+      "hinweise": [
+        "Dieselbe Person, aber unterschiedlich gespeichert.",
+        "Wie heisst das Problem, wenn Daten sich widersprechen?"
+      ],
+      "erklaerung": "Dieselbe Person ist verschieden geschrieben: **Inkonsistenz**. Bei einer Suche nach «Ralf N.» fehlt das andere Buch."
+    },
+    {
+      "id": "p-umbenennen-zeilen",
+      "typ": "text",
+      "lz": [
+        "L2"
+      ],
+      "thema": "Änderungsaufwand",
+      "stufe": 2,
+      "frage": [
+        "Die Liste:",
+        "",
+        "| titel | autor nachname | autor vornamen | isbn | jahr | verlag name |",
+        "|---|---|---|---|---|---|",
+        "| 3-D computer animation | Vince | John | 0-201-62756-6 | 1993 | Addison Wesley |",
+        "| 3D computer graphics | Watt | Alan | 0-201-63186-5 | 1996 | Addison Wesley |",
+        "| 3D Grafik: Grundlagen und Konzepte | Beier | Ekkehard | 3-929821-61-3 | 1988 | Thomson |",
+        "| 3D-Computergrafik und -animation | Brugger | Ralf N. | 3-89319-522-X | 1993 | Addison Wesley |",
+        "| 3D-Computergrafik und -animation : mit Autodesk 3D Studio | Brugger | Ralf | 3-89319-782-6 | 1994 | Addison-Wesley |",
+        "| 3D-computergrafische Darstellungen | Tönnies | Klaus D. | 3-486-20790-3 | 1994 | Oldenbourg |",
+        "| 3D-computergrafische Darstellungen | Lemke | Heinz U. | 3-486-20790-3 | 1994 | Oldenbourg |",
+        "",
+        "Der Verlag **«{{verlag}}»** (genau so geschrieben) wird umbenannt. In wie vielen Zeilen der Liste musst du den Namen ändern?"
+      ],
+      "antworten": [
+        "{{n}}"
+      ],
+      "eingabeLabel": "Anzahl Zeilen",
+      "parameter": [
+        {
+          "verlag": "Addison Wesley",
+          "n": 3
+        },
+        {
+          "verlag": "Oldenbourg",
+          "n": 2
+        },
+        {
+          "verlag": "Thomson",
+          "n": 1
+        }
+      ],
+      "hinweise": [
+        "Zähle die Zeilen mit genau dieser Schreibweise in der Spalte «verlag name».",
+        "Zeilen mit leicht anderer Schreibweise zählen nicht."
+      ],
+      "erklaerung": "In {{n}} Zeile(n) steht «{{verlag}}». Wäre der Verlag in einer eigenen Tabelle gespeichert, müsste man nur **eine** Zeile ändern."
+    },
+    {
+      "id": "p-umbenennen-neu",
+      "typ": "choice",
+      "lz": [
+        "L2"
+      ],
+      "thema": "Änderungsaufwand",
+      "stufe": 2,
+      "frage": "Nach dem Aufteilen in mehrere Tabellen soll der Verlag «Oldenbourg» umbenannt werden. Wie viele Stellen müssen geändert werden?",
+      "optionen": [
+        {
+          "text": "Eine: eine Zeile in der Tabelle verlag.",
+          "richtig": true,
+          "warum": "Genau."
+        },
+        {
+          "text": "Eine pro Buch des Verlags.",
+          "warum": "Die Bücher speichern nur die Nummer, nicht den Namen."
+        },
+        {
+          "text": "Keine, das geht nicht mehr.",
+          "warum": "Ändern geht, und zwar einfacher als vorher."
+        },
+        {
+          "text": "Eine pro Tabelle der Datenbank.",
+          "warum": "Nur die Tabelle verlag enthält den Namen."
+        }
+      ],
+      "hinweise": [
+        "Wo steht der Name jetzt?",
+        "Die Bücher speichern nur die Nummer."
+      ],
+      "erklaerung": "Der Name steht nur in der Tabelle `verlag`, in einer Zeile. Die Bücher verweisen auf die `verlagsid`, die gleich bleibt. Darum reicht **eine** Änderung."
+    },
+    {
+      "id": "p-loeschen",
+      "typ": "choice",
+      "lz": [
+        "L2"
+      ],
+      "thema": "Verlust beim Löschen",
+      "stufe": 3,
+      "frage": [
+        "Die Liste:",
+        "",
+        "| titel | autor nachname | autor vornamen | isbn | jahr | verlag name |",
+        "|---|---|---|---|---|---|",
+        "| 3-D computer animation | Vince | John | 0-201-62756-6 | 1993 | Addison Wesley |",
+        "| 3D computer graphics | Watt | Alan | 0-201-63186-5 | 1996 | Addison Wesley |",
+        "| 3D Grafik: Grundlagen und Konzepte | Beier | Ekkehard | 3-929821-61-3 | 1988 | Thomson |",
+        "| 3D-Computergrafik und -animation | Brugger | Ralf N. | 3-89319-522-X | 1993 | Addison Wesley |",
+        "| 3D-Computergrafik und -animation : mit Autodesk 3D Studio | Brugger | Ralf | 3-89319-782-6 | 1994 | Addison-Wesley |",
+        "| 3D-computergrafische Darstellungen | Tönnies | Klaus D. | 3-486-20790-3 | 1994 | Oldenbourg |",
+        "| 3D-computergrafische Darstellungen | Lemke | Heinz U. | 3-486-20790-3 | 1994 | Oldenbourg |",
+        "",
+        "Das Buch «3D Grafik: Grundlagen und Konzepte» (Zeile 3) wird aus der Liste gelöscht. Es ist die einzige Zeile des Verlags Thomson und des Autors Beier. Was geht dabei auch verloren?"
+      ],
+      "optionen": [
+        {
+          "text": "Der Verlag Thomson und der Autor Beier sind nicht mehr in der Datenbank.",
+          "richtig": true,
+          "warum": "Genau."
+        },
+        {
+          "text": "Nichts, nur das Buch geht verloren.",
+          "warum": "Weil alles in einer Zeile steht, geht auch alles andere in dieser Zeile verloren."
+        },
+        {
+          "text": "Alle Bücher von Addison Wesley.",
+          "warum": "Die stehen in anderen Zeilen und bleiben erhalten."
+        },
+        {
+          "text": "Die ISBN aller anderen Bücher.",
+          "warum": "Die ISBN anderer Bücher steht in deren eigenen Zeilen."
+        }
+      ],
+      "hinweise": [
+        "Welche Angaben stehen nur in dieser einen Zeile?",
+        "Suche «Thomson» und «Beier» in anderen Zeilen."
+      ],
+      "erklaerung": "Thomson und Beier stehen **nur** in dieser einen Zeile. Mit dem Buch verschwinden Verlag und Autor aus der Datenbank. In getrennten Tabellen blieben sie erhalten."
+    },
+    {
+      "id": "p-zaehlen-schreibweisen",
+      "typ": "text",
+      "lz": [
+        "L2"
+      ],
+      "thema": "Zählen wird schwierig",
+      "stufe": 3,
+      "frage": [
+        "Die Liste:",
+        "",
+        "| titel | autor nachname | autor vornamen | isbn | jahr | verlag name |",
+        "|---|---|---|---|---|---|",
+        "| 3-D computer animation | Vince | John | 0-201-62756-6 | 1993 | Addison Wesley |",
+        "| 3D computer graphics | Watt | Alan | 0-201-63186-5 | 1996 | Addison Wesley |",
+        "| 3D Grafik: Grundlagen und Konzepte | Beier | Ekkehard | 3-929821-61-3 | 1988 | Thomson |",
+        "| 3D-Computergrafik und -animation | Brugger | Ralf N. | 3-89319-522-X | 1993 | Addison Wesley |",
+        "| 3D-Computergrafik und -animation : mit Autodesk 3D Studio | Brugger | Ralf | 3-89319-782-6 | 1994 | Addison-Wesley |",
+        "| 3D-computergrafische Darstellungen | Tönnies | Klaus D. | 3-486-20790-3 | 1994 | Oldenbourg |",
+        "| 3D-computergrafische Darstellungen | Lemke | Heinz U. | 3-486-20790-3 | 1994 | Oldenbourg |",
+        "",
+        "Wie viele **verschiedene Werte** stehen in der Spalte «verlag name»? Ein Computer unterscheidet genau nach den Zeichen."
+      ],
+      "antworten": [
+        "4",
+        "vier"
+      ],
+      "eingabeLabel": "Anzahl Werte",
+      "hinweise": [
+        "Schreibe die Werte auf und streiche Doppelte weg.",
+        "Addison Wesley und Addison-Wesley sind für den Computer zwei Werte."
+      ],
+      "erklaerung": "Es sind **4** Werte: Addison Wesley, Addison-Wesley, Oldenbourg, Thomson. In Wirklichkeit gibt es nur 3 Verlage. Der Computer zählt wegen der Inkonsistenz einen zu viel."
+    },
+    {
+      "id": "p-probleme-zuordnen2",
+      "typ": "zuordnen",
+      "lz": [
+        "L2"
+      ],
+      "thema": "Probleme erkennen",
+      "stufe": 2,
+      "frage": "Welches Problem einer einzigen Tabelle mit Redundanz ist gemeint?",
+      "kategorien": [
+        "Speicherplatz",
+        "Inkonsistenz",
+        "Änderungsaufwand",
+        "Einfügen",
+        "Zählen"
+      ],
+      "elemente": [
+        {
+          "text": "«Oldenburg» statt «Oldenbourg» getippt",
+          "antwort": "Inkonsistenz",
+          "warum": "Tippfehler erzeugen Varianten."
+        },
+        {
+          "text": "Ein neuer Verlag ohne Bücher hat in der Liste keinen Platz.",
+          "antwort": "Einfügen",
+          "warum": "Jede Zeile gehört zu einem Buch."
+        },
+        {
+          "text": "500 Bücher des gleichen Verlags: 500-mal derselbe Name",
+          "antwort": "Speicherplatz",
+          "warum": "Wiederholungen verbrauchen Platz."
+        },
+        {
+          "text": "Ein Verlag zieht um. Man muss in vielen Zeilen den Ort ändern.",
+          "antwort": "Änderungsaufwand",
+          "warum": "Viele Änderungen nötig."
+        },
+        {
+          "text": "COUNT der Zeilen zählt ein Buch mit zwei Autoren doppelt.",
+          "antwort": "Zählen",
+          "warum": "Zeilen sind nicht gleich Bücher."
+        }
+      ],
+      "hinweise": [
+        "Denk an die fünf Probleme aus dem Lernpfad.",
+        "Platz, widersprüchlich, ändern, einfügen, zählen."
+      ],
+      "erklaerung": "Die fünf typischen Probleme: Speicherplatz, Inkonsistenz, Änderungsaufwand, Einfügen, Zählen."
+    },
+    {
+      "id": "p-neue-tabelle",
+      "typ": "choice",
+      "lz": [
+        "L2",
+        "L1"
+      ],
+      "thema": "Lösung durch Aufteilen",
+      "stufe": 2,
+      "frage": "Wie kann die Autorin Mira Lux (noch ohne Buch) nach dem Aufteilen erfasst werden?",
+      "optionen": [
+        {
+          "text": "Als Zeile in der Tabelle autor, ohne Eintrag in buch_aut.",
+          "richtig": true,
+          "warum": "Genau."
+        },
+        {
+          "text": "Gar nicht, sie braucht zuerst ein Buch.",
+          "warum": "Das war das Problem der grossen Liste, nicht der aufgeteilten Tabellen."
+        },
+        {
+          "text": "In der Tabelle verlag.",
+          "warum": "Dort stehen Verlage, keine Personen."
+        },
+        {
+          "text": "In der Tabelle buch mit leerem Titel.",
+          "warum": "Das wäre ein halber Notbehelf wie in der grossen Liste."
+        }
+      ],
+      "hinweise": [
+        "Gibt es jetzt eine Tabelle nur für Autoren?",
+        "Muss in `buch_aut` schon etwas stehen?"
+      ],
+      "erklaerung": "Sie bekommt eine Zeile in der Tabelle `autor`. Erst wenn sie ein Buch schreibt, kommt ein Eintrag in `buch_aut` dazu. Das Problem der Einzeltabelle ist damit gelöst."
+    },
+    {
+      "id": "p-speicher",
+      "typ": "choice",
+      "lz": [
+        "L2"
+      ],
+      "thema": "Speicherplatz",
+      "stufe": 1,
+      "frage": "Warum verbraucht eine einzige grosse Tabelle mit Redundanz mehr Speicherplatz?",
+      "optionen": [
+        {
+          "text": "Weil dieselben Angaben in vielen Zeilen immer wieder gespeichert werden.",
+          "richtig": true,
+          "warum": "Genau."
+        },
+        {
+          "text": "Weil der Computer langsamer wird.",
+          "warum": "Das ist eine andere Frage. Der Speicherplatz wächst durch Wiederholungen."
+        },
+        {
+          "text": "Weil die Tabelle mehr Spalten hat.",
+          "warum": "Die Spaltenzahl ist nicht der Punkt, sondern die Wiederholung."
+        },
+        {
+          "text": "Weil Titel länger sind als Zahlen.",
+          "warum": "Die Länge der Titel spielt keine Rolle, sondern die Wiederholung."
+        }
+      ],
+      "hinweise": [
+        "Was wird in vielen Zeilen wiederholt?",
+        "Verlagsnamen, Orte, Autorendaten."
+      ],
+      "erklaerung": "Weil dieselben Angaben (z. B. Verlagsname) in jeder Zeile neu gespeichert werden. Bei getrennten Tabellen steht jede Angabe einmal."
+    },
+    {
+      "id": "p-verkn-ort",
+      "typ": "text",
+      "lz": [
+        "L3"
+      ],
+      "thema": "Logische Verknüpfung",
+      "stufe": 2,
+      "frage": "In welchem **Ort** sitzt der Verlag des Buchs mit `buchid` = {{buchid}}? Folge der `verlagsid` von `buch` zu `verlag`.",
+      "zeigen": [
+        {
+          "titel": "buch (Ausschnitt)",
+          "sql": "SELECT buchid, titel, verlagsid FROM buch WHERE buchid IN (122, 138, 3001, 3028)"
+        },
+        "verlag"
+      ],
+      "antworten": [
+        "{{ort}}"
+      ],
+      "parameter": [
+        {
+          "buchid": 122,
+          "vid": 1,
+          "ort": "Bonn"
+        },
+        {
+          "buchid": 138,
+          "vid": 5,
+          "ort": "München"
+        },
+        {
+          "buchid": 3001,
+          "vid": 6,
+          "ort": "Stuttgart"
+        },
+        {
+          "buchid": 3028,
+          "vid": 15,
+          "ort": "Zürich"
+        }
+      ],
+      "hinweise": [
+        "Lies in buch die verlagsid der Zeile ab.",
+        "Suche diese verlagsid in verlag und lies den Ort."
+      ],
+      "erklaerung": "Das Buch {{buchid}} hat die `verlagsid` {{vid}}, und der Verlag sitzt in **{{ort}}**."
+    },
+    {
+      "id": "p-verkn-autor",
+      "typ": "text",
+      "lz": [
+        "L3",
+        "L1"
+      ],
+      "thema": "Logische Verknüpfung",
+      "stufe": 2,
+      "frage": "Wer ist Autor oder Autorin des Buchs mit `buchid` = {{buchid}}? Nenne den **Nachnamen**. (Weg: `buch_aut` und dann `autor`.)",
+      "zeigen": [
+        {
+          "titel": "buch_aut (Ausschnitt)",
+          "sql": "SELECT buchid, autorid FROM buch_aut WHERE buchid IN (2712, 2882, 4872, 3008)"
+        },
+        {
+          "titel": "autor (Ausschnitt)",
+          "sql": "SELECT autorid, nachname, vornamen FROM autor WHERE autorid IN (3287, 3638, 5131, 201)"
+        }
+      ],
+      "antworten": [
+        "{{name}}"
+      ],
+      "parameter": [
+        {
+          "buchid": 2712,
+          "aid": 3287,
+          "name": "Beier"
+        },
+        {
+          "buchid": 2882,
+          "aid": 3638,
+          "name": "Vince"
+        },
+        {
+          "buchid": 4872,
+          "aid": 5131,
+          "name": "Watt"
+        },
+        {
+          "buchid": 3008,
+          "aid": 201,
+          "name": "Meier"
+        }
+      ],
+      "hinweise": [
+        "Suche in buch_aut die autorid zur buchid {{buchid}}.",
+        "Suche diese autorid in autor."
+      ],
+      "erklaerung": "In `buch_aut` steht zur buchid {{buchid}} die autorid {{aid}}, und das ist in `autor` **{{name}}**. Die Zwischentabelle `buch_aut` verknüpft Bücher und Autoren."
+    },
+    {
+      "id": "p-zeilen-buch",
+      "typ": "text",
+      "lz": [
+        "L2"
+      ],
+      "thema": "Zählen wird schwierig",
+      "stufe": 2,
+      "frage": [
+        "Die Liste:",
+        "",
+        "| titel | autor nachname | autor vornamen | isbn | jahr | verlag name |",
+        "|---|---|---|---|---|---|",
+        "| 3-D computer animation | Vince | John | 0-201-62756-6 | 1993 | Addison Wesley |",
+        "| 3D computer graphics | Watt | Alan | 0-201-63186-5 | 1996 | Addison Wesley |",
+        "| 3D Grafik: Grundlagen und Konzepte | Beier | Ekkehard | 3-929821-61-3 | 1988 | Thomson |",
+        "| 3D-Computergrafik und -animation | Brugger | Ralf N. | 3-89319-522-X | 1993 | Addison Wesley |",
+        "| 3D-Computergrafik und -animation : mit Autodesk 3D Studio | Brugger | Ralf | 3-89319-782-6 | 1994 | Addison-Wesley |",
+        "| 3D-computergrafische Darstellungen | Tönnies | Klaus D. | 3-486-20790-3 | 1994 | Oldenbourg |",
+        "| 3D-computergrafische Darstellungen | Lemke | Heinz U. | 3-486-20790-3 | 1994 | Oldenbourg |",
+        "",
+        "In wie vielen Zeilen steht das Buch mit der ISBN **{{isbn}}**?"
+      ],
+      "antworten": [
+        "{{n}}"
+      ],
+      "eingabeLabel": "Anzahl Zeilen",
+      "parameter": [
+        {
+          "isbn": "3-486-20790-3",
+          "n": 2
+        },
+        {
+          "isbn": "0-201-62756-6",
+          "n": 1
+        },
+        {
+          "isbn": "3-89319-522-X",
+          "n": 1
+        }
+      ],
+      "hinweise": [
+        "Suche die ISBN in der vierten Spalte.",
+        "Ein Buch mit mehreren Autoren steht mehrfach."
+      ],
+      "erklaerung": "Das Buch mit der ISBN {{isbn}} steht in {{n}} Zeile(n). Wer Zeilen zählt, zählt Bücher mit mehreren Autoren mehrfach."
+    },
+    {
+      "id": "p-verlage-namen",
+      "typ": "sql",
+      "lz": [
+        "L1",
+        "L12"
+      ],
+      "thema": "Verlage einmal gespeichert",
+      "stufe": 1,
+      "frage": "Zeige nur die **Namen** aller Verlage (eine Spalte).",
+      "loesung": "SELECT name FROM verlag",
+      "hinweise": [
+        "Die Spalte heisst name.",
+        "SELECT spalte FROM tabelle"
+      ],
+      "erklaerung": "Jeder Verlagsname steht in `verlag` genau einmal. Mit `SELECT name FROM verlag` siehst du die Namen aller 20 Verlage."
+    },
+    {
+      "id": "p-schlagwort-anzahl",
+      "typ": "ergebnis",
+      "lz": [
+        "L1",
+        "L10"
+      ],
+      "thema": "Aufgeteilte Tabelle",
+      "stufe": 1,
+      "frage": "Wie viele Zeilen liefert diese Abfrage? Jedes Schlagwort steht nur einmal in der Tabelle.",
+      "modus": "anzahl",
+      "abfrage": "SELECT schlagwort\nFROM schlagwort",
+      "zeigen": [
+        "schlagwort"
+      ],
+      "hinweise": [
+        "Es gibt kein WHERE.",
+        "Zähle die Zeilen von schlagwort."
+      ],
+      "erklaerung": "Ohne WHERE werden alle Zeilen ausgegeben. `schlagwort` hat **20** Zeilen."
+    }
+  ]
+}

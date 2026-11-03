@@ -1,0 +1,569 @@
+{
+  "id": "k01",
+  "titel": "Der erste Fall: Tabellen lesen",
+  "untertitel": "Was ist eine Datenbank? Tabelle, Zeile, Spalte – und deine erste SQL-Abfrage.",
+  "db": "flugbuchung",
+  "lernziele": ["L3", "L8", "L12"],
+  "dauer": 30,
+  "schritte": [
+    {
+      "id": "s-start",
+      "typ": "info",
+      "titel": "Ein Kater verschwindet",
+      "story": [
+        {"sprecher": "tabea", "text": "Gut, dass du da bist! Ich bin **Tabea Tupel**, Kommissarin der Datendetektei. Mein Kater **NULL** ist seit gestern verschwunden. Zuletzt wurde er am Flughafen gesehen, wie er in eine Transportkiste gekrochen ist."},
+        {"sprecher": "tabea", "text": "Der Flughafen hat uns seine **Datenbank** geschickt: wer gebucht hat, welche Flüge es gibt. Darin steckt die Spur. Aber zuerst musst du lernen, so etwas zu lesen. Keine Angst: Wir fangen ganz vorne an."}
+      ],
+      "text": [
+        "## Was ist eine Datenbank?",
+        "Eine **Datenbank** ist eine geordnete Sammlung von Daten, die ein Computer speichert und schnell durchsuchen kann. Beispiele: alle Bücher einer Bibliothek, alle Kunden eines Reisebüros, alle Noten einer Schule.",
+        "In einer **relationalen Datenbank** (kurz RDB) stehen die Daten in **Tabellen** – ähnlich wie in einer Excel-Tabelle. Eine Datenbank besteht meistens aus mehreren Tabellen.",
+        "Die Datenbank des Flughafens heisst *flugbuchung* und hat drei Tabellen:",
+        "- `kunde` – wer bei der Fluggesellschaft Kunde ist",
+        "- `flug` – welche Flüge es gibt",
+        "- `buchung` – wer welchen Flug gebucht hat",
+        "> Merke: Eine relationale Datenbank ist eine Sammlung von Tabellen."
+      ]
+    },
+    {
+      "id": "s-tabelle",
+      "typ": "info",
+      "titel": "Eine Tabelle lesen",
+      "story": "Schau dir die ersten fünf Kunden an. So sieht eine Tabelle aus:",
+      "text": [
+        "| knr | name | vorname | alter |",
+        "|---|---|---|---|",
+        "| 1 | Adlon | Markus | 26 |",
+        "| 2 | Schmitz | Marco | 25 |",
+        "| 3 | Meier | Julia | 32 |",
+        "| 4 | Meyer | Herman | 64 |",
+        "| 5 | Messdiener | Jochen | 15 |",
+        "",
+        "- Die Tabelle hat einen **Namen**: `kunde`.",
+        "- Die **Kopfzeile** enthält die Spaltennamen: `knr` (Kundennummer), `name`, `vorname`, `alter`.",
+        "- Jede weitere **Zeile** beschreibt genau *einen* Kunden. Die Zeile `3 | Meier | Julia | 32` ist die Kundin Julia Meier.",
+        "- Jede **Spalte** enthält dieselbe Art von Information für alle Kunden, z. B. die Spalte `alter` das Alter.",
+        "- Eine einzelne **Zelle** enthält einen Wert, z. B. `Julia`.",
+        "> Die Kopfzeile ist keine Datenzeile. Sie sagt nur, was in den Spalten steht."
+      ]
+    },
+    {
+      "id": "a-zeilen-spalten",
+      "typ": "choice",
+      "titel": "Zeilen und Spalten zählen",
+      "lz": ["L3"],
+      "thema": "Tabellenaufbau",
+      "stufe": 1,
+      "story": "Fangen wir mit Zählen an.",
+      "frage": [
+        "| knr | name | vorname | alter |",
+        "|---|---|---|---|",
+        "| 1 | Adlon | Markus | 26 |",
+        "| 2 | Schmitz | Marco | 25 |",
+        "| 3 | Meier | Julia | 32 |",
+        "| 4 | Meyer | Herman | 64 |",
+        "| 5 | Messdiener | Jochen | 15 |",
+        "",
+        "Wie viele **Datenzeilen** und wie viele **Spalten** hat diese Tabelle?"
+      ],
+      "optionen": [
+        {"text": "5 Zeilen und 4 Spalten", "richtig": true, "warum": "Genau: 5 Kunden, und für jeden 4 Angaben."},
+        {"text": "4 Zeilen und 5 Spalten", "warum": "Vertauscht: Zeilen gehen von links nach rechts (ein Kunde pro Zeile), Spalten von oben nach unten."},
+        {"text": "6 Zeilen und 4 Spalten", "warum": "Die Kopfzeile mit den Spaltennamen zählt nicht als Datenzeile."},
+        {"text": "20 Zeilen", "warum": "20 ist die Anzahl Zellen (5 · 4), nicht die Anzahl Zeilen."}
+      ],
+      "hinweise": [
+        "Eine Zeile beschreibt genau einen Kunden. Wie viele Kunden siehst du?",
+        "Die Kopfzeile (knr, name, …) ist keine Datenzeile."
+      ],
+      "erklaerung": "Jeder Kunde ist eine **Zeile** (hier 5). Jede Art von Angabe ist eine **Spalte** (hier 4: knr, name, vorname, alter). Die Kopfzeile zählt nicht mit."
+    },
+    {
+      "id": "s-begriffe",
+      "typ": "info",
+      "titel": "Die Fachbegriffe",
+      "story": "In der Prüfung werden Fachbegriffe verwendet. Die lernen wir jetzt – es sind nur neue Namen für Dinge, die du schon kennst.",
+      "text": [
+        "| Alltagswort | Fachbegriff | Beispiel in `kunde` |",
+        "|---|---|---|",
+        "| Tabelle | **Relation** (Tabelle mit Namen) | `kunde` |",
+        "| Zeile | **Datensatz** (auch **Tupel**) | `3 · Meier · Julia · 32` |",
+        "| Spalte / Spaltenname | **Attribut** (Attributname) | `vorname` |",
+        "| Zelle / Eintrag | **Attributwert** (auch einfach **Wert**) | `Julia` |",
+        "",
+        "Ein **Datensatz** besteht also aus einer Reihe von **Attributwerten** – für jedes Attribut einer.",
+        "",
+        "Datensätze verschiedener Tabellen können **logisch verknüpft** sein: In der Tabelle `buchung` steht bei jeder Buchung eine Kundennummer `knr`. Über diesen Wert findest du in `kunde` heraus, wer gebucht hat. Das schauen wir gleich genauer an.",
+        "> Merke: Relation = Tabelle · Datensatz = Zeile · Attribut = Spalte · Attributwert = einzelner Wert."
+      ]
+    },
+    {
+      "id": "a-begriffe",
+      "typ": "zuordnen",
+      "titel": "Begriffe zuordnen",
+      "lz": ["L3"],
+      "thema": "Fachbegriffe",
+      "stufe": 1,
+      "story": "Kannst du die Begriffe schon zuordnen?",
+      "frage": "Ordne jedem Teil der Tabelle `kunde` den passenden Fachbegriff zu.",
+      "kategorien": ["Relation", "Datensatz", "Attribut", "Attributwert"],
+      "elemente": [
+        {"text": "`kunde` (der Name der Tabelle)", "antwort": "Relation", "warum": "Eine Relation ist eine Tabelle mit Namen."},
+        {"text": "die ganze Zeile `4 | Meyer | Herman | 64`", "antwort": "Datensatz", "warum": "Eine Zeile ist ein Datensatz (Tupel)."},
+        {"text": "`vorname` (eine Spaltenüberschrift)", "antwort": "Attribut", "warum": "Die Spaltennamen sind die Attribute."},
+        {"text": "`64` (ein einzelner Eintrag)", "antwort": "Attributwert", "warum": "Ein einzelner Eintrag ist ein Attributwert."},
+        {"text": "`alter` (eine Spaltenüberschrift)", "antwort": "Attribut", "warum": "Auch alter ist ein Attribut."}
+      ],
+      "hinweise": [
+        "Relation = Tabelle, Datensatz = Zeile.",
+        "Attribut = Spalte (ihr Name steht in der Kopfzeile), Attributwert = ein einzelner Eintrag."
+      ],
+      "erklaerung": "Die **Relation** `kunde` enthält **Datensätze** (Zeilen). Jeder Datensatz hat für jedes **Attribut** (Spalte) einen **Attributwert**."
+    },
+    {
+      "id": "a-wert",
+      "typ": "text",
+      "titel": "Einen Wert ablesen",
+      "lz": ["L3"],
+      "thema": "Werte ablesen",
+      "stufe": 1,
+      "story": "Tabea zeigt auf die Tabelle: «Lies mir einen Wert vor.»",
+      "frage": "Welchen **Attributwert** hat das Attribut `vorname` im Datensatz mit `knr` = {{knr}}?",
+      "zeigen": ["kunde"],
+      "antworten": ["{{vorname}}"],
+      "parameter": [
+        {"knr": 3, "vorname": "Julia"},
+        {"knr": 6, "vorname": "Katharina"},
+        {"knr": 9, "vorname": "Michael"},
+        {"knr": 11, "vorname": "Ulrich"}
+      ],
+      "hinweise": [
+        "Suche zuerst die Zeile (den Datensatz), in der in der Spalte knr die {{knr}} steht.",
+        "Gehe in dieser Zeile nach rechts bis zur Spalte vorname."
+      ],
+      "erklaerung": "Ein Attributwert steht dort, wo sich ein **Datensatz** (Zeile, hier knr = {{knr}}) und ein **Attribut** (Spalte vorname) kreuzen: **{{vorname}}**."
+    },
+    {
+      "id": "s-erste-abfrage",
+      "typ": "info",
+      "titel": "Deine erste Abfrage",
+      "story": "Die echte Tabelle hat mehr Zeilen, als auf ein Blatt passen. Darum fragen wir die Datenbank direkt – mit **SQL**.",
+      "text": [
+        "**SQL** (Structured Query Language) ist die Sprache, mit der man einer relationalen Datenbank Fragen stellt. Eine Frage heisst **Abfrage**. Die Datenbank antwortet mit einer **Ergebnistabelle**.",
+        "Die einfachste Abfrage zeigt eine ganze Tabelle:",
+        "```sql",
+        "SELECT *",
+        "FROM kunde",
+        "```",
+        "- `SELECT` heisst «wähle aus» – danach steht, **welche Spalten** du sehen willst.",
+        "- `*` (Stern) bedeutet: **alle Spalten**.",
+        "- `FROM kunde` heisst «aus der Tabelle kunde».",
+        "Gross- oder Kleinschreibung der Schlüsselwörter ist egal (`select` geht auch), üblich ist gross. Das Semikolon `;` am Ende darfst du weglassen.",
+        "> So arbeitest du hier: Abfrage ins Feld schreiben, dann **Prüfen** drücken (oder Ctrl/Cmd + Enter). Mit **Nur ausführen** siehst du das Ergebnis, ohne dass es bewertet wird."
+      ]
+    },
+    {
+      "id": "a-erste-abfrage",
+      "typ": "sql",
+      "titel": "Alle Kunden anzeigen",
+      "lz": ["L12"],
+      "thema": "SELECT *",
+      "stufe": 1,
+      "story": "Die Abfrage habe ich dir schon hingeschrieben. Drück einfach auf **Prüfen** und schau, was passiert.",
+      "frage": "Zeige alle Datensätze der Tabelle `kunde` mit allen Spalten.",
+      "vorlage": "SELECT *\nFROM kunde",
+      "loesung": "SELECT * FROM kunde",
+      "hinweise": [
+        "Die Abfrage steht schon im Feld. Du musst nur auf «Prüfen» drücken.",
+        "Falls du etwas gelöscht hast: SELECT * FROM kunde"
+      ],
+      "erklaerung": "`SELECT *` wählt alle Spalten, `FROM kunde` die Tabelle. Das Ergebnis enthält alle **11 Datensätze** der Tabelle kunde. Am Ende der Ergebnistabelle steht immer die Anzahl Zeilen."
+    },
+    {
+      "id": "a-tabelle-flug",
+      "typ": "sql",
+      "titel": "Alle Flüge anzeigen",
+      "lz": ["L12", "L9"],
+      "thema": "SELECT *",
+      "stufe": 1,
+      "story": "Jetzt du allein: NULL ist in eine Transportkiste gekrochen. Welche Flüge gibt es überhaupt?",
+      "frage": "Zeige alle Datensätze der Tabelle `flug` mit allen Spalten.",
+      "loesung": "SELECT * FROM flug",
+      "hinweise": [
+        "Die Abfrage sieht fast gleich aus wie die vorherige. Nur der Tabellenname ändert sich.",
+        "SELECT * FROM … – setze den Namen der Tabelle mit den Flügen ein."
+      ],
+      "erklaerung": "`SELECT * FROM flug` liefert alle 5 Flüge. Der Tabellenname muss genau so geschrieben sein wie im Schema (unten beim Eingabefeld siehst du alle Tabellen mit ihren Spalten)."
+    },
+    {
+      "id": "s-spalten",
+      "typ": "info",
+      "titel": "Nur bestimmte Spalten",
+      "story": "Oft brauchst du nicht alle Angaben. Dann nennst du nach SELECT nur die Spalten, die dich interessieren.",
+      "text": [
+        "```sql",
+        "SELECT name, vorname",
+        "FROM kunde",
+        "```",
+        "- Die Spaltennamen werden mit **Komma** getrennt.",
+        "- Die Spalten erscheinen in der Reihenfolge, in der du sie hinschreibst.",
+        "- Es werden trotzdem **alle Zeilen** ausgegeben – nur eben mit weniger Spalten.",
+        "Das Auswählen von Spalten heisst **Projektion**. (Das Auswählen von *Zeilen* mit WHERE lernst du später; es heisst **Selektion**.)",
+        "> Achtung: Kein Komma nach der letzten Spalte! `SELECT name, vorname, FROM kunde` ist ein Fehler."
+      ]
+    },
+    {
+      "id": "a-spalten",
+      "typ": "sql",
+      "titel": "Eine Namensliste",
+      "lz": ["L12", "L9"],
+      "thema": "Projektion",
+      "stufe": 1,
+      "story": "Ich brauche eine Namensliste aller Kunden, um Zeugen zu befragen.",
+      "frage": "Zeige von allen Kunden nur den **Vornamen und den Namen** (in dieser Reihenfolge: zuerst `vorname`, dann `name`).",
+      "loesung": "SELECT vorname, name FROM kunde",
+      "hinweise": [
+        "Statt * schreibst du die gewünschten Spalten hin, getrennt mit Komma.",
+        "Die Spalten heissen vorname und name. Die Tabelle heisst kunde.",
+        "SELECT vorname, name FROM …"
+      ],
+      "erklaerung": "`SELECT vorname, name FROM kunde` gibt zwei Spalten aus, aber weiterhin **alle 11 Zeilen**. Projektion (Spalten auswählen) verändert die Anzahl Zeilen nicht."
+    },
+    {
+      "id": "a-anzahl",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "titel": "Wie viele Zeilen?",
+      "lz": ["L10", "L12"],
+      "thema": "Projektion",
+      "stufe": 1,
+      "story": "In der Prüfung kannst du Abfragen nicht ausführen. Du musst das Ergebnis selbst bestimmen. Üben wir das!",
+      "frage": "Die Tabelle `kunde` siehst du unten. Wie viele Zeilen liefert diese Abfrage?",
+      "abfrage": "SELECT name\nFROM kunde",
+      "zeigen": ["kunde"],
+      "hinweise": [
+        "Es gibt kein WHERE. Es wird also keine Zeile weggelassen.",
+        "SELECT name wählt nur eine Spalte aus – die Anzahl Zeilen bleibt gleich wie in der Tabelle."
+      ],
+      "erklaerung": "Ohne WHERE werden alle Datensätze ausgegeben. `SELECT name` wählt nur die Spalte aus. Darum hat das Ergebnis gleich viele Zeilen wie die Tabelle: **11**."
+    },
+    {
+      "id": "s-verknuepfung",
+      "typ": "info",
+      "titel": "Tabellen hängen zusammen",
+      "story": "Jetzt wird es spannend. Wer hat welchen Flug gebucht? Das steht in einer dritten Tabelle.",
+      "text": [
+        "Ein Ausschnitt der Tabelle `buchung`:",
+        "| bnr | knr | flugnr | sitz | datum |",
+        "|---|---|---|---|---|",
+        "| 1001 | 1 | US1 | 12 | 2025-09-15 |",
+        "| 1002 | 8 | GW4 | 54 | 2025-09-23 |",
+        "",
+        "Die Buchung 1001 enthält keinen Namen – nur die Kundennummer `knr` = 1. In der Tabelle `kunde` ist der Datensatz mit `knr` = 1 **Markus Adlon**. Die beiden Datensätze sind über den gleichen Wert **logisch verknüpft**.",
+        "Genauso führt `flugnr` = US1 zum Flug US1 in der Tabelle `flug`.",
+        "> Logische Verknüpfung: Datensätze verschiedener Tabellen gehören zusammen, weil sie in einem Attribut den gleichen Wert haben (hier knr). Wie man das mit SQL ausnutzt, lernst du in späteren Kapiteln."
+      ]
+    },
+    {
+      "id": "a-verknuepfung",
+      "typ": "choice",
+      "titel": "Wer hat gebucht?",
+      "lz": ["L3"],
+      "thema": "logische Verknüpfung",
+      "stufe": 2,
+      "story": "Die Transportkiste wurde zusammen mit dem Gepäck der Buchung **1003** verladen. Wem gehört diese Buchung?",
+      "frage": "Wer hat die Buchung mit `bnr` = 1003 gemacht?",
+      "zeigen": ["buchung", "kunde"],
+      "optionen": [
+        {"text": "Dirk Beyenburg", "richtig": true, "warum": "Buchung 1003 hat knr 7, und knr 7 ist Dirk Beyenburg."},
+        {"text": "Julia Meier", "warum": "Julia Meier hat knr 3. In der Buchung 1003 steht aber knr 7."},
+        {"text": "Claudia Paetzold", "warum": "Claudia Paetzold (knr 8) hat die Buchung 1002 gemacht, die direkt darüber steht."},
+        {"text": "Das kann man nicht herausfinden, weil in der Tabelle buchung kein Name steht.", "warum": "Doch: Über den Wert von knr ist die Buchung mit dem Kunden verknüpft."}
+      ],
+      "hinweise": [
+        "Suche in der Tabelle buchung die Zeile mit bnr 1003. Welche knr steht dort?",
+        "Suche nun in der Tabelle kunde den Datensatz mit dieser knr."
+      ],
+      "erklaerung": "Buchung 1003 → `knr` = 7 → in `kunde` ist knr 7 **Dirk Beyenburg**. Er fliegt mit GW4 von LondonStansted nach Köln/Bonn. So hängen Datensätze verschiedener Tabellen **logisch** zusammen."
+    },
+    {
+      "id": "s-tabelle-fuellen",
+      "typ": "info",
+      "titel": "Eine Tabelle selbst füllen",
+      "story": "Zum Schluss drehen wir den Spiess um: Du bekommst Informationen in Worten und trägst sie in eine Tabelle ein.",
+      "text": [
+        "So gehst du vor:",
+        "1. Welche Spalten (Attribute) hat die Tabelle? Die sind fest vorgegeben.",
+        "2. Jede Sache (hier: jede Person) wird **eine neue Zeile** (ein Datensatz).",
+        "3. Jede Angabe kommt in die **passende Spalte**. Eine Zelle enthält nur **einen** Wert.",
+        "Beispiel: «Herr Tom Graf, 40 Jahre, Kundennummer 20» wird in `kunde` (knr, name, vorname, alter) zur Zeile:",
+        "| knr | name | vorname | alter |",
+        "|---|---|---|---|",
+        "| 20 | Graf | Tom | 40 |",
+        "> Zahlen schreibst du ohne Einheit («40», nicht «40 Jahre»)."
+      ]
+    },
+    {
+      "id": "a-tabelle-fuellen",
+      "typ": "tabelle",
+      "titel": "Eine neue Kundin",
+      "lz": ["L8"],
+      "thema": "Tabelle füllen",
+      "stufe": 1,
+      "story": "Eine Zeugin meldet sich und will mitfliegen, um NULL zu suchen. Erfasse sie als neue Kundin.",
+      "frage": "Neue Kundin: **Lea Brunner**, 31 Jahre alt, erhält die Kundennummer **12**. Fülle die letzte Zeile der Tabelle `kunde` aus.",
+      "tabellenname": "kunde (Ausschnitt)",
+      "spalten": ["knr", "name", "vorname", "alter"],
+      "zeilen": [
+        ["10", "Ackermann", "Volker", "28"],
+        ["11", "Lahm", "Ulrich", "23"],
+        [{"loesung": "12"}, {"loesung": "Brunner"}, {"loesung": "Lea"}, {"loesung": ["31", "31 Jahre"]}]
+      ],
+      "hinweise": [
+        "Die Spalte name enthält den Nachnamen, vorname den Vornamen.",
+        "Für alter schreibst du nur die Zahl."
+      ],
+      "erklaerung": "Die Kundin wird ein neuer **Datensatz**: knr 12, name Brunner, vorname Lea, alter 31. Jede Angabe steht im passenden **Attribut**."
+    },
+    {
+      "id": "s-ende",
+      "typ": "info",
+      "titel": "Erste Spur gefunden",
+      "story": [
+        {"sprecher": "tabea", "text": "Stark! Du kannst Tabellen lesen und deine ersten Abfragen schreiben."},
+        {"sprecher": "pilotin", "text": "Ich bin Rita Riff, Pilotin. Die Kiste mit dem Kater wurde nicht verladen. Sie stand zuletzt neben einem Stapel **Bücher aus der Stadtbibliothek**. Fragt dort nach!"},
+        {"sprecher": "tabea", "text": "Auf in die Bibliothek! Aber vorher: Übe das Gelernte mit den Zusatzaufgaben. Sie kommen später automatisch zur Wiederholung."}
+      ],
+      "text": [
+        "## Zusammenfassung",
+        "- Eine **relationale Datenbank** ist eine Sammlung von **Tabellen (Relationen)**.",
+        "- Zeile = **Datensatz** (Tupel), Spalte = **Attribut**, einzelner Eintrag = **Attributwert**.",
+        "- Datensätze verschiedener Tabellen sind über gleiche Werte **logisch verknüpft** (z. B. knr).",
+        "- `SELECT * FROM tabelle` zeigt alle Spalten, `SELECT spalte1, spalte2 FROM tabelle` nur ausgewählte Spalten (**Projektion**). Die Anzahl Zeilen bleibt gleich."
+      ]
+    }
+  ],
+  "pool": [
+    {
+      "id": "p-begriff-zeile",
+      "typ": "choice",
+      "lz": ["L3"],
+      "thema": "Fachbegriffe",
+      "stufe": 1,
+      "frage": "Wie heisst eine **Zeile** einer Tabelle in der Fachsprache?",
+      "mischen": true,
+      "optionen": [
+        {"text": "Datensatz (Tupel)", "richtig": true},
+        {"text": "Attribut", "warum": "Ein Attribut ist eine Spalte."},
+        {"text": "Relation", "warum": "Eine Relation ist die ganze Tabelle."},
+        {"text": "Attributwert", "warum": "Ein Attributwert ist ein einzelner Eintrag, nicht die ganze Zeile."}
+      ],
+      "hinweise": ["Eine Zeile beschreibt genau einen Gegenstand oder eine Person vollständig."],
+      "erklaerung": "Eine Zeile ist ein **Datensatz**, auch **Tupel** genannt. Sie besteht aus den Attributwerten für alle Attribute."
+    },
+    {
+      "id": "p-begriff-spalte",
+      "typ": "text",
+      "lz": ["L3"],
+      "thema": "Fachbegriffe",
+      "stufe": 1,
+      "frage": "Wie nennt man eine **Spalte** einer Tabelle (ihr Name steht in der Kopfzeile) in der Fachsprache? Ein Wort genügt.",
+      "antworten": ["Attribut", "Attribute", "Attributname", "Attributnamen"],
+      "hinweise": ["Das Wort beginnt mit A.", "Der einzelne Eintrag heisst Attribut**wert** – die Spalte selbst …"],
+      "erklaerung": "Die Spalten heissen **Attribute**; die Namen in der Kopfzeile sind die Attributnamen."
+    },
+    {
+      "id": "p-begriff-relation",
+      "typ": "choice",
+      "lz": ["L3"],
+      "thema": "Fachbegriffe",
+      "stufe": 1,
+      "frage": "Was ist in einer relationalen Datenbank eine **Relation**?",
+      "mischen": true,
+      "optionen": [
+        {"text": "Eine Tabelle mit einem Namen", "richtig": true},
+        {"text": "Eine einzelne Zeile einer Tabelle", "warum": "Das ist ein Datensatz."},
+        {"text": "Eine Beziehung zwischen zwei Personen", "warum": "Im Alltag ja, in der Datenbank-Fachsprache ist eine Relation aber eine Tabelle."},
+        {"text": "Ein einzelner Wert in einer Zelle", "warum": "Das ist ein Attributwert."}
+      ],
+      "hinweise": ["Das «relational» in «relationale Datenbank» kommt von genau diesem Wort."],
+      "erklaerung": "Eine **Relation** ist eine Tabelle mit Namen. Eine relationale Datenbank ist eine Sammlung von Relationen."
+    },
+    {
+      "id": "p-wert-flug",
+      "typ": "text",
+      "lz": ["L3"],
+      "thema": "Werte ablesen",
+      "stufe": 1,
+      "frage": "Welchen Attributwert hat das Attribut `nach` im Datensatz des Flugs **{{flugnr}}**?",
+      "zeigen": ["flug"],
+      "antworten": ["{{nach}}"],
+      "parameter": [
+        {"flugnr": "US1", "nach": "Pittsburgh"},
+        {"flugnr": "BA1", "nach": "Berlin"},
+        {"flugnr": "LH772", "nach": "Sydney"},
+        {"flugnr": "LH7", "nach": "NewYorkJFK"}
+      ],
+      "hinweise": ["Suche die Zeile mit flugnr {{flugnr}} und lies die Spalte nach ab."],
+      "erklaerung": "Datensatz {{flugnr}}, Attribut nach → **{{nach}}**."
+    },
+    {
+      "id": "p-verkn-buchung",
+      "typ": "text",
+      "lz": ["L3"],
+      "thema": "logische Verknüpfung",
+      "stufe": 2,
+      "frage": "Wie lautet der **Nachname** (Attribut `name`) der Person, die die Buchung **{{bnr}}** gemacht hat?",
+      "zeigen": ["buchung", "kunde"],
+      "antworten": ["{{name}}"],
+      "parameter": [
+        {"bnr": 1005, "knr": 2, "name": "Schmitz"},
+        {"bnr": 1006, "knr": 6, "name": "Tiedemann"},
+        {"bnr": 1007, "knr": 5, "name": "Messdiener"},
+        {"bnr": 1008, "knr": 4, "name": "Meyer"}
+      ],
+      "hinweise": ["In der Tabelle buchung steht bei {{bnr}} eine knr.", "Die knr ist {{knr}}. Suche diesen Kunden in der Tabelle kunde."],
+      "erklaerung": "Buchung {{bnr}} → knr {{knr}} → Kunde **{{name}}**. Die Datensätze sind über den gemeinsamen Wert von knr logisch verknüpft."
+    },
+    {
+      "id": "p-spalte-zeile-anzahl",
+      "typ": "choice",
+      "lz": ["L3", "L8"],
+      "thema": "Tabellenaufbau",
+      "stufe": 2,
+      "frage": "Eine Tabelle `schueler` speichert für **24 Schülerinnen und Schüler** je **Vorname, Name und Klasse**. Wie viele Datensätze und Attribute hat sie?",
+      "mischen": true,
+      "optionen": [
+        {"text": "24 Datensätze, 3 Attribute", "richtig": true},
+        {"text": "3 Datensätze, 24 Attribute", "warum": "Vertauscht: Jede Person ist ein Datensatz (eine Zeile)."},
+        {"text": "25 Datensätze, 3 Attribute", "warum": "Die Kopfzeile ist kein Datensatz."},
+        {"text": "72 Datensätze", "warum": "72 = 24 · 3 ist die Anzahl Attributwerte (Zellen)."}
+      ],
+      "hinweise": ["Eine Person = eine Zeile. Eine Art Angabe = eine Spalte."],
+      "erklaerung": "Jede Person wird ein **Datensatz** (24), jede Art Angabe ein **Attribut** (3). Insgesamt gibt es 72 Attributwerte."
+    },
+    {
+      "id": "p-alle-daten",
+      "typ": "sql",
+      "lz": ["L12"],
+      "thema": "SELECT *",
+      "stufe": 1,
+      "frage": "Zeige alle Datensätze der Tabelle `{{tabelle}}` mit allen Spalten.",
+      "loesung": "SELECT * FROM {{tabelle}}",
+      "parameter": [
+        {"tabelle": "kunde"},
+        {"tabelle": "flug"},
+        {"tabelle": "buchung"}
+      ],
+      "hinweise": ["Alle Spalten wählst du mit dem Stern * aus.", "SELECT * FROM …"],
+      "erklaerung": "`SELECT * FROM {{tabelle}}` gibt alle Spalten und alle Zeilen der Tabelle {{tabelle}} aus."
+    },
+    {
+      "id": "p-zwei-spalten",
+      "typ": "sql",
+      "lz": ["L12", "L9"],
+      "thema": "Projektion",
+      "stufe": 1,
+      "frage": "Zeige von allen {{was}} nur die Spalten `{{a}}` und `{{b}}` (in dieser Reihenfolge).",
+      "loesung": "SELECT {{a}}, {{b}} FROM {{t}}",
+      "parameter": [
+        {"was": "Flügen", "a": "flugnr", "b": "nach", "t": "flug"},
+        {"was": "Buchungen", "a": "bnr", "b": "sitz", "t": "buchung"},
+        {"was": "Kunden", "a": "knr", "b": "name", "t": "kunde"},
+        {"was": "Flügen", "a": "fluglinie", "b": "von", "t": "flug"}
+      ],
+      "hinweise": ["Die Spaltennamen kommen nach SELECT, durch Komma getrennt.", "Aus welcher Tabelle kommen die {{was}}? Das kommt nach FROM."],
+      "erklaerung": "`SELECT {{a}}, {{b}} FROM {{t}}` – Projektion auf zwei Attribute. Alle Zeilen bleiben erhalten."
+    },
+    {
+      "id": "p-alter",
+      "typ": "sql",
+      "lz": ["L12"],
+      "thema": "Projektion",
+      "stufe": 2,
+      "frage": "Zeige von allen Kunden `name` und `alter`. Achtung: `alter` ist in SQLite ein reserviertes Wort und muss in **doppelten Anführungszeichen** stehen: `\"alter\"`.",
+      "loesung": "SELECT name, \"alter\" FROM kunde",
+      "hinweise": ["SELECT name, … FROM kunde", "Schreibe \"alter\" mit doppelten Anführungszeichen."],
+      "erklaerung": "`SELECT name, \"alter\" FROM kunde`. In vielen Datenbanken ist ALTER ein Befehlswort (ALTER TABLE). Mit doppelten Anführungszeichen sagst du: Das ist ein Spaltenname. Auf Papier in der Prüfung darfst du einfach alter schreiben."
+    },
+    {
+      "id": "p-anzahl-tabelle",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "lz": ["L10", "L12"],
+      "thema": "Zeilen zählen",
+      "stufe": 1,
+      "frage": "Wie viele Zeilen liefert diese Abfrage?",
+      "abfrage": "SELECT *\nFROM {{t}}",
+      "zeigen": ["{{t}}"],
+      "parameter": [
+        {"t": "kunde"},
+        {"t": "flug"},
+        {"t": "buchung"}
+      ],
+      "hinweise": ["Ohne WHERE wird keine Zeile weggelassen. Zähle die Zeilen der Tabelle."],
+      "erklaerung": "`SELECT * FROM {{t}}` liefert alle Datensätze der Tabelle {{t}}."
+    },
+    {
+      "id": "p-anzahl-projektion",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "lz": ["L10", "L12"],
+      "thema": "Projektion",
+      "stufe": 2,
+      "frage": "Wie viele Zeilen liefert diese Abfrage? (Gleiche Werte werden **nicht** automatisch zusammengefasst.)",
+      "abfrage": "SELECT flugnr\nFROM buchung",
+      "zeigen": ["buchung"],
+      "hinweise": ["Die Spalte flugnr enthält manche Werte mehrmals. Werden sie zusammengefasst?", "Nein – jede Buchung ergibt eine Zeile."],
+      "erklaerung": "Es werden alle **9** Buchungen ausgegeben, auch wenn z. B. US1 dreimal vorkommt. Doppelte Zeilen entfernt man erst mit DISTINCT (kommt später)."
+    },
+    {
+      "id": "p-tabelle-flug",
+      "typ": "tabelle",
+      "lz": ["L8"],
+      "thema": "Tabelle füllen",
+      "stufe": 2,
+      "frage": "Neuer Flug: Die Fluglinie **Swiss** fliegt mit der Flugnummer **LX18** von **Zürich** nach **Newark**. Abflug 10:05:00, Ankunft 13:15:00, das Flugzeug hat **340** Plätze. Fülle die Zeile aus.",
+      "tabellenname": "flug",
+      "spalten": ["flugnr", "fluglinie", "von", "nach", "ab", "an", "groesse"],
+      "zeilen": [
+        ["LH7", "Lufthansa", "Frankfurt", "NewYorkJFK", "10:00:00", "12:30:00", "421"],
+        [{"loesung": "LX18"}, {"loesung": "Swiss"}, {"loesung": "Zürich"}, {"loesung": "Newark"}, {"loesung": ["10:05:00", "10:05"]}, {"loesung": ["13:15:00", "13:15"]}, {"loesung": "340"}]
+      ],
+      "hinweise": ["groesse ist die Anzahl Plätze.", "ab = Abflugzeit, an = Ankunftszeit."],
+      "erklaerung": "Jede Angabe gehört in genau ein Attribut: flugnr LX18, fluglinie Swiss, von Zürich, nach Newark, ab 10:05:00, an 13:15:00, groesse 340."
+    },
+    {
+      "id": "p-tabelle-buchung",
+      "typ": "tabelle",
+      "lz": ["L8", "L3"],
+      "thema": "Tabelle füllen",
+      "stufe": 2,
+      "frage": "**Julia Meier** (Kundennummer 3) bucht auf dem Flug **BA1** den Sitz **14** für den **30. September 2025**. Die Buchungsnummer ist **1010**. Trage die Buchung ein (Datum im Format JJJJ-MM-TT wie in der Tabelle).",
+      "tabellenname": "buchung",
+      "spalten": ["bnr", "knr", "flugnr", "sitz", "datum"],
+      "zeilen": [
+        ["1009", "8", "US1", "79", "2025-09-23"],
+        [{"loesung": "1010"}, {"loesung": "3"}, {"loesung": "BA1"}, {"loesung": "14"}, {"loesung": ["2025-09-30"], "platzhalter": "JJJJ-MM-TT"}]
+      ],
+      "hinweise": ["In buchung steht nicht der Name, sondern die Kundennummer knr.", "Datum: zuerst das Jahr, dann Monat, dann Tag: 2025-09-…"],
+      "erklaerung": "In der Tabelle buchung steht nur die **knr 3** – der Name steht in der Tabelle kunde. Über die knr sind die Datensätze logisch verknüpft. Datum: 2025-09-30."
+    },
+    {
+      "id": "p-tabelle-kunden",
+      "typ": "tabelle",
+      "lz": ["L8"],
+      "thema": "Tabelle füllen",
+      "stufe": 1,
+      "frage": "Zwei neue Kunden: **Noah Keller**, 19 Jahre, Kundennummer 13, und **Mia Graf**, 45 Jahre, Kundennummer 14. Trage beide ein.",
+      "tabellenname": "kunde",
+      "spalten": ["knr", "name", "vorname", "alter"],
+      "zeilen": [
+        [{"loesung": "13"}, {"loesung": "Keller"}, {"loesung": "Noah"}, {"loesung": "19"}],
+        [{"loesung": "14"}, {"loesung": "Graf"}, {"loesung": "Mia"}, {"loesung": "45"}]
+      ],
+      "hinweise": ["Jede Person ist eine eigene Zeile.", "name = Nachname, vorname = Vorname."],
+      "erklaerung": "Zwei Personen ergeben zwei **Datensätze**. Jeder hat für jedes Attribut einen Wert."
+    }
+  ]
+}

@@ -1,0 +1,1803 @@
+{
+  "id": "k03",
+  "titel": "Schlüssel zu allem",
+  "untertitel": "Primärschlüssel, Fremdschlüssel und Datentypen: woran man Datensätze erkennt und was in eine Spalte gehört.",
+  "db": "bibliothek",
+  "lernziele": [
+    "L4",
+    "L5"
+  ],
+  "dauer": 45,
+  "schritte": [
+    {
+      "id": "s-start",
+      "typ": "info",
+      "titel": "Zwei Mal Müller",
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Ich habe zwei Autoren, die Müller heissen. Wenn jemand «Müller» sagt, weiss ich nie, wen er meint."
+        },
+        {
+          "sprecher": "tabea",
+          "text": "Dafür gibt es Schlüssel. Sie sind das Rückgrat jeder Datenbank."
+        }
+      ],
+      "text": [
+        "## Wie findet man genau diese Person?",
+        "Im letzten Kapitel hast du gesehen, dass Bücher, Autoren und Verlage in getrennten Tabellen stehen und über **Nummern** verknüpft sind. Aber warum Nummern? Warum nicht einfach den Namen?",
+        "Schau dir zwei Zeilen aus der Tabelle `autor` an:",
+        "| autorid | nachname | vornamen |",
+        "|---|---|---|",
+        "| 203 | Müller | Claudia |",
+        "| 204 | Müller | Daniel |",
+        "Wer «Müller» sagt, meint vielleicht Claudia, vielleicht Daniel. Der Nachname **identifiziert** niemanden eindeutig. Die `autorid` aber schon: 203 ist Claudia, 204 ist Daniel, nie umgekehrt.",
+        "In diesem Kapitel geht es um solche **Schlüssel** und darum, **welche Art von Wert** in eine Spalte gehört (die Datentypen)."
+      ]
+    },
+    {
+      "id": "s-primaerschluessel",
+      "typ": "info",
+      "titel": "Der Primärschlüssel",
+      "story": [
+        {
+          "sprecher": "tabea",
+          "text": "Drei Eigenschaften, die du dir merken musst: eindeutig, nie NULL, minimal."
+        }
+      ],
+      "text": [
+        "## Was ist ein Primärschlüssel?",
+        "Der **Primärschlüssel** (englisch *primary key*, kurz **PK**) einer Tabelle ist ein Attribut (oder mehrere Attribute zusammen), das jeden Datensatz der Tabelle **eindeutig identifiziert**.",
+        "Alltagsbeispiele: die Matrikelnummer an der Uni, die AHV-Nummer, die Autonummer. Jede gehört genau einer Person bzw. einem Fahrzeug.",
+        "Ein Primärschlüssel muss drei Dinge erfüllen:",
+        "1. **Eindeutig:** Kein Wert kommt in der Tabelle zweimal vor.",
+        "2. **Nie leer:** Jeder Datensatz hat einen Wert. Leer heisst in der Datenbanksprache **NULL** (kein Wert vorhanden).",
+        "3. **Minimal:** Er enthält keine überflüssigen Attribute. Was man streichen könnte, ohne dass er die Eindeutigkeit verliert, gehört nicht dazu.",
+        "> **Merke:** Primärschlüssel = eindeutig, nie NULL, minimal. Jede Tabelle in einer relationalen Datenbank hat einen.",
+        "Beispiel: In `autor` ist `autorid` der Primärschlüssel. `nachname` allein geht nicht (Müller gibt es zweimal). In der Schemadarstellung markiert man den PK, z. B. mit `[PK]` oder einem Schlüsselsymbol."
+      ]
+    },
+    {
+      "id": "a-pk-eigenschaften",
+      "typ": "choice",
+      "titel": "Was einen PK ausmacht",
+      "lz": [
+        "L4"
+      ],
+      "thema": "Eigenschaften des Primärschlüssels",
+      "stufe": 1,
+      "story": "Teste, ob du die drei Eigenschaften noch weisst.",
+      "frage": "Welche Eigenschaften muss ein **Primärschlüssel** haben? (Mehrere sind richtig.)",
+      "mehrfach": true,
+      "optionen": [
+        {
+          "text": "Jeder Wert kommt höchstens einmal vor (eindeutig).",
+          "richtig": true,
+          "warum": "Ja, sonst wäre der Datensatz nicht identifizierbar."
+        },
+        {
+          "text": "Er darf nie leer (NULL) sein.",
+          "richtig": true,
+          "warum": "Ja, ohne Wert kann man den Datensatz nicht identifizieren."
+        },
+        {
+          "text": "Er ist minimal: kein überflüssiges Attribut.",
+          "richtig": true,
+          "warum": "Ja."
+        },
+        {
+          "text": "Er muss immer eine ganze Zahl sein.",
+          "warum": "Nein, auch Text ist möglich (flugnr in flug ist Text)."
+        },
+        {
+          "text": "Er muss immer aus mindestens zwei Attributen bestehen.",
+          "warum": "Nein, meistens genügt ein Attribut. Mehrere sind nur manchmal nötig."
+        }
+      ],
+      "hinweise": [
+        "Die drei Eigenschaften stehen im Merkkasten.",
+        "Ein PK muss keine Zahl sein."
+      ],
+      "erklaerung": "Ein Primärschlüssel ist **eindeutig**, **nie NULL** und **minimal**. Er muss weder eine Zahl sein (in `flug` ist `flugnr` ein Text wie «LH7») noch aus mehreren Attributen bestehen (oft genügt eins)."
+    },
+    {
+      "id": "a-pk-wahl",
+      "typ": "zuordnen",
+      "titel": "Welches Attribut identifiziert?",
+      "lz": [
+        "L4"
+      ],
+      "thema": "Geeigneter Primärschlüssel",
+      "stufe": 2,
+      "story": "Ammann hat drei Ideen, wie er Autoren erkennen will.",
+      "frage": "Die Tabelle `autor` hat die Attribute autorid, nachname und vornamen. In der Tabelle gibt es zwei Autoren mit Nachname «Müller» und zwei mit Nachname «Meier». Welche Wahl als Primärschlüssel ist **geeignet**, welche **nicht**?",
+      "kategorien": [
+        "geeignet",
+        "nicht geeignet"
+      ],
+      "zeigen": [
+        {
+          "titel": "autor (Ausschnitt)",
+          "sql": "SELECT autorid, nachname, vornamen FROM autor WHERE nachname IN ('Müller','Meier','Maier')"
+        }
+      ],
+      "elemente": [
+        {
+          "text": "autorid",
+          "antwort": "geeignet",
+          "warum": "Jeder Autor hat eine eigene Nummer."
+        },
+        {
+          "text": "nachname",
+          "antwort": "nicht geeignet",
+          "warum": "«Müller» und «Meier» kommen mehrfach vor."
+        },
+        {
+          "text": "vornamen",
+          "antwort": "nicht geeignet",
+          "warum": "Vornamen wiederholen sich noch viel häufiger."
+        },
+        {
+          "text": "(nachname, vornamen) zusammen",
+          "antwort": "nicht geeignet",
+          "warum": "Zwei Personen könnten beides gleich haben. Sicher eindeutig ist nur eine vergebene Nummer."
+        }
+      ],
+      "hinweise": [
+        "Kann der Wert in der Tabelle zweimal vorkommen?",
+        "Auch zwei Personen könnten beide Namen gleich haben, selbst wenn es hier zufällig nicht vorkommt."
+      ],
+      "erklaerung": "`autorid` ist eindeutig und je Autor gibt es genau einen Wert. Nachnamen kommen mehrfach vor. Die Kombination (nachname, vornamen) ist in dieser Tabelle zufällig eindeutig, kann aber bei zwei Personen mit gleichem Namen doppelt auftreten und ist darum **nicht** sicher."
+    },
+    {
+      "id": "s-kuenstlich",
+      "typ": "info",
+      "titel": "Künstliche und natürliche Schlüssel",
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Die ISBN ist doch eindeutig, die könnte ich als Schlüssel nehmen!"
+        }
+      ],
+      "text": [
+        "## Natürlich oder künstlich?",
+        "Ein Schlüssel kann aus den Daten selbst kommen (**natürlich**), zum Beispiel die ISBN eines Buchs. Oder man erfindet extra eine Nummer (**künstlicher** Primärschlüssel), zum Beispiel `buchid`.",
+        "Ein **künstlicher Primärschlüssel** hat keinen inhaltlichen Bezug zu den Daten. Er dient nur der eindeutigen Identifikation. `autorid` in `autor` und `verlagsid` in `verlag` sind künstliche Schlüssel.",
+        "## Warum nicht die ISBN?",
+        "Die ISBN ist eindeutig und scheint ideal. Trotzdem nimmt man `buchid`:",
+        "- Es gibt Bücher **ohne ISBN** (ältere Bücher, Eigendrucke). Dann wäre der PK leer, und das ist verboten.",
+        "- Eine kurze Nummer ist effizienter als ein langer Text mit Bindestrichen.",
+        "- Eine künstliche Nummer ändert sich nie. (Eine ISBN kann falsch erfasst oder korrigiert werden.)",
+        "In unserer Bibliothek hat zum Beispiel das Buch «Elektromagnetische Schaltungen und Schaltgeräte» (1956) keine ISBN."
+      ]
+    },
+    {
+      "id": "a-isbn",
+      "typ": "choice",
+      "titel": "Warum nicht die ISBN?",
+      "lz": [
+        "L4"
+      ],
+      "thema": "Künstlicher Primärschlüssel",
+      "stufe": 2,
+      "story": "Sieh dir die Bücher ohne ISBN an.",
+      "frage": "Schau die Bücher an. Warum ist die ISBN in der Bibliothek **kein** guter Primärschlüssel für `buch`?",
+      "zeigen": [
+        {
+          "titel": "Bücher ohne ISBN",
+          "sql": "SELECT buchid, titel, isbn, jahr FROM buch WHERE isbn IS NULL"
+        }
+      ],
+      "optionen": [
+        {
+          "text": "Es gibt Bücher ohne ISBN. Ein Primärschlüssel darf nie leer sein.",
+          "richtig": true,
+          "warum": "Genau."
+        },
+        {
+          "text": "Weil eine ISBN zu viele Ziffern hat und der Computer sie nicht speichern kann.",
+          "warum": "Speichern könnte er sie. Das Problem sind die leeren Werte."
+        },
+        {
+          "text": "Weil zwei Bücher dieselbe ISBN haben müssen.",
+          "warum": "Die ISBN ist eindeutig; das ist nicht das Problem."
+        },
+        {
+          "text": "Weil nur Zahlen als Primärschlüssel erlaubt sind.",
+          "warum": "Auch Text darf Primärschlüssel sein."
+        }
+      ],
+      "hinweise": [
+        "Was ist bei den Büchern ohne Wert in der Spalte isbn? Die Spalte ist leer (NULL).",
+        "Ein Primärschlüssel darf nie NULL sein."
+      ],
+      "erklaerung": "Nicht jedes Buch hat eine ISBN (z. B. die Bücher 3017 und 3031). Ein leerer Wert (NULL) ist als Primärschlüssel verboten. Darum nimmt man die künstliche `buchid`, die jedes Buch bekommt."
+    },
+    {
+      "id": "s-zusammengesetzt",
+      "typ": "info",
+      "titel": "Mehrere Attribute zusammen",
+      "story": [
+        {
+          "sprecher": "tabea",
+          "text": "Bei einer Verbindungstabelle ist der Schlüssel oft ein Paar."
+        }
+      ],
+      "text": [
+        "## Der zusammengesetzte Primärschlüssel",
+        "Manchmal identifiziert kein einzelnes Attribut einen Datensatz. Schau die Zwischentabelle `buch_aut` an (sie verbindet Bücher und Autoren):",
+        "| autorid | buchid |",
+        "|---|---|",
+        "| 141 | 122 |",
+        "| 141 | 1037 |",
+        "| 158 | 138 |",
+        "| 159 | 138 |",
+        "Die `autorid` 141 kommt zweimal vor (Brugger schrieb zwei Bücher). Die `buchid` 138 kommt zweimal vor (zwei Autoren). Einzeln sind beide **nicht** eindeutig. Aber das **Paar** (autorid, buchid) kommt nur einmal vor.",
+        "Darum ist der Primärschlüssel von `buch_aut` die Kombination **(autorid, buchid)**. Man nennt ihn **zusammengesetzten** (oder kombinierten) Primärschlüssel.",
+        "Minimal heisst: Beide Attribute sind nötig. Lässt du eines weg, ist es nicht mehr eindeutig."
+      ]
+    },
+    {
+      "id": "a-buchaut-pk",
+      "typ": "choice",
+      "titel": "Der Schlüssel der Zwischentabelle",
+      "lz": [
+        "L4"
+      ],
+      "thema": "Zusammengesetzter Primärschlüssel",
+      "stufe": 2,
+      "story": "Welche Spalten bilden den Schlüssel?",
+      "frage": "Was ist der Primärschlüssel der Tabelle `buch_aut` (mit den Spalten buchid, autorid, rolle, rang)?",
+      "zeigen": [
+        {
+          "titel": "buch_aut (Ausschnitt)",
+          "sql": "SELECT * FROM buch_aut WHERE buchid IN (138, 3002, 3010, 3020)"
+        }
+      ],
+      "optionen": [
+        {
+          "text": "(buchid, autorid) zusammen",
+          "richtig": true,
+          "warum": "Das Paar ist eindeutig, beide Attribute sind nötig."
+        },
+        {
+          "text": "nur buchid",
+          "warum": "buchid kommt mehrfach vor, z. B. bei Buch 138 mit zwei Autoren."
+        },
+        {
+          "text": "nur autorid",
+          "warum": "autorid kommt mehrfach vor (Brugger hat zwei Bücher)."
+        },
+        {
+          "text": "(buchid, autorid, rolle, rang) zusammen",
+          "warum": "Eindeutig, aber nicht minimal: rolle und rang sind überflüssig."
+        }
+      ],
+      "hinweise": [
+        "Ein einzelnes Attribut kommt mehrfach vor. Was bleibt?",
+        "Welche zwei Attribute zusammen sind eindeutig und beide nötig?"
+      ],
+      "erklaerung": "`buch_aut` hat den zusammengesetzten Primärschlüssel **(buchid, autorid)**. Jedes allein kommt mehrfach vor, nur das Paar ist eindeutig. Mit `rolle` oder `rang` dazu wäre er nicht minimal."
+    },
+    {
+      "id": "a-pk-spalten",
+      "typ": "text",
+      "titel": "Wie viele Spalten bilden den Schlüssel?",
+      "lz": [
+        "L4"
+      ],
+      "thema": "Zusammengesetzter Primärschlüssel",
+      "stufe": 2,
+      "story": "Zähle die Schlüsselspalten.",
+      "frage": "Aus wie vielen Attributen besteht der Primärschlüssel der Tabelle `{{tabelle}}`? Schau dir die Tabelle an.",
+      "zeigen": [
+        "{{tabelle}}"
+      ],
+      "antworten": [
+        "{{n}}"
+      ],
+      "eingabeLabel": "Anzahl Attribute",
+      "parameter": [
+        {
+          "tabelle": "autor",
+          "n": 1,
+          "pk": "autorid"
+        },
+        {
+          "tabelle": "buch_aut",
+          "n": 2,
+          "pk": "(buchid, autorid)"
+        },
+        {
+          "tabelle": "verlag",
+          "n": 1,
+          "pk": "verlagsid"
+        },
+        {
+          "tabelle": "buch_sw",
+          "n": 2,
+          "pk": "(buchid, swid)"
+        }
+      ],
+      "hinweise": [
+        "Gibt es ein Attribut, dessen Werte alle verschieden sind?",
+        "Bei einer Verbindungstabelle zwischen zwei Dingen braucht man zwei Ids."
+      ],
+      "erklaerung": "Der Primärschlüssel von `{{tabelle}}` besteht aus **{{n}}** Attribut(en): {{pk}}."
+    },
+    {
+      "id": "s-fremdschluessel",
+      "typ": "info",
+      "titel": "Der Fremdschlüssel",
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Und die verlagsid im Buch, ist das auch ein Schlüssel?"
+        },
+        {
+          "sprecher": "tabea",
+          "text": "Ja, ein Fremdschlüssel. Ein «Fremder» im Buch, weil er zu einer anderen Tabelle gehört."
+        }
+      ],
+      "text": [
+        "## Was ist ein Fremdschlüssel?",
+        "In `buch` steht bei jedem Buch eine `verlagsid`. Sie ist **keine** Nummer von `buch`, sondern die Nummer des Verlags in der Tabelle `verlag`.",
+        "Ein **Fremdschlüssel** (englisch *foreign key*, kurz **FK**) ist ein Attribut in einer Tabelle, das auf den **Primärschlüssel einer anderen Tabelle** verweist. Er verknüpft die Tabellen.",
+        "Unsere Bibliothek hat drei Fremdschlüssel:",
+        "- `buch.verlagsid` verweist auf `verlag.verlagsid`",
+        "- `buch_aut.buchid` verweist auf `buch.buchid`",
+        "- `buch_aut.autorid` verweist auf `autor.autorid`",
+        "(Dazu kommen in `buch_sw` noch `buchid` und `swid`, nach demselben Muster.)",
+        "Die beiden Attribute in `buch_aut` sind gleichzeitig **Primärschlüssel** (zusammen) und **Fremdschlüssel** (je einzeln). Das ist normal.",
+        "## Referenzielle Integrität",
+        "Ein Fremdschlüssel darf nur Werte enthalten, die es auch beim Primärschlüssel gibt. Ein Buch mit `verlagsid` 999 ist nicht zulässig, wenn es keinen Verlag 999 gibt. Diese Regel nennt man **referenzielle Integrität** (Integrität = Unversehrtheit der Daten). Sie verhindert Verweise ins Leere.",
+        "> **Merke:** Primärschlüssel identifiziert den eigenen Datensatz. Fremdschlüssel verweist auf den Primärschlüssel einer anderen Tabelle."
+      ]
+    },
+    {
+      "id": "a-fk-ziel",
+      "typ": "text",
+      "titel": "Wohin zeigt der Fremdschlüssel?",
+      "lz": [
+        "L4"
+      ],
+      "thema": "Fremdschlüssel",
+      "stufe": 2,
+      "story": "Folge dem Pfeil.",
+      "frage": "Der Fremdschlüssel `{{fk}}` verweist auf den Primärschlüssel einer anderen Tabelle. Wie heisst diese Tabelle?",
+      "antworten": [
+        "{{ziel}}"
+      ],
+      "eingabeLabel": "Tabellenname",
+      "parameter": [
+        {
+          "fk": "buch.verlagsid",
+          "ziel": "verlag",
+          "pkname": "verlagsid"
+        },
+        {
+          "fk": "buch_aut.autorid",
+          "ziel": "autor",
+          "pkname": "autorid"
+        },
+        {
+          "fk": "buch_aut.buchid",
+          "ziel": "buch",
+          "pkname": "buchid"
+        },
+        {
+          "fk": "buch_sw.swid",
+          "ziel": "schlagwort",
+          "pkname": "swid"
+        }
+      ],
+      "hinweise": [
+        "Ein Fremdschlüssel hat oft denselben Namen wie der Primärschlüssel, auf den er zeigt.",
+        "Suche die Tabelle, in der dieses Attribut der Primärschlüssel ist."
+      ],
+      "erklaerung": "`{{fk}}` verweist auf `{{ziel}}.{{pkname}}`. Dort ist `{{pkname}}` der Primärschlüssel."
+    },
+    {
+      "id": "a-fk-zuordnen",
+      "typ": "zuordnen",
+      "titel": "PK, FK oder beides?",
+      "lz": [
+        "L4"
+      ],
+      "thema": "PK und FK unterscheiden",
+      "stufe": 2,
+      "story": "Ordne zu.",
+      "frage": "Ordne jedes Attribut seiner Rolle in der angegebenen Tabelle zu.",
+      "kategorien": [
+        "PK",
+        "FK",
+        "PK und FK",
+        "keins von beiden"
+      ],
+      "elemente": [
+        {
+          "text": "buch.buchid",
+          "antwort": "PK",
+          "warum": "Identifiziert das Buch."
+        },
+        {
+          "text": "buch.verlagsid",
+          "antwort": "FK",
+          "warum": "Zeigt auf verlag.verlagsid."
+        },
+        {
+          "text": "buch.titel",
+          "antwort": "keins von beiden",
+          "warum": "Gewöhnliches Attribut."
+        },
+        {
+          "text": "buch_aut.autorid",
+          "antwort": "PK und FK",
+          "warum": "Teil des zusammengesetzten PK und Verweis auf autor."
+        },
+        {
+          "text": "verlag.verlagsid",
+          "antwort": "PK",
+          "warum": "Identifiziert den Verlag."
+        },
+        {
+          "text": "buch.jahr",
+          "antwort": "keins von beiden",
+          "warum": "Gewöhnliches Attribut."
+        }
+      ],
+      "hinweise": [
+        "Ein PK identifiziert die eigene Zeile, ein FK zeigt auf eine andere Tabelle.",
+        "In buch_aut sind beide Attribute zugleich Teil des PK und Fremdschlüssel."
+      ],
+      "erklaerung": "In `buch` ist `buchid` PK und `verlagsid` FK. In `buch_aut` sind `buchid` und `autorid` **gemeinsam** der PK und **je einzeln** FK. `titel` und `jahr` sind gewöhnliche Attribute."
+    },
+    {
+      "id": "a-ref-integritaet",
+      "typ": "choice",
+      "titel": "Ein Verlag, den es nicht gibt",
+      "lz": [
+        "L4"
+      ],
+      "thema": "Referenzielle Integrität",
+      "stufe": 3,
+      "story": "Referenzielle Integrität im Alltag.",
+      "frage": "Jemand will in `buch` ein neues Buch mit `verlagsid` = 99 eintragen. In der Tabelle `verlag` gibt es aber nur die Ids 1 bis 20. Was verlangt die **referenzielle Integrität**?",
+      "zeigen": [
+        {
+          "titel": "verlag (die letzten Ids)",
+          "sql": "SELECT * FROM verlag WHERE verlagsid > 15"
+        }
+      ],
+      "optionen": [
+        {
+          "text": "Der Eintrag ist nicht zulässig, weil es keinen Verlag 99 gibt.",
+          "richtig": true,
+          "warum": "Genau."
+        },
+        {
+          "text": "Der Eintrag ist zulässig. Der Verlag wird automatisch erfunden.",
+          "warum": "Nein, Datenbanken erfinden keine Verlage."
+        },
+        {
+          "text": "Der Eintrag ist zulässig, weil die Zahl eine ganze Zahl ist.",
+          "warum": "Der Typ allein reicht nicht, der Wert muss auch existieren."
+        },
+        {
+          "text": "Der Eintrag ist nur zulässig, wenn der Titel eindeutig ist.",
+          "warum": "Der Titel spielt hier keine Rolle."
+        }
+      ],
+      "hinweise": [
+        "Der Fremdschlüssel soll auf einen existierenden Primärschlüssel zeigen.",
+        "Existiert ein Verlag 99?"
+      ],
+      "erklaerung": "Ein Fremdschlüssel darf nur Werte enthalten, die als Primärschlüssel in der verwiesenen Tabelle existieren. Ein Verweis auf einen nicht vorhandenen Verlag 99 ist nicht erlaubt."
+    },
+    {
+      "id": "a-wahrfalsch",
+      "typ": "zuordnen",
+      "titel": "Wahr oder falsch",
+      "lz": [
+        "L4"
+      ],
+      "thema": "Wahr oder falsch?",
+      "stufe": 3,
+      "story": "Eine Aufgabe aus dem Unterricht.",
+      "frage": "Entscheide für jede Aussage über die Bibliotheksdatenbank, ob sie **wahr** oder **falsch** ist.",
+      "kategorien": [
+        "wahr",
+        "falsch"
+      ],
+      "elemente": [
+        {
+          "text": "Mehrere Datensätze der Tabelle autor können denselben Wert für autorid haben.",
+          "antwort": "falsch",
+          "warum": "autorid ist PK: Jeder Wert darf nur einmal vorkommen."
+        },
+        {
+          "text": "Mehrere Datensätze der Tabelle autor können beide Male denselben nachname und vornamen haben.",
+          "antwort": "wahr",
+          "warum": "Zwei verschiedene Personen können gleich heissen. Sie haben aber verschiedene autorid."
+        },
+        {
+          "text": "Mehrere Datensätze der Tabelle buch_aut können denselben Wert für autorid haben.",
+          "antwort": "wahr",
+          "warum": "Ein Autor kann mehrere Bücher schreiben (andere buchid)."
+        },
+        {
+          "text": "Mehrere Datensätze der Tabelle buch können denselben Wert für verlagsid haben.",
+          "antwort": "wahr",
+          "warum": "Ein Verlag gibt mehrere Bücher heraus. verlagsid ist in buch ein FK."
+        },
+        {
+          "text": "Mehrere Datensätze der Tabelle verlag können denselben Wert für verlagsid haben.",
+          "antwort": "falsch",
+          "warum": "verlagsid ist in verlag der PK."
+        }
+      ],
+      "hinweise": [
+        "Primärschlüsselwerte dürfen sich nicht wiederholen. Fremdschlüsselwerte schon.",
+        "Bei buch_aut ist nur das Paar eindeutig, nicht jedes Einzelne."
+      ],
+      "erklaerung": "Primärschlüssel sind eindeutig, Fremdschlüssel dürfen sich wiederholen (ein Verlag hat mehrere Bücher). In `buch_aut` darf eine `autorid` mehrfach vorkommen, aber nicht dasselbe Paar (autorid, buchid)."
+    },
+    {
+      "id": "a-minimal",
+      "typ": "choice",
+      "titel": "Welche Kombination?",
+      "lz": [
+        "L4"
+      ],
+      "thema": "Minimalität",
+      "stufe": 3,
+      "story": "Auch im Flughafen ginge ein Schlüssel aus mehreren Spalten.",
+      "frage": "In `buchung` (Flugbuchung) ist `bnr` der künstliche PK. Man könnte stattdessen eine Kombination wählen. Ein Kunde kann denselben Flug an **verschiedenen Tagen** buchen, aber an einem Tag nicht mit zwei Sitzen. Welche Kombination ist ein **möglicher** (und minimaler) Primärschlüssel?",
+      "db": "flugbuchung",
+      "zeigen": [
+        "buchung"
+      ],
+      "optionen": [
+        {
+          "text": "(knr, flugnr, datum)",
+          "richtig": true,
+          "warum": "Eindeutig und minimal."
+        },
+        {
+          "text": "(knr, flugnr)",
+          "warum": "Derselbe Kunde kann denselben Flug an verschiedenen Daten buchen: nicht eindeutig."
+        },
+        {
+          "text": "(knr, flugnr, sitz, datum)",
+          "warum": "Eindeutig, aber nicht minimal: sitz ist überflüssig."
+        },
+        {
+          "text": "nur flugnr",
+          "warum": "Viele Kunden buchen denselben Flug: nicht eindeutig."
+        }
+      ],
+      "hinweise": [
+        "Mit (knr, flugnr) sind zwei Buchungen desselben Kunden für denselben Flug an zwei Tagen nicht unterscheidbar.",
+        "Der Sitz bringt nichts dazu, wenn Kunde, Flug und Datum schon eindeutig sind."
+      ],
+      "erklaerung": "(knr, flugnr) genügt nicht, weil man denselben Flug an verschiedenen Tagen buchen kann. (knr, flugnr, sitz, datum) ist eindeutig, aber **nicht minimal**: `sitz` ist überflüssig. Minimal und eindeutig ist **(knr, flugnr, datum)**."
+    },
+    {
+      "id": "s-datentypen",
+      "typ": "info",
+      "titel": "Datentypen: Was für ein Wert ist das?",
+      "story": [
+        {
+          "sprecher": "tabea",
+          "text": "Frag dich immer: Rechne ich damit? Dann Zahl. Sonst Text."
+        }
+      ],
+      "text": [
+        "## Jede Spalte hat einen Datentyp",
+        "In Excel kann in einer Zelle alles stehen. In einer Datenbank legt man für jede Spalte fest, **was für Werte** hineingehören. Das ist der **Datentyp**.",
+        "Das bringt: Falsche Eingaben werden verhindert (kein Text in der Jahreszahl), Daten bleiben sauber (Datenintegrität), und die Datenbank rechnet und sucht schneller.",
+        "Diese fünf Datentypen musst du kennen:",
+        "| Datentyp | Was gehört hinein | Beispiel |",
+        "|---|---|---|",
+        "| INTEGER | ganze Zahlen | `autorid`, `jahr`, `alter`, `sitz` |",
+        "| TEXT (String) | Zeichenketten, also Wörter, Namen, Texte | `titel`, `nachname`, `isbn` |",
+        "| REAL (Float) | Zahlen mit Nachkommastellen | `preis` (79.9) |",
+        "| BOOLEAN | wahr oder falsch | z. B. «ausgeliehen: ja/nein» |",
+        "| Datum (Zeit) | Datums- oder Zeitangaben | `buchung.datum`, `flug.ab` |",
+        "## Faustregel für die Wahl",
+        "- Ganze Zahl, mit der man **rechnet oder vergleicht**? INTEGER.",
+        "- Zahl mit Komma (Preis, Gewicht)? REAL.",
+        "- Eine Nummer, mit der man **nie rechnet** (Postleitzahl, Telefonnummer, ISBN)? **TEXT.** Sonst gehen führende Nullen oder Bindestriche verloren, und Rechnen mit einer PLZ ergibt keinen Sinn.",
+        "- Namen, Titel, Beschreibungen? TEXT."
+      ]
+    },
+    {
+      "id": "s-bool-datum",
+      "typ": "info",
+      "titel": "BOOLEAN und Datum: die ehrliche Geschichte",
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "In meiner Liste steht «ausgeliehen: ja» und «nein». Welcher Typ ist das?"
+        }
+      ],
+      "text": [
+        "## Wahr/falsch und Datum in unseren Datenbanken",
+        "In den **Lernzielen** stehen die Typen INTEGER, TEXT, REAL, **BOOLEAN** und **Datum**. Auf den **Folien** stehen INTEGER, TEXT, REAL und **NUMERIC** (für Datum und Zeit), BOOLEAN fehlt dort. Beides ist richtig, und das ist kein Widerspruch.",
+        "Unsere Datenbanksoftware heisst **SQLite**. Sie kennt nur wenige echte Speicherarten und hat keinen eigenen Typ für wahr/falsch und für Datum. Darum:",
+        "- **Wahr/falsch (BOOLEAN):** Man speichert **1** für wahr und **0** für falsch. Für ein Ja/Nein-Merkmal wie «ausgeliehen» ist BOOLEAN der geeignete Typ, auch wenn SQLite intern 0 und 1 speichert. (Andere Systeme wie MySQL oder PostgreSQL haben BOOLEAN wirklich.)",
+        "- **Datum und Zeit:** In unseren Tabellen steht dafür **NUMERIC** (`flug.ab`, `flug.an`, `buchung.datum`). Das Datum wird als Text im Format **JJJJ-MM-TT** gespeichert, zum Beispiel `2025-09-15`. Andere Systeme haben einen eigenen Typ **DATE**.",
+        "Beachte das ISO-Format Jahr-Monat-Tag: So lassen sich Daten richtig vergleichen, weil das früheste Datum auch alphabetisch zuerst kommt. `2025-09-15` ist kleiner als `2025-09-22`.",
+        "## Was heisst das für die Prüfung?",
+        "- Für **Datum** kannst du «Datum» oder «NUMERIC» (wie auf der Folie) nennen. Gemeint ist dasselbe.",
+        "- Für **wahr/falsch** wählst du BOOLEAN.",
+        "- Wichtiger als der Name des Typs ist, dass du erkennst, **was für ein Wert** in die Spalte gehört und welcher Typ dazu passt.",
+        "> **Merke:** Wahr/falsch = BOOLEAN (in SQLite 0/1). Datum/Zeit = Datum, in unseren Tabellen NUMERIC, Format JJJJ-MM-TT."
+      ]
+    },
+    {
+      "id": "a-typ-zuordnen",
+      "typ": "zuordnen",
+      "titel": "Spalten und Datentypen",
+      "lz": [
+        "L5"
+      ],
+      "thema": "Datentypen zuordnen",
+      "stufe": 1,
+      "story": "Passe jeder Spalte den richtigen Typ an.",
+      "frage": "Welcher Datentyp passt zu welcher Spalte der Bibliotheksdatenbank?",
+      "kategorien": [
+        "INTEGER",
+        "TEXT",
+        "REAL",
+        "BOOLEAN",
+        "Datum"
+      ],
+      "elemente": [
+        {
+          "text": "jahr (z. B. 1994)",
+          "antwort": "INTEGER",
+          "warum": "Ganze Zahl."
+        },
+        {
+          "text": "titel (z. B. «Entwurfsmuster»)",
+          "antwort": "TEXT",
+          "warum": "Text."
+        },
+        {
+          "text": "preis (z. B. 79.9)",
+          "antwort": "REAL",
+          "warum": "Zahl mit Nachkommastellen."
+        },
+        {
+          "text": "isbn (z. B. 3-486-20790-3)",
+          "antwort": "TEXT",
+          "warum": "Enthält Bindestriche, nur Text eignet sich. Man rechnet nicht damit."
+        },
+        {
+          "text": "ausgeliehen (ja oder nein)",
+          "antwort": "BOOLEAN",
+          "warum": "Ein Ja/Nein-Merkmal."
+        },
+        {
+          "text": "rueckgabe (Rückgabedatum, z. B. 2026-11-05)",
+          "antwort": "Datum",
+          "warum": "Datumsangabe, in unseren Tabellen als NUMERIC."
+        }
+      ],
+      "hinweise": [
+        "Ganze Zahl, Kommazahl, Text, Ja/Nein, Datum?",
+        "Die ISBN enthält Bindestriche."
+      ],
+      "erklaerung": "`jahr` ist eine ganze Zahl (INTEGER), `preis` hat Nachkommastellen (REAL), `titel` und `isbn` sind Text. Ein Ja/Nein-Merkmal ist BOOLEAN, eine Rückgabe ein Datum."
+    },
+    {
+      "id": "a-typen-sehen",
+      "typ": "sql",
+      "titel": "Typen in der Praxis",
+      "lz": [
+        "L5",
+        "L12"
+      ],
+      "thema": "Datentypen in Daten erkennen",
+      "stufe": 1,
+      "story": "Schau dir echte Werte an.",
+      "frage": "Zeige die Spalten `titel`, `jahr` und `preis` aller Bücher. Achte darauf, welcher Typ zu welcher Spalte passt.",
+      "loesung": "SELECT titel, jahr, preis FROM buch",
+      "vorlage": "SELECT titel, jahr, preis\nFROM buch",
+      "hinweise": [
+        "SELECT spalte1, spalte2, spalte3 FROM buch",
+        "Die Spalten trennst du mit Kommas."
+      ],
+      "erklaerung": "`titel` ist TEXT, `jahr` ist INTEGER (1993, ohne Komma), `preis` ist REAL (79.9). An den Werten erkennst du den passenden Datentyp."
+    },
+    {
+      "id": "a-plz",
+      "typ": "choice",
+      "titel": "Postleitzahl",
+      "lz": [
+        "L5"
+      ],
+      "thema": "Zahl oder Text?",
+      "stufe": 2,
+      "story": "Ein klassischer Fall.",
+      "frage": "Für die Postleitzahl «8001» einer Leserin: Welcher Datentyp ist geeignet?",
+      "optionen": [
+        {
+          "text": "TEXT",
+          "richtig": true,
+          "warum": "Man rechnet nicht mit PLZ, TEXT behält führende Nullen."
+        },
+        {
+          "text": "INTEGER",
+          "warum": "Funktioniert bei 8001, aber 01067 würde zu 1067. Rechnen macht keinen Sinn."
+        },
+        {
+          "text": "REAL",
+          "warum": "Eine PLZ hat keine Nachkommastellen."
+        },
+        {
+          "text": "BOOLEAN",
+          "warum": "Eine PLZ ist weder wahr noch falsch."
+        }
+      ],
+      "hinweise": [
+        "Rechnest du je mit Postleitzahlen?",
+        "In anderen Ländern gibt es PLZ mit führender Null (z. B. 01067)."
+      ],
+      "erklaerung": "Postleitzahlen sind **Kennungen**, mit denen man nicht rechnet. Mit TEXT gehen führende Nullen nicht verloren (01067). Eine Zahl wie INTEGER ist hier ungeeignet, auch wenn die PLZ nur aus Ziffern besteht. Dasselbe gilt für Telefonnummern."
+    },
+    {
+      "id": "a-typ-param",
+      "typ": "text",
+      "titel": "Welcher Typ?",
+      "lz": [
+        "L5"
+      ],
+      "thema": "Datentyp wählen",
+      "stufe": 2,
+      "story": "Entscheide selbst.",
+      "frage": "Welcher Datentyp passt für das Attribut **{{attr}}**? Antworte mit INTEGER, TEXT, REAL, BOOLEAN oder Datum.",
+      "antworten": [
+        "{{a1}}",
+        "{{a2}}"
+      ],
+      "eingabeLabel": "Datentyp",
+      "parameter": [
+        {
+          "attr": "preis eines Buchs (z. B. 49.9)",
+          "typ": "REAL",
+          "a1": "REAL",
+          "a2": "FLOAT",
+          "tipp": "Der Preis hat Nachkommastellen.",
+          "warum": "Zahl mit Nachkommastellen."
+        },
+        {
+          "attr": "titel eines Buchs",
+          "typ": "TEXT",
+          "a1": "TEXT",
+          "a2": "STRING",
+          "tipp": "Ein Titel besteht aus Buchstaben.",
+          "warum": "Zeichenkette."
+        },
+        {
+          "attr": "jahr der Veröffentlichung (z. B. 1994)",
+          "typ": "INTEGER",
+          "a1": "INTEGER",
+          "a2": "INT",
+          "tipp": "Eine Jahreszahl hat keine Nachkommastellen.",
+          "warum": "Ganze Zahl."
+        },
+        {
+          "attr": "ist_verfuegbar (ja oder nein)",
+          "typ": "BOOLEAN",
+          "a1": "BOOLEAN",
+          "a2": "BOOL",
+          "tipp": "Nur zwei mögliche Werte: wahr oder falsch.",
+          "warum": "Ein Ja/Nein-Merkmal; SQLite speichert 1 oder 0."
+        }
+      ],
+      "hinweise": [
+        "Welche Art von Wert steht darin: ganze Zahl, Komma, Text, ja/nein oder Datum?",
+        "{{tipp}}"
+      ],
+      "erklaerung": "{{attr}}: Datentyp **{{typ}}**. {{warum}}"
+    },
+    {
+      "id": "a-bool-sqlite",
+      "typ": "choice",
+      "titel": "Wahr und falsch",
+      "lz": [
+        "L5"
+      ],
+      "thema": "BOOLEAN in SQLite",
+      "stufe": 2,
+      "story": "Die ehrliche Antwort.",
+      "frage": "In unseren SQLite-Datenbanken gibt es keinen eigenen BOOLEAN-Typ. Wie wird ein Wert «wahr/falsch» (z. B. ausgeliehen) trotzdem gespeichert?",
+      "optionen": [
+        {
+          "text": "Als 1 (wahr) und 0 (falsch).",
+          "richtig": true,
+          "warum": "Genau."
+        },
+        {
+          "text": "Als TEXT mit den Wörtern «wahr» und «falsch» in Grossbuchstaben.",
+          "warum": "Man könnte das, aber üblich und geeignet ist 0/1."
+        },
+        {
+          "text": "Als REAL: 0.5 bedeutet «vielleicht».",
+          "warum": "Zwischenwerte gibt es bei wahr/falsch nicht."
+        },
+        {
+          "text": "Gar nicht, SQLite kann Ja/Nein nicht speichern.",
+          "warum": "Es kann, nur eben als 0 und 1."
+        }
+      ],
+      "hinweise": [
+        "Mit welchen zwei Zahlen codiert man wahr und falsch?",
+        "Der geeignete Typ bleibt BOOLEAN, auch wenn SQLite intern anders speichert."
+      ],
+      "erklaerung": "Wahr wird als **1** und falsch als **0** gespeichert. Für ein Ja/Nein-Merkmal ist BOOLEAN der passende Typ."
+    },
+    {
+      "id": "a-datum",
+      "typ": "choice",
+      "titel": "Datum in der Datenbank",
+      "lz": [
+        "L5"
+      ],
+      "thema": "Datentyp Datum",
+      "stufe": 2,
+      "story": "Was steht in der Spalte datum?",
+      "frage": "Die Tabelle `buchung` hat die Spalte `datum` mit Werten wie `2025-09-15`. Welche Aussage ist richtig?",
+      "db": "flugbuchung",
+      "zeigen": [
+        "buchung"
+      ],
+      "optionen": [
+        {
+          "text": "Es ist ein Datum (in unseren Tabellen NUMERIC), geschrieben als JJJJ-MM-TT.",
+          "richtig": true,
+          "warum": "Genau."
+        },
+        {
+          "text": "Es ist eine ganze Zahl (INTEGER), weil es Ziffern enthält.",
+          "warum": "Mit Bindestrichen ist es keine ganze Zahl. Der Typ ist Datum."
+        },
+        {
+          "text": "Es ist BOOLEAN, weil es entweder ein Datum ist oder nicht.",
+          "warum": "BOOLEAN ist nur für wahr/falsch."
+        },
+        {
+          "text": "Es ist REAL, weil es Nachkommastellen hat.",
+          "warum": "Es gibt keine Nachkommastellen, und das Datum wäre damit kaputt."
+        }
+      ],
+      "hinweise": [
+        "Im Lernziel heisst der Typ «Datum», auf der Folie NUMERIC.",
+        "Welches Format gilt für Daten?"
+      ],
+      "erklaerung": "Datumsangaben haben den Datentyp **Datum**; in unseren Tabellen steht dafür **NUMERIC**. Der Wert wird im Format **JJJJ-MM-TT** geschrieben, damit sich Daten richtig vergleichen und sortieren lassen."
+    },
+    {
+      "id": "a-flug-schema",
+      "typ": "tabelle",
+      "titel": "Ein Schema ergänzen",
+      "lz": [
+        "L5",
+        "L4"
+      ],
+      "thema": "Schema der Tabelle flug",
+      "stufe": 3,
+      "story": "Zum Schluss einmal alles zusammen.",
+      "frage": "Ergänze das Schema der Tabelle `flug`: Datentyp und Schlüssel. (Für das Datum/Zeit-Attribut darfst du «Datum» oder «NUMERIC» schreiben; bei «keiner» genügt «-» oder «keiner».)",
+      "db": "flugbuchung",
+      "zeigen": [
+        "flug"
+      ],
+      "tabellenname": "flug",
+      "spalten": [
+        "Attribut",
+        "Datentyp",
+        "Schlüssel"
+      ],
+      "zeilen": [
+        [
+          "flugnr",
+          {
+            "loesung": [
+              "TEXT",
+              "STRING"
+            ]
+          },
+          {
+            "loesung": [
+              "PK",
+              "Primärschlüssel"
+            ]
+          }
+        ],
+        [
+          "fluglinie",
+          {
+            "loesung": [
+              "TEXT",
+              "STRING"
+            ]
+          },
+          {
+            "loesung": [
+              "-",
+              "keiner",
+              "kein",
+              "keins"
+            ]
+          }
+        ],
+        [
+          "ab",
+          {
+            "loesung": [
+              "NUMERIC",
+              "Datum",
+              "DATE",
+              "Zeit"
+            ]
+          },
+          {
+            "loesung": [
+              "-",
+              "keiner",
+              "kein",
+              "keins"
+            ]
+          }
+        ],
+        [
+          "groesse",
+          {
+            "loesung": "INTEGER"
+          },
+          {
+            "loesung": [
+              "-",
+              "keiner",
+              "kein",
+              "keins"
+            ]
+          }
+        ]
+      ],
+      "hinweise": [
+        "flugnr ist die Kennung des Flugs, z. B. LH7. Das ist Text und der Primärschlüssel.",
+        "groesse ist die Anzahl Plätze, eine ganze Zahl."
+      ],
+      "erklaerung": "`flugnr` ist TEXT und PK, `fluglinie` und `von` sind TEXT, `ab` (Abflugzeit) ist Datum/Zeit (NUMERIC), `groesse` ist INTEGER. Ausser `flugnr` ist keines ein Schlüssel."
+    },
+    {
+      "id": "s-ende",
+      "typ": "info",
+      "titel": "Schlüssel gefunden",
+      "story": [
+        {
+          "sprecher": "tabea",
+          "text": "Mit den Schlüsseln hat Herr Ammann Ordnung. Als Nächstes zeichnen wir einen Bauplan."
+        }
+      ],
+      "text": [
+        "## Zusammenfassung",
+        "- **Primärschlüssel:** identifiziert jeden Datensatz eindeutig. Eindeutig, nie NULL, minimal. Kann künstlich sein (`buchid`) oder zusammengesetzt (`buch_aut`).",
+        "- **Fremdschlüssel:** verweist auf den Primärschlüssel einer anderen Tabelle und verknüpft so Tabellen. **Referenzielle Integrität**: nur existierende Werte.",
+        "- **Datentypen:** INTEGER (ganze Zahl), TEXT (Zeichen), REAL (Kommazahl), BOOLEAN (wahr/falsch, 0/1), Datum (in unseren Tabellen NUMERIC, Format JJJJ-MM-TT).",
+        "Weiter geht es mit dem **Datenbankschema**: Wie zeichnet man all das übersichtlich auf?"
+      ]
+    }
+  ],
+  "pool": [
+    {
+      "id": "p-pk-def",
+      "typ": "choice",
+      "lz": [
+        "L4"
+      ],
+      "thema": "Definition Primärschlüssel",
+      "stufe": 1,
+      "frage": "Was ist ein **Primärschlüssel**?",
+      "optionen": [
+        {
+          "text": "Ein Attribut (oder mehrere), das jeden Datensatz der Tabelle eindeutig identifiziert.",
+          "richtig": true,
+          "warum": "Genau."
+        },
+        {
+          "text": "Ein Attribut, das auf eine andere Tabelle verweist.",
+          "warum": "Das ist ein Fremdschlüssel."
+        },
+        {
+          "text": "Ein Passwort für die Datenbank.",
+          "warum": "Ein Schlüssel in diesem Sinn ist kein Passwort."
+        },
+        {
+          "text": "Die erste Spalte einer Tabelle.",
+          "warum": "Der PK ist nicht an eine Position gebunden, auch wenn er oft links steht."
+        }
+      ],
+      "hinweise": [
+        "Er identifiziert etwas.",
+        "Eindeutig, nie NULL, minimal."
+      ],
+      "erklaerung": "Ein Primärschlüssel ist ein Attribut oder eine Kombination von Attributen, die jeden Datensatz einer Tabelle **eindeutig** identifiziert."
+    },
+    {
+      "id": "p-fk-def",
+      "typ": "choice",
+      "lz": [
+        "L4"
+      ],
+      "thema": "Definition Fremdschlüssel",
+      "stufe": 1,
+      "frage": "Was ist ein **Fremdschlüssel**?",
+      "optionen": [
+        {
+          "text": "Ein Attribut, das auf den Primärschlüssel einer anderen Tabelle verweist.",
+          "richtig": true,
+          "warum": "Genau."
+        },
+        {
+          "text": "Ein Attribut, das jeden eigenen Datensatz eindeutig macht.",
+          "warum": "Das wäre der Primärschlüssel."
+        },
+        {
+          "text": "Ein Attribut mit einem Text in einer anderen Sprache.",
+          "warum": "Hat nichts mit Sprache zu tun."
+        },
+        {
+          "text": "Ein Attribut, das nie ausgefüllt wird.",
+          "warum": "Fremdschlüssel sind normalerweise ausgefüllt und zeigen auf einen Datensatz."
+        }
+      ],
+      "hinweise": [
+        "Er verweist woandershin.",
+        "Er verknüpft Tabellen."
+      ],
+      "erklaerung": "Ein Fremdschlüssel ist ein Attribut, das auf den Primärschlüssel einer anderen Tabelle verweist. Er verbindet Tabellen und sichert die referenzielle Integrität."
+    },
+    {
+      "id": "p-pk-ja-nein",
+      "typ": "text",
+      "lz": [
+        "L4"
+      ],
+      "thema": "Geeigneter Primärschlüssel",
+      "stufe": 2,
+      "frage": "Ist das Attribut **{{attr}}** in der Tabelle `{{tab}}` als Primärschlüssel geeignet? Antworte mit «ja» oder «nein».",
+      "zeigen": [
+        "{{tab}}"
+      ],
+      "antworten": [
+        "{{antwort}}"
+      ],
+      "eingabeLabel": "ja oder nein",
+      "parameter": [
+        {
+          "attr": "verlagsid",
+          "tab": "verlag",
+          "antwort": "ja",
+          "tipp": "Jeder Verlag hat eine eigene Nummer.",
+          "warum": "Die Nummer wird einmal pro Verlag vergeben."
+        },
+        {
+          "attr": "nachname",
+          "tab": "autor",
+          "antwort": "nein",
+          "tipp": "Gibt es zwei Autoren mit demselben Nachnamen?",
+          "warum": "Müller und Meier gibt es mehrfach."
+        },
+        {
+          "attr": "titel",
+          "tab": "buch",
+          "antwort": "nein",
+          "tipp": "Suche gleiche Titel in der Tabelle.",
+          "warum": "Es gibt Bücher mit demselben Titel (z. B. «Theoretische Informatik») und Bücher ohne Titel (NULL)."
+        },
+        {
+          "attr": "autorid",
+          "tab": "autor",
+          "antwort": "ja",
+          "tipp": "Jeder Autor hat eine eigene Nummer.",
+          "warum": "Die Nummer wird einmal pro Autor vergeben, sie ist eindeutig und nie leer."
+        }
+      ],
+      "hinweise": [
+        "Kann der Wert in der Tabelle mehrmals vorkommen?",
+        "{{tipp}}"
+      ],
+      "erklaerung": "Antwort: **{{antwort}}**. {{warum}}"
+    },
+    {
+      "id": "p-pk-null",
+      "typ": "choice",
+      "lz": [
+        "L4"
+      ],
+      "thema": "NULL im Primärschlüssel",
+      "stufe": 2,
+      "frage": "Darf ein Primärschlüssel den Wert NULL (leer) enthalten?",
+      "optionen": [
+        {
+          "text": "Nein, jeder Datensatz braucht einen Wert.",
+          "richtig": true,
+          "warum": "Genau."
+        },
+        {
+          "text": "Ja, aber nur einmal pro Tabelle.",
+          "warum": "Auch einmal ist nicht erlaubt."
+        },
+        {
+          "text": "Ja, NULL ist ein gültiger Primärschlüsselwert.",
+          "warum": "NULL heisst «kein Wert» und kann nichts identifizieren."
+        },
+        {
+          "text": "Nur wenn die Tabelle klein ist.",
+          "warum": "Die Grösse spielt keine Rolle."
+        }
+      ],
+      "hinweise": [
+        "Wie identifizierst du eine Zeile ohne Wert?",
+        "Eigenschaft: nie leer."
+      ],
+      "erklaerung": "Nein. Ein Primärschlüssel muss für jeden Datensatz einen Wert haben, sonst könnte man den Datensatz nicht identifizieren."
+    },
+    {
+      "id": "p-kuenstlich-merkmal",
+      "typ": "choice",
+      "lz": [
+        "L4"
+      ],
+      "thema": "Künstlicher Primärschlüssel",
+      "stufe": 2,
+      "frage": "Welche Aussage über einen **künstlichen Primärschlüssel** wie `autorid` stimmt?",
+      "optionen": [
+        {
+          "text": "Er hat keinen inhaltlichen Bezug zu den Daten und dient nur der Identifikation.",
+          "richtig": true,
+          "warum": "Genau."
+        },
+        {
+          "text": "Er entsteht aus den Anfangsbuchstaben von Vor- und Nachname.",
+          "warum": "Das wäre ein natürlicher Schlüssel und nicht sicher eindeutig."
+        },
+        {
+          "text": "Er verweist auf eine andere Tabelle.",
+          "warum": "Das ist ein Fremdschlüssel."
+        },
+        {
+          "text": "Er darf sich bei jeder Änderung ändern.",
+          "warum": "Ein Schlüssel soll stabil bleiben."
+        }
+      ],
+      "hinweise": [
+        "Wo kommt die Nummer her?",
+        "Hat sie mit dem Namen der Person zu tun?"
+      ],
+      "erklaerung": "Ein künstlicher Primärschlüssel hat **keinen inhaltlichen Bezug** zu den übrigen Daten. Er wird nur vergeben, um Datensätze eindeutig zu identifizieren."
+    },
+    {
+      "id": "p-buchsw-pk",
+      "typ": "choice",
+      "lz": [
+        "L4"
+      ],
+      "thema": "Zusammengesetzter Primärschlüssel",
+      "stufe": 2,
+      "frage": "Die Tabelle `buch_sw` hat die Attribute `buchid` und `swid`. Ein Buch kann mehrere Schlagwörter haben, und ein Schlagwort gehört zu mehreren Büchern. Was ist der Primärschlüssel?",
+      "optionen": [
+        {
+          "text": "(buchid, swid) zusammen",
+          "richtig": true,
+          "warum": "Das Paar ist eindeutig."
+        },
+        {
+          "text": "buchid allein",
+          "warum": "Ein Buch hat mehrere Schlagwörter, buchid käme mehrfach vor."
+        },
+        {
+          "text": "swid allein",
+          "warum": "Ein Schlagwort gehört zu mehreren Büchern."
+        },
+        {
+          "text": "Es braucht keinen Primärschlüssel.",
+          "warum": "Jede Tabelle hat einen."
+        }
+      ],
+      "hinweise": [
+        "Kommt jede Id einzeln mehrfach vor?",
+        "Wie bei buch_aut."
+      ],
+      "erklaerung": "Weder `buchid` noch `swid` ist allein eindeutig. Das Paar **(buchid, swid)** ist eindeutig und minimal, ein zusammengesetzter Primärschlüssel."
+    },
+    {
+      "id": "p-buchung-kombi",
+      "typ": "text",
+      "lz": [
+        "L4"
+      ],
+      "thema": "Minimalität",
+      "stufe": 3,
+      "frage": "In `buchung` (Flugbuchung) kann ein Kunde denselben Flug an verschiedenen Tagen buchen, aber an einem Tag nur mit einem Sitz. Ist **{{kombi}}** ein möglicher Primärschlüssel? Antworte mit «ja» oder «nein».",
+      "db": "flugbuchung",
+      "zeigen": [
+        "buchung"
+      ],
+      "antworten": [
+        "{{antwort}}"
+      ],
+      "eingabeLabel": "ja oder nein",
+      "parameter": [
+        {
+          "kombi": "(knr, flugnr)",
+          "antwort": "nein",
+          "warum": "Derselbe Kunde kann denselben Flug an verschiedenen Tagen buchen: nicht eindeutig."
+        },
+        {
+          "kombi": "(knr, flugnr, datum)",
+          "antwort": "ja",
+          "warum": "Eindeutig und minimal: Jedes der drei Attribute wird gebraucht."
+        },
+        {
+          "kombi": "(knr, flugnr, sitz, datum)",
+          "antwort": "nein",
+          "warum": "Eindeutig, aber nicht minimal: sitz ist überflüssig."
+        },
+        {
+          "kombi": "bnr",
+          "antwort": "ja",
+          "warum": "Die künstliche Buchungsnummer ist eindeutig und minimal."
+        }
+      ],
+      "hinweise": [
+        "Ist die Kombination eindeutig?",
+        "Ist sie auch minimal? Könnte man ein Attribut weglassen?"
+      ],
+      "erklaerung": "Antwort: **{{antwort}}**. {{warum}}"
+    },
+    {
+      "id": "p-flug-pkfk",
+      "typ": "zuordnen",
+      "lz": [
+        "L4"
+      ],
+      "thema": "PK und FK unterscheiden",
+      "stufe": 2,
+      "frage": "Ordne die Attribute der Tabelle `buchung` ihrer Rolle zu.",
+      "db": "flugbuchung",
+      "zeigen": [
+        "buchung"
+      ],
+      "kategorien": [
+        "PK",
+        "FK",
+        "keins von beiden"
+      ],
+      "elemente": [
+        {
+          "text": "bnr",
+          "antwort": "PK",
+          "warum": "Künstlicher PK der Buchung."
+        },
+        {
+          "text": "knr",
+          "antwort": "FK",
+          "warum": "Verweist auf kunde.knr."
+        },
+        {
+          "text": "flugnr",
+          "antwort": "FK",
+          "warum": "Verweist auf flug.flugnr."
+        },
+        {
+          "text": "sitz",
+          "antwort": "keins von beiden",
+          "warum": "Gewöhnliches Attribut."
+        },
+        {
+          "text": "datum",
+          "antwort": "keins von beiden",
+          "warum": "Gewöhnliches Attribut."
+        }
+      ],
+      "hinweise": [
+        "Welche Attribute verweisen auf kunde bzw. flug?",
+        "bnr identifiziert die Buchung selbst."
+      ],
+      "erklaerung": "`bnr` identifiziert die Buchung (PK). `knr` verweist auf `kunde.knr`, `flugnr` auf `flug.flugnr` (beide FK). `sitz` und `datum` sind gewöhnliche Attribute."
+    },
+    {
+      "id": "p-flug-fkziel",
+      "typ": "text",
+      "lz": [
+        "L4"
+      ],
+      "thema": "Fremdschlüssel",
+      "stufe": 2,
+      "frage": "In der Flugbuchungs-Datenbank hat `buchung` den Fremdschlüssel `buchung.{{fk}}`. Auf welche Tabelle verweist er?",
+      "db": "flugbuchung",
+      "antworten": [
+        "{{ziel}}"
+      ],
+      "eingabeLabel": "Tabellenname",
+      "parameter": [
+        {
+          "fk": "knr",
+          "ziel": "kunde"
+        },
+        {
+          "fk": "flugnr",
+          "ziel": "flug"
+        }
+      ],
+      "hinweise": [
+        "Welche Tabelle hat dieses Attribut als Primärschlüssel?",
+        "kunde oder flug?"
+      ],
+      "erklaerung": "`buchung.{{fk}}` verweist auf `{{ziel}}.{{fk}}`. Dort ist es der Primärschlüssel."
+    },
+    {
+      "id": "p-flug-wahrfalsch",
+      "typ": "zuordnen",
+      "lz": [
+        "L4"
+      ],
+      "thema": "Wahr oder falsch?",
+      "stufe": 3,
+      "frage": "Entscheide für jede Aussage über die Datenbank *flugbuchung*, ob sie wahr oder falsch ist.",
+      "db": "flugbuchung",
+      "zeigen": [
+        "buchung"
+      ],
+      "kategorien": [
+        "wahr",
+        "falsch"
+      ],
+      "elemente": [
+        {
+          "text": "Mehrere Datensätze der Tabelle buchung können denselben Wert für knr haben.",
+          "antwort": "wahr",
+          "warum": "knr ist in buchung ein FK."
+        },
+        {
+          "text": "Mehrere Datensätze der Tabelle buchung können denselben Wert für bnr haben.",
+          "antwort": "falsch",
+          "warum": "bnr ist PK."
+        },
+        {
+          "text": "Mehrere Datensätze der Tabelle flug können denselben Wert für flugnr haben.",
+          "antwort": "falsch",
+          "warum": "flugnr ist der PK von flug."
+        },
+        {
+          "text": "Mehrere Datensätze der Tabelle buchung können denselben Wert für flugnr haben.",
+          "antwort": "wahr",
+          "warum": "Auf demselben Flug können mehrere Kunden gebucht sein."
+        },
+        {
+          "text": "Mehrere Datensätze der Tabelle kunde können denselben Wert für name haben.",
+          "antwort": "wahr",
+          "warum": "name ist kein Schlüssel. Zwei Kunden können gleich heissen (z. B. Meier/Meier)."
+        }
+      ],
+      "hinweise": [
+        "PK-Werte dürfen sich nicht wiederholen, FK-Werte schon.",
+        "Schau in die Tabelle buchung: Kunde 7 und 8 kommen mehrfach vor."
+      ],
+      "erklaerung": "knr in buchung ist FK: Werte dürfen sich wiederholen (Kunde 7 hat zwei Buchungen). bnr in buchung und flugnr in flug sind PK: Werte sind eindeutig."
+    },
+    {
+      "id": "p-ref-flug",
+      "typ": "choice",
+      "lz": [
+        "L4"
+      ],
+      "thema": "Referenzielle Integrität",
+      "stufe": 3,
+      "frage": "In `buchung` soll eine neue Zeile mit `knr` = 50 eingetragen werden. In `kunde` gibt es die Kundennummern 1 bis 11. Was passiert mit der Integrität?",
+      "db": "flugbuchung",
+      "optionen": [
+        {
+          "text": "Sie wäre verletzt, weil es keinen Kunden 50 gibt.",
+          "richtig": true,
+          "warum": "Genau."
+        },
+        {
+          "text": "Sie wäre in Ordnung, weil 50 eine Zahl ist.",
+          "warum": "Der Typ allein genügt nicht."
+        },
+        {
+          "text": "Der Kunde 50 wird automatisch angelegt.",
+          "warum": "Das passiert nicht."
+        },
+        {
+          "text": "Sie wäre verletzt, weil knr in buchung nicht eindeutig sein darf.",
+          "warum": "knr darf in buchung mehrfach vorkommen, das ist ein FK."
+        }
+      ],
+      "hinweise": [
+        "Existiert Kunde 50?",
+        "Fremdschlüssel müssen auf vorhandene Primärschlüssel zeigen."
+      ],
+      "erklaerung": "Die Buchung würde auf einen Kunden verweisen, den es nicht gibt. Das verletzt die **referenzielle Integrität**."
+    },
+    {
+      "id": "p-schluessel-tabelle",
+      "typ": "tabelle",
+      "lz": [
+        "L4",
+        "L5"
+      ],
+      "thema": "Schema der Tabelle buchung",
+      "stufe": 3,
+      "frage": "Ergänze Datentyp und Schlüssel der Tabelle `buchung`. (Datum/Zeit: «Datum» oder «NUMERIC». Für «kein Schlüssel» genügt «-».)",
+      "db": "flugbuchung",
+      "zeigen": [
+        "buchung"
+      ],
+      "tabellenname": "buchung",
+      "spalten": [
+        "Attribut",
+        "Datentyp",
+        "Schlüssel"
+      ],
+      "zeilen": [
+        [
+          "bnr",
+          {
+            "loesung": "INTEGER"
+          },
+          {
+            "loesung": [
+              "PK",
+              "Primärschlüssel"
+            ]
+          }
+        ],
+        [
+          "knr",
+          {
+            "loesung": "INTEGER"
+          },
+          {
+            "loesung": [
+              "FK",
+              "Fremdschlüssel"
+            ]
+          }
+        ],
+        [
+          "flugnr",
+          {
+            "loesung": [
+              "TEXT",
+              "STRING"
+            ]
+          },
+          {
+            "loesung": [
+              "FK",
+              "Fremdschlüssel"
+            ]
+          }
+        ],
+        [
+          "sitz",
+          {
+            "loesung": "INTEGER"
+          },
+          {
+            "loesung": [
+              "-",
+              "keiner",
+              "kein",
+              "keins"
+            ]
+          }
+        ],
+        [
+          "datum",
+          {
+            "loesung": [
+              "NUMERIC",
+              "Datum",
+              "DATE"
+            ]
+          },
+          {
+            "loesung": [
+              "-",
+              "keiner",
+              "kein",
+              "keins"
+            ]
+          }
+        ]
+      ],
+      "hinweise": [
+        "bnr ist die künstliche Nummer der Buchung.",
+        "knr und flugnr verweisen auf andere Tabellen."
+      ],
+      "erklaerung": "`bnr` INTEGER (PK), `knr` INTEGER (FK auf kunde), `flugnr` TEXT (FK auf flug, denn flugnr ist in flug TEXT), `sitz` INTEGER, `datum` Datum bzw. NUMERIC."
+    },
+    {
+      "id": "p-typ-wert",
+      "typ": "text",
+      "lz": [
+        "L5"
+      ],
+      "thema": "Datentyp zum Wert",
+      "stufe": 1,
+      "frage": "Welcher Datentyp passt zum Wert **{{wert}}**? Antworte mit INTEGER, TEXT, REAL, BOOLEAN oder Datum.",
+      "antworten": [
+        "{{a1}}",
+        "{{a2}}"
+      ],
+      "eingabeLabel": "Datentyp",
+      "parameter": [
+        {
+          "wert": "42",
+          "typ": "INTEGER",
+          "a1": "INTEGER",
+          "a2": "INT",
+          "tipp": "Eine ganze Zahl."
+        },
+        {
+          "wert": "3.14",
+          "typ": "REAL",
+          "a1": "REAL",
+          "a2": "FLOAT",
+          "tipp": "Die Zahl hat Nachkommastellen."
+        },
+        {
+          "wert": "«Bonn»",
+          "typ": "TEXT",
+          "a1": "TEXT",
+          "a2": "STRING",
+          "tipp": "Ein Wort."
+        },
+        {
+          "wert": "2025-09-15",
+          "typ": "Datum",
+          "a1": "Datum",
+          "a2": "NUMERIC",
+          "tipp": "Format JJJJ-MM-TT. (Datum oder NUMERIC sind beide in Ordnung.)"
+        }
+      ],
+      "hinweise": [
+        "Hat der Wert Nachkommastellen? Ist es ein Wort? Ein Datum?",
+        "{{tipp}}"
+      ],
+      "erklaerung": "{{wert}} gehört zum Datentyp **{{typ}}**."
+    },
+    {
+      "id": "p-typ-tel",
+      "typ": "choice",
+      "lz": [
+        "L5"
+      ],
+      "thema": "Zahl oder Text?",
+      "stufe": 2,
+      "frage": "Welcher Datentyp ist für eine **Telefonnummer** wie 044 123 45 67 am besten geeignet?",
+      "optionen": [
+        {
+          "text": "TEXT",
+          "richtig": true,
+          "warum": "Genau."
+        },
+        {
+          "text": "INTEGER",
+          "warum": "Die führende Null ginge verloren, Leerzeichen sind nicht möglich."
+        },
+        {
+          "text": "REAL",
+          "warum": "Keine Kommazahl."
+        },
+        {
+          "text": "BOOLEAN",
+          "warum": "Keine Ja/Nein-Information."
+        }
+      ],
+      "hinweise": [
+        "Rechnest du mit Telefonnummern?",
+        "Die Nummer beginnt mit einer Null und hat Leerzeichen."
+      ],
+      "erklaerung": "TEXT. Die führende Null und Leerzeichen blieben erhalten, und mit einer Telefonnummer rechnet man nicht."
+    },
+    {
+      "id": "p-typ-bool",
+      "typ": "choice",
+      "lz": [
+        "L5"
+      ],
+      "thema": "BOOLEAN erkennen",
+      "stufe": 1,
+      "frage": "Welches Merkmal eignet sich am besten für den Datentyp **BOOLEAN**?",
+      "optionen": [
+        {
+          "text": "Ist das Buch zurzeit ausgeliehen? (ja/nein)",
+          "richtig": true,
+          "warum": "Zwei mögliche Werte."
+        },
+        {
+          "text": "Der Titel des Buchs",
+          "warum": "Viele mögliche Wörter: TEXT."
+        },
+        {
+          "text": "Der Preis in Franken",
+          "warum": "Kommazahl: REAL."
+        },
+        {
+          "text": "Das Erscheinungsjahr",
+          "warum": "Ganze Zahl: INTEGER."
+        }
+      ],
+      "hinweise": [
+        "Gesucht ist ein Merkmal mit nur zwei möglichen Werten.",
+        "Ja oder nein, wahr oder falsch."
+      ],
+      "erklaerung": "BOOLEAN speichert wahr oder falsch. Ob ein Buch ausgeliehen ist (ja/nein), passt. Titel, Preis und Erscheinungsjahr haben viele mögliche Werte."
+    },
+    {
+      "id": "p-typ-preis",
+      "typ": "choice",
+      "lz": [
+        "L5"
+      ],
+      "thema": "Falscher Typ",
+      "stufe": 2,
+      "frage": "Der Preis eines Buchs (z. B. 19.90 Franken) wird in einer Spalte vom Typ INTEGER gespeichert. Was ist das Problem?",
+      "optionen": [
+        {
+          "text": "Die Nachkommastellen (Rappen) gehen verloren. Besser wäre REAL.",
+          "richtig": true,
+          "warum": "Genau."
+        },
+        {
+          "text": "Es gibt kein Problem, INTEGER speichert auch Kommazahlen.",
+          "warum": "INTEGER ist auf ganze Zahlen beschränkt."
+        },
+        {
+          "text": "Der Preis muss TEXT sein.",
+          "warum": "Mit TEXT könnte man nicht richtig rechnen."
+        },
+        {
+          "text": "Der Preis muss BOOLEAN sein.",
+          "warum": "BOOLEAN ist nur für wahr/falsch."
+        }
+      ],
+      "hinweise": [
+        "INTEGER speichert nur ganze Zahlen.",
+        "Was passiert mit den Nachkommastellen?"
+      ],
+      "erklaerung": "INTEGER kann nur ganze Zahlen speichern, die Rappen gingen verloren oder werden gerundet. Für Zahlen mit Nachkommastellen nimmt man **REAL**."
+    },
+    {
+      "id": "p-typ-geburtsdatum",
+      "typ": "choice",
+      "lz": [
+        "L5"
+      ],
+      "thema": "Datum statt Alter",
+      "stufe": 3,
+      "frage": "In der Kundentabelle soll nicht das Alter, sondern das **Geburtsdatum** gespeichert werden. Welcher Datentyp passt, und warum ist das sinnvoll?",
+      "optionen": [
+        {
+          "text": "Datum. Das Geburtsdatum ändert sich nie, das Alter jedes Jahr.",
+          "richtig": true,
+          "warum": "Genau."
+        },
+        {
+          "text": "INTEGER, weil ein Datum aus Ziffern besteht.",
+          "warum": "Mit Bindestrichen im Format JJJJ-MM-TT ist es keine ganze Zahl."
+        },
+        {
+          "text": "BOOLEAN, weil man entweder geboren ist oder nicht.",
+          "warum": "Das wäre sinnlos."
+        },
+        {
+          "text": "REAL, damit man Nachkommastellen hat.",
+          "warum": "Ein Datum hat keine Nachkommastellen."
+        }
+      ],
+      "hinweise": [
+        "Das Alter ändert sich jedes Jahr, das Geburtsdatum nicht.",
+        "Welcher Typ ist für Datumsangaben geeignet?"
+      ],
+      "erklaerung": "Das Geburtsdatum hat den Typ **Datum** (bei uns NUMERIC, JJJJ-MM-TT). Es ist sinnvoll, weil es sich nie ändert. Das Alter lässt sich daraus berechnen, müsste sonst jährlich nachgeführt werden."
+    },
+    {
+      "id": "p-typ-zuordnen2",
+      "typ": "zuordnen",
+      "lz": [
+        "L5"
+      ],
+      "thema": "Datentypen zuordnen",
+      "stufe": 2,
+      "frage": "Welcher Datentyp passt zu welchem Attribut der Flugbuchungs-Datenbank?",
+      "db": "flugbuchung",
+      "zeigen": [
+        "flug"
+      ],
+      "kategorien": [
+        "INTEGER",
+        "TEXT",
+        "REAL",
+        "BOOLEAN",
+        "Datum"
+      ],
+      "elemente": [
+        {
+          "text": "flug.flugnr (z. B. LH772)",
+          "antwort": "TEXT",
+          "warum": "Enthält Buchstaben."
+        },
+        {
+          "text": "flug.groesse (z. B. 380)",
+          "antwort": "INTEGER",
+          "warum": "Ganze Zahl (Anzahl Plätze)."
+        },
+        {
+          "text": "flug.ab (z. B. 11:20:00)",
+          "antwort": "Datum",
+          "warum": "Zeitangabe (Datum/Zeit, bei uns NUMERIC)."
+        },
+        {
+          "text": "kunde.name (z. B. Meier)",
+          "antwort": "TEXT",
+          "warum": "Text."
+        },
+        {
+          "text": "buchung.sitz (z. B. 12)",
+          "antwort": "INTEGER",
+          "warum": "Ganze Zahl."
+        }
+      ],
+      "hinweise": [
+        "Die flugnr (z. B. LH7) enthält Buchstaben.",
+        "Die Abflugzeit steht als 11:20:00."
+      ],
+      "erklaerung": "`flugnr`: TEXT (Buchstaben und Ziffern). `groesse`: INTEGER (Anzahl Plätze). `sitz`: INTEGER. `ab`: Datum/Zeit (NUMERIC). `name`: TEXT."
+    },
+    {
+      "id": "p-typ-warum",
+      "typ": "choice",
+      "lz": [
+        "L5"
+      ],
+      "thema": "Wozu Datentypen?",
+      "stufe": 1,
+      "frage": "Was ist ein Vorteil von Datentypen in einer Datenbank?",
+      "optionen": [
+        {
+          "text": "Sie verhindern falsche Eingaben und halten die Daten sauber.",
+          "richtig": true,
+          "warum": "Genau."
+        },
+        {
+          "text": "Sie machen jede Tabelle automatisch redundanzfrei.",
+          "warum": "Redundanz hat mit der Aufteilung der Tabellen zu tun, nicht mit Typen."
+        },
+        {
+          "text": "Sie ersetzen den Primärschlüssel.",
+          "warum": "Typen und Schlüssel sind zwei verschiedene Dinge."
+        },
+        {
+          "text": "Sie machen die Datenbank kleiner, weil Typen Zeilen löschen.",
+          "warum": "Typen löschen nichts."
+        }
+      ],
+      "hinweise": [
+        "Was passiert, wenn jemand «abc» in die Spalte jahr tippt?",
+        "Es geht um sichere Daten."
+      ],
+      "erklaerung": "Datentypen verhindern falsche Eingaben, sichern die Datenintegrität und machen Speicherung und Abfragen effizienter."
+    }
+  ]
+}

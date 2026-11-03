@@ -1,0 +1,1030 @@
+{
+  "id": "k11",
+  "titel": "Die Spur über drei Tabellen",
+  "untertitel": "Tabellen mit Primär- = Fremdschlüssel verknüpfen, auch über die Zwischentabelle.",
+  "db": "flugbuchung",
+  "lernziele": [
+    "L24",
+    "L7"
+  ],
+  "dauer": 45,
+  "schritte": [
+    {
+      "id": "s-start",
+      "typ": "info",
+      "titel": "Zurück am Flughafen",
+      "story": [
+        {
+          "sprecher": "tabea",
+          "text": "Die Kiste mit NULL stand beim Flug **GW4** nach Köln/Bonn. Ich muss wissen, **wer** damals mitgeflogen ist. Dafür brauche ich Namen aus `kunde` und Flüge aus `flug`, und die stehen in verschiedenen Tabellen."
+        }
+      ],
+      "text": [
+        "Bisher hast du immer aus **einer** Tabelle gelesen. Namen stehen in `kunde`, Flugziele in `flug`, und `buchung` sagt, wer welchen Flug gebucht hat. Um «Wer fliegt wohin?» zu beantworten, müssen die Tabellen **zusammengebracht** werden.",
+        "Kurze Wiederholung zum **Kreuzprodukt**: Schreibt man mehrere Tabellen hinter `FROM` (mit Komma), kombiniert SQL **jede Zeile der ersten Tabelle mit jeder Zeile der zweiten**.",
+        "```sql",
+        "SELECT *",
+        "FROM kunde, buchung",
+        "```",
+        "`kunde` hat 11 Zeilen, `buchung` hat 9. Das Ergebnis hat 11 · 9 = **99 Zeilen**. Fast alle sind Unsinn: Sie kombinieren z. B. Markus Adlon mit der Buchung von Claudia Paetzold.",
+        "> Merke: Anzahl Zeilen des Kreuzprodukts = Zeilen von Tabelle 1 mal Zeilen von Tabelle 2. Das Kreuzprodukt allein ist fast nie das, was du willst."
+      ]
+    },
+    {
+      "id": "a-kp-anzahl",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "titel": "Das Kreuzprodukt zählen",
+      "lz": [
+        "L24",
+        "L10"
+      ],
+      "thema": "Kreuzprodukt",
+      "stufe": 1,
+      "story": "Kurz zum Aufwärmen.",
+      "frage": "Wie viele Zeilen liefert diese Abfrage?",
+      "abfrage": "SELECT kunde.name, buchung.sitz\nFROM kunde, buchung",
+      "zeigen": [
+        "kunde",
+        "buchung"
+      ],
+      "hinweise": [
+        "Kein WHERE: Jede Zeile von kunde wird mit jeder Zeile von buchung kombiniert.",
+        "Multipliziere die Zeilenzahlen: 11 · 9."
+      ],
+      "erklaerung": "11 Kunden · 9 Buchungen = **99** Zeilen. Ohne Bedingung entsteht das Kreuzprodukt."
+    },
+    {
+      "id": "s-verknuepfen",
+      "typ": "info",
+      "titel": "Zeilen, die zusammengehören, verknüpfen",
+      "story": "Nur die Kombinationen, die wirklich zusammengehören, sollen übrig bleiben.",
+      "text": [
+        "Welche Zeilen gehören zusammen? Die, bei denen der **Fremdschlüssel** gleich dem **Primärschlüssel** ist. In `buchung` steht `knr` = 7, und in `kunde` hat Dirk Beyenburg ebenfalls `knr` = 7.",
+        "Diese Gleichheit schreibst du in die **WHERE-Bedingung**:",
+        "```sql",
+        "SELECT kunde.name, buchung.flugnr",
+        "FROM kunde, buchung",
+        "WHERE kunde.knr = buchung.knr",
+        "```",
+        "Was passiert? Zuerst entsteht gedanklich das Kreuzprodukt (99 Zeilen). Dann behält WHERE nur die Zeilen, in denen `kunde.knr` gleich `buchung.knr` ist. Es bleiben **9 Zeilen**: eine pro Buchung.",
+        "**tabelle.spalte:** Die Spalte `knr` gibt es in `kunde` *und* in `buchung`. Schreibst du nur `knr`, weiss SQL nicht, welche gemeint ist (Fehler «mehrdeutig»). Darum schreibst du vor den Spaltennamen die Tabelle, getrennt mit einem Punkt: `kunde.knr`. Das darfst du auch bei eindeutigen Spalten tun und ist dann übersichtlicher.",
+        "Das Muster steht auch auf dem Hilfsblatt:",
+        "```sql",
+        "SELECT T1.spalte1, T2.spalte2",
+        "FROM T1, T2",
+        "WHERE T1.schluessel = T2.schluessel",
+        "```",
+        "> Regel: Mehrere Tabellen in `FROM` brauchen immer eine **Verknüpfungsbedingung** im WHERE: `Primärschlüssel = Fremdschlüssel`. Ohne sie entsteht ein Kreuzprodukt."
+      ]
+    },
+    {
+      "id": "a-hand-verknuepfen",
+      "typ": "tabelle",
+      "titel": "Von Hand verknüpfen",
+      "lz": [
+        "L24",
+        "L8"
+      ],
+      "thema": "Verknüpfung nachvollziehen",
+      "stufe": 1,
+      "story": "Das Prinzip kannst du auch ohne SQL anwenden. Du tust, was die Datenbank tut: Fremdschlüssel in der anderen Tabelle nachschlagen.",
+      "frage": "Zu jeder Buchung gehört ein Flug. Schlage `flugnr` in der Tabelle `flug` nach und trage das Ziel (`nach`) ein.",
+      "zeigen": [
+        "flug"
+      ],
+      "tabellenname": "buchung mit Flugziel",
+      "spalten": [
+        "bnr",
+        "flugnr",
+        "nach"
+      ],
+      "zeilen": [
+        [
+          "1001",
+          "US1",
+          {
+            "loesung": "Pittsburgh"
+          }
+        ],
+        [
+          "1002",
+          "GW4",
+          {
+            "loesung": [
+              "Köln/Bonn",
+              "Koeln/Bonn"
+            ]
+          }
+        ],
+        [
+          "1005",
+          "LH772",
+          {
+            "loesung": "Sydney"
+          }
+        ],
+        [
+          "1006",
+          "BA1",
+          {
+            "loesung": "Berlin"
+          }
+        ]
+      ],
+      "hinweise": [
+        "Suche in der Tabelle flug die Zeile mit derselben flugnr.",
+        "Lies dort die Spalte nach ab."
+      ],
+      "erklaerung": "Genau das macht `WHERE buchung.flugnr = flug.flugnr`: Zu jeder Buchung wird der Flug gefunden, bei dem flugnr übereinstimmt."
+    },
+    {
+      "id": "a-sql-kunde-flug",
+      "typ": "sql",
+      "titel": "Wer hat welchen Flug gebucht?",
+      "lz": [
+        "L24",
+        "L9"
+      ],
+      "thema": "2 Tabellen verknüpfen",
+      "stufe": 1,
+      "story": "Jetzt du: Ich will zu jeder Buchung den Nachnamen des Kunden und die Flugnummer.",
+      "frage": "Zeige für **jede Buchung** den Nachnamen des Kunden (`name`) und die Flugnummer (`flugnr`). Verknüpfe `kunde` und `buchung` über die Kundennummer.",
+      "vorlage": "SELECT kunde.name, buchung.flugnr\nFROM kunde, buchung\nWHERE ",
+      "loesung": "SELECT kunde.name, buchung.flugnr FROM kunde, buchung WHERE kunde.knr = buchung.knr",
+      "hinweise": [
+        "Die Verknüpfungsbedingung: Die Kundennummer in kunde muss gleich der Kundennummer in buchung sein.",
+        "WHERE kunde.knr = buchung.knr"
+      ],
+      "erklaerung": "`WHERE kunde.knr = buchung.knr` verbindet jede Buchung mit ihrem Kunden. Ergebnis: **9 Zeilen**, eine pro Buchung. Kunden ohne Buchung (z. B. Lahm) erscheinen nicht."
+    },
+    {
+      "id": "a-ergebnis-verkn",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "titel": "Wie viele Zeilen nach dem Verknüpfen?",
+      "lz": [
+        "L24",
+        "L10"
+      ],
+      "thema": "Zeilen bei Verknüpfung",
+      "stufe": 2,
+      "story": "In der Prüfung musst du das im Kopf bestimmen können.",
+      "frage": "Wie viele Zeilen liefert diese Abfrage?",
+      "abfrage": "SELECT kunde.name, buchung.sitz\nFROM kunde, buchung\nWHERE kunde.knr = buchung.knr\nAND kunde.name = 'Paetzold'",
+      "zeigen": [
+        "kunde",
+        "buchung"
+      ],
+      "hinweise": [
+        "Suche die Kundin Paetzold. Welche knr hat sie?",
+        "Wie viele Buchungen gibt es mit dieser knr?"
+      ],
+      "erklaerung": "Paetzold hat `knr` 8. In `buchung` gibt es zwei Zeilen mit knr 8 (1002 und 1009). Also **2** Zeilen."
+    },
+    {
+      "id": "s-und",
+      "typ": "info",
+      "titel": "Verknüpfung und Filter zusammen",
+      "story": "Oft willst du nicht alle Buchungen, sondern nur bestimmte.",
+      "text": [
+        "Die Verknüpfungsbedingung und weitere Filter schreibst du alle ins WHERE, verbunden mit **AND**:",
+        "```sql",
+        "SELECT buchung.flugnr, buchung.sitz",
+        "FROM kunde, buchung",
+        "WHERE kunde.knr = buchung.knr",
+        "AND kunde.name = 'Beyenburg'",
+        "```",
+        "Alle Bedingungen müssen gleichzeitig gelten: Die Buchung gehört zu diesem Kunden (Verknüpfung) *und* der Kunde heisst Beyenburg (Filter).",
+        "Text steht wie immer in `'…'`. Spalten, die du nur zum Verknüpfen oder Filtern brauchst (hier `kunde.name`), müssen nicht in SELECT stehen.",
+        "> Tipp: Zuerst die Verknüpfung schreiben, dann die Filter mit AND anhängen."
+      ]
+    },
+    {
+      "id": "a-sql-filter",
+      "typ": "sql",
+      "titel": "Die Flüge von Beyenburg",
+      "lz": [
+        "L24",
+        "L12"
+      ],
+      "thema": "Verknüpfung mit Filter",
+      "stufe": 2,
+      "story": "Dirk Beyenburg ist verdächtig: Er hat zweimal gebucht.",
+      "frage": "Zeige die **Flugnummern** (`flugnr`) aller Buchungen des Kunden mit dem Nachnamen **Beyenburg**.",
+      "loesung": "SELECT buchung.flugnr FROM kunde, buchung WHERE kunde.knr = buchung.knr AND kunde.name = 'Beyenburg'",
+      "hinweise": [
+        "Du brauchst die Tabellen kunde und buchung. Zuerst die Verknüpfung.",
+        "Danach mit AND den Nachnamen prüfen: kunde.name = 'Beyenburg'.",
+        "SELECT buchung.flugnr FROM kunde, buchung WHERE kunde.knr = buchung.knr AND …"
+      ],
+      "erklaerung": "Verknüpfung + Filter. Ergebnis: GW4 und US1, die beiden Flüge von Beyenburg."
+    },
+    {
+      "id": "s-zwischentabelle",
+      "typ": "info",
+      "titel": "Drei Tabellen über die Zwischentabelle",
+      "story": [
+        {
+          "sprecher": "tabea",
+          "text": "Ich will wissen, wohin die Verdächtigen fliegen. Der Name steht in `kunde`, das Ziel in `flug`. Dazwischen liegt `buchung`."
+        }
+      ],
+      "text": [
+        "Kunde und Flug sind eine **n:m-Beziehung**. Du kennst die Lösung aus dem Kapitel zum Schema: Die **Zwischentabelle** `buchung` enthält zwei Fremdschlüssel, `knr` und `flugnr`.",
+        "Um Kunde und Flug in einer Abfrage zu verbinden, gehst du *über* die Zwischentabelle. Alle **drei** Tabellen stehen in FROM, und du brauchst **zwei** Verknüpfungsbedingungen:",
+        "```sql",
+        "SELECT kunde.name, flug.nach",
+        "FROM kunde, buchung, flug",
+        "WHERE kunde.knr = buchung.knr",
+        "AND buchung.flugnr = flug.flugnr",
+        "```",
+        "Das Muster vom Hilfsblatt:",
+        "```sql",
+        "SELECT T1.spalte1, T3.spalte2",
+        "FROM T1, T2, T3",
+        "WHERE T1.id = T2.id_T1",
+        "AND T3.id = T2.id_T3",
+        "```",
+        "- `T2` ist die Zwischentabelle (`buchung`), `id_T1` und `id_T3` sind ihre Fremdschlüssel.",
+        "- Jede Bedingung verknüpft **zwei** benachbarte Tabellen. Bei *n* Tabellen brauchst du **n − 1** Bedingungen.",
+        "- Auch wenn aus `buchung` nichts im SELECT steht: Die Tabelle muss in FROM und in den Bedingungen vorkommen. Sonst gibt es keinen Weg von `kunde` zu `flug`.",
+        "> Merke: Bei n:m führt der Weg von Tabelle 1 über die Zwischentabelle zu Tabelle 3: zwei Bedingungen, jeweils Primärschlüssel = Fremdschlüssel."
+      ]
+    },
+    {
+      "id": "a-sql-drei",
+      "typ": "sql",
+      "titel": "Wer fliegt wohin?",
+      "lz": [
+        "L24",
+        "L7"
+      ],
+      "thema": "3 Tabellen verknüpfen",
+      "stufe": 2,
+      "story": "Zeig mir bei jeder Buchung den Nachnamen und das Reiseziel.",
+      "frage": "Zeige für **jede Buchung** den Nachnamen des Kunden (`name`) und das Reiseziel (`nach`).",
+      "vorlage": "SELECT kunde.name, flug.nach\nFROM kunde, buchung, flug\nWHERE ",
+      "loesung": "SELECT kunde.name, flug.nach FROM kunde, buchung, flug WHERE kunde.knr = buchung.knr AND buchung.flugnr = flug.flugnr",
+      "hinweise": [
+        "Zwei Bedingungen, mit AND verbunden: eine für kunde–buchung, eine für buchung–flug.",
+        "kunde.knr = buchung.knr AND buchung.flugnr = flug.flugnr"
+      ],
+      "erklaerung": "Zwei Verknüpfungen über die Zwischentabelle `buchung`. Ergebnis: 9 Zeilen, eine pro Buchung."
+    },
+    {
+      "id": "a-sql-drei-filter",
+      "typ": "sql",
+      "titel": "Wer flog nach Köln/Bonn?",
+      "lz": [
+        "L24",
+        "L9"
+      ],
+      "thema": "3 Tabellen mit Filter",
+      "stufe": 2,
+      "story": "Die Kiste wurde in eine Maschine nach Köln/Bonn verladen. Wer sass drin?",
+      "frage": "Zeige **Vorname und Nachname** (in dieser Reihenfolge) aller Kunden, die einen Flug mit dem Ziel **Köln/Bonn** gebucht haben.",
+      "loesung": "SELECT kunde.vorname, kunde.name FROM kunde, buchung, flug WHERE kunde.knr = buchung.knr AND buchung.flugnr = flug.flugnr AND flug.nach = 'Köln/Bonn'",
+      "hinweise": [
+        "Drei Tabellen, zwei Verknüpfungen. Dazu ein Filter auf das Reiseziel.",
+        "Das Reiseziel steht im Attribut nach der Tabelle flug: flug.nach = 'Köln/Bonn'.",
+        "… AND buchung.flugnr = flug.flugnr AND flug.nach = 'Köln/Bonn'"
+      ],
+      "erklaerung": "Zwei Verknüpfungen plus ein Filter, alle mit AND. Ergebnis: Claudia Paetzold und Dirk Beyenburg. Einer von beiden hat die Kiste gesehen!"
+    },
+    {
+      "id": "a-fehler",
+      "typ": "choice",
+      "titel": "Welche Abfrage ist richtig?",
+      "lz": [
+        "L24"
+      ],
+      "thema": "typische Fehler",
+      "stufe": 2,
+      "story": "Drei Kollegen haben dieselbe Aufgabe gelöst. Nur eine Abfrage stimmt.",
+      "frage": [
+        "Aufgabe: Zeige zu jeder Buchung den Nachnamen des Kunden und das Reiseziel. Welche Abfrage ist **richtig**?"
+      ],
+      "mischen": true,
+      "optionen": [
+        {
+          "text": "SELECT kunde.name, flug.nach\nFROM kunde, buchung, flug\nWHERE kunde.knr = buchung.knr\nAND buchung.flugnr = flug.flugnr",
+          "richtig": true
+        },
+        {
+          "text": "SELECT kunde.name, flug.nach\nFROM kunde, buchung, flug\nWHERE kunde.knr = buchung.knr",
+          "warum": "Die zweite Verknüpfung fehlt. Ergebnis: jede Buchung mit jedem der 5 Flüge (45 Zeilen), also ein teilweises Kreuzprodukt."
+        },
+        {
+          "text": "SELECT kunde.name, flug.nach\nFROM kunde, flug\nWHERE kunde.knr = flug.flugnr",
+          "warum": "Kunde und Flug haben keinen gemeinsamen Fremdschlüssel. Der Weg führt über die Zwischentabelle buchung."
+        },
+        {
+          "text": "SELECT kunde.name, flug.nach\nFROM kunde, buchung, flug\nWHERE kunde.knr = buchung.knr\nOR buchung.flugnr = flug.flugnr",
+          "warum": "OR statt AND: Es müssen beide Bedingungen gleichzeitig gelten, sonst bleiben unsinnige Kombinationen übrig."
+        }
+      ],
+      "hinweise": [
+        "Bei drei Tabellen brauchst du zwei Bedingungen.",
+        "Beide Bedingungen müssen gleichzeitig gelten: AND."
+      ],
+      "erklaerung": "Richtig: zwei Verknüpfungsbedingungen (n − 1), mit AND verbunden, jeweils Fremdschlüssel = Primärschlüssel."
+    },
+    {
+      "id": "s-kurznamen",
+      "typ": "info",
+      "titel": "Kurznamen für Tabellen",
+      "story": "Die langen Tabellennamen werden mit der Zeit lästig.",
+      "text": [
+        "Mit **AS** gibst du einer Tabelle in der Abfrage einen kurzen Namen (Alias):",
+        "```sql",
+        "SELECT k.name, f.nach",
+        "FROM kunde AS k, buchung AS b, flug AS f",
+        "WHERE k.knr = b.knr",
+        "AND b.flugnr = f.flugnr",
+        "```",
+        "Dann musst du überall den Kurznamen verwenden (`k.knr`, nicht mehr `kunde.knr`). Das Ergebnis ist dasselbe. Für die Prüfung genügen die ausgeschriebenen Namen; der Alias spart nur Schreibarbeit."
+      ]
+    },
+    {
+      "id": "a-alias",
+      "typ": "sql",
+      "titel": "Mit Kurznamen",
+      "lz": [
+        "L24",
+        "L20"
+      ],
+      "thema": "Tabellenalias",
+      "stufe": 2,
+      "story": "Zeit sparen!",
+      "frage": "Zeige **Nachname und Sitznummer** aller Buchungen für den Flug **US1**. Gib `kunde` den Kurznamen `k` und `buchung` den Kurznamen `b`.",
+      "loesung": "SELECT k.name, b.sitz FROM kunde AS k, buchung AS b WHERE k.knr = b.knr AND b.flugnr = 'US1'",
+      "muss": [
+        {
+          "muster": "\\bKUNDE\\s+(AS\\s+)?K\\b",
+          "meldung": "Gib kunde den Kurznamen k: FROM kunde AS k."
+        }
+      ],
+      "hinweise": [
+        "FROM kunde AS k, buchung AS b",
+        "WHERE k.knr = b.knr AND b.flugnr = 'US1'"
+      ],
+      "erklaerung": "Mit den Kurznamen schreibst du `k.knr = b.knr`. Ergebnis: Adlon, Beyenburg, Paetzold."
+    },
+    {
+      "id": "a-bib-sw",
+      "typ": "sql",
+      "titel": "Bücher zu einem Schlagwort",
+      "lz": [
+        "L24",
+        "L7"
+      ],
+      "thema": "n:m über Zwischentabelle",
+      "db": "bibliothek",
+      "stufe": 3,
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Die Kiste stand neben den Büchern über SQL. Welche Titel sind das?"
+        }
+      ],
+      "frage": "Zeige die **Titel** aller Bücher mit dem Schlagwort **SQL**. Die Bibliothek verknüpft Bücher und Schlagwörter über die Zwischentabelle `buch_sw`.",
+      "loesung": "SELECT buch.titel FROM buch, buch_sw, schlagwort WHERE buch.buchid = buch_sw.buchid AND schlagwort.swid = buch_sw.swid AND schlagwort.schlagwort = 'SQL'",
+      "hinweise": [
+        "Drei Tabellen: buch, buch_sw (Zwischentabelle), schlagwort. Also zwei Verknüpfungen.",
+        "buch.buchid = buch_sw.buchid und schlagwort.swid = buch_sw.swid. Dazu der Filter auf das Schlagwort.",
+        "… AND schlagwort.schlagwort = 'SQL'"
+      ],
+      "erklaerung": "Gleiches Muster wie bei Kunde–Flug: Hinter `buch_sw` stehen zwei Fremdschlüssel. Ergebnis: 4 Bücher."
+    },
+    {
+      "id": "s-ende",
+      "typ": "info",
+      "titel": "Spur über drei Tabellen",
+      "story": [
+        {
+          "sprecher": "tabea",
+          "text": "Paetzold oder Beyenburg: einer von beiden hat die Kiste mitgenommen. Auf zur Insel Muschelbucht, dort wird NULL gefunden!"
+        }
+      ],
+      "text": [
+        "## Zusammenfassung",
+        "- Mehrere Tabellen in `FROM` ergeben das **Kreuzprodukt**. Mit **Primärschlüssel = Fremdschlüssel** im WHERE bleiben nur zusammengehörige Zeilen.",
+        "- Spalten, die in mehreren Tabellen vorkommen, schreibst du als `tabelle.spalte`.",
+        "- Weitere Filter hängst du mit `AND` an.",
+        "- Bei n:m geht der Weg über die **Zwischentabelle**: drei Tabellen, zwei Bedingungen. Allgemein: n Tabellen brauchen n − 1 Verknüpfungsbedingungen.",
+        "- Vergisst du eine Bedingung, entstehen zu viele Zeilen (Kreuzprodukt)."
+      ]
+    }
+  ],
+  "pool": [
+    {
+      "id": "p-verk-2",
+      "typ": "sql",
+      "lz": [
+        "L24",
+        "L9"
+      ],
+      "thema": "2 Tabellen verknüpfen",
+      "stufe": 1,
+      "frage": "Zeige zu jeder Buchung {{ta}} des Kunden und {{tb}} der Buchung (in dieser Reihenfolge).",
+      "loesung": "SELECT kunde.{{a}}, buchung.{{b}} FROM kunde, buchung WHERE kunde.knr = buchung.knr",
+      "parameter": [
+        {
+          "ta": "den Nachnamen",
+          "a": "name",
+          "tb": "die Sitznummer",
+          "b": "sitz"
+        },
+        {
+          "ta": "den Vornamen",
+          "a": "vorname",
+          "tb": "das Buchungsdatum",
+          "b": "datum"
+        },
+        {
+          "ta": "den Nachnamen",
+          "a": "name",
+          "tb": "die Flugnummer",
+          "b": "flugnr"
+        },
+        {
+          "ta": "den Vornamen",
+          "a": "vorname",
+          "tb": "die Buchungsnummer",
+          "b": "bnr"
+        }
+      ],
+      "hinweise": [
+        "Verknüpfe kunde und buchung über die Kundennummer.",
+        "WHERE kunde.knr = buchung.knr"
+      ],
+      "erklaerung": "Die Bedingung `kunde.knr = buchung.knr` verknüpft jede Buchung mit ihrem Kunden: 9 Zeilen."
+    },
+    {
+      "id": "p-ziel",
+      "typ": "sql",
+      "lz": [
+        "L24",
+        "L9",
+        "L7"
+      ],
+      "thema": "3 Tabellen mit Filter",
+      "stufe": 2,
+      "frage": "Zeige die **Nachnamen** aller Kunden, die einen Flug mit dem Ziel **{{ziel}}** gebucht haben.",
+      "loesung": "SELECT kunde.name FROM kunde, buchung, flug WHERE kunde.knr = buchung.knr AND buchung.flugnr = flug.flugnr AND flug.nach = '{{ziel}}'",
+      "parameter": [
+        {
+          "ziel": "Köln/Bonn"
+        },
+        {
+          "ziel": "Sydney"
+        },
+        {
+          "ziel": "Berlin"
+        },
+        {
+          "ziel": "Pittsburgh"
+        }
+      ],
+      "hinweise": [
+        "Drei Tabellen (kunde, buchung, flug), zwei Verknüpfungen mit AND.",
+        "Dazu: AND flug.nach = '{{ziel}}'"
+      ],
+      "erklaerung": "Zwei Verknüpfungen über die Zwischentabelle `buchung`, dazu der Filter auf das Ziel {{ziel}}."
+    },
+    {
+      "id": "p-fluglinie",
+      "typ": "sql",
+      "lz": [
+        "L24",
+        "L9"
+      ],
+      "thema": "3 Tabellen mit Filter",
+      "stufe": 2,
+      "frage": "Zeige die **Fluglinien** (`fluglinie`) aller Flüge, die der Kunde mit dem Nachnamen **{{name}}** gebucht hat.",
+      "loesung": "SELECT flug.fluglinie FROM kunde, buchung, flug WHERE kunde.knr = buchung.knr AND buchung.flugnr = flug.flugnr AND kunde.name = '{{name}}'",
+      "parameter": [
+        {
+          "name": "Beyenburg"
+        },
+        {
+          "name": "Adlon"
+        },
+        {
+          "name": "Meyer"
+        },
+        {
+          "name": "Paetzold"
+        }
+      ],
+      "hinweise": [
+        "Der Name steht in kunde, die Fluglinie in flug, dazwischen liegt buchung.",
+        "… AND kunde.name = '{{name}}'"
+      ],
+      "erklaerung": "Der Weg kunde → buchung → flug ist immer gleich. Nur der Filter wechselt."
+    },
+    {
+      "id": "p-flug-passagiere",
+      "typ": "sql",
+      "lz": [
+        "L24",
+        "L9",
+        "L13"
+      ],
+      "thema": "Verknüpfung mit Sortierung",
+      "stufe": 3,
+      "frage": "Zeige **Nachname und Sitznummer** aller Kunden, die den Flug **LH772** gebucht haben, nach Sitznummer aufsteigend sortiert.",
+      "reihenfolge": true,
+      "loesung": "SELECT kunde.name, buchung.sitz FROM kunde, buchung WHERE kunde.knr = buchung.knr AND buchung.flugnr = 'LH772' ORDER BY buchung.sitz ASC",
+      "hinweise": [
+        "Du brauchst nur kunde und buchung. Die Flugnummer steht schon in buchung.",
+        "ORDER BY kommt ganz zum Schluss."
+      ],
+      "erklaerung": "Verknüpfung, Filter auf die Flugnummer, am Ende die Sortierung. Ergebnis: Schmitz (77), Messdiener (102)."
+    },
+    {
+      "id": "p-alter",
+      "typ": "sql",
+      "lz": [
+        "L24",
+        "L15"
+      ],
+      "thema": "Verknüpfung mit Vergleich",
+      "stufe": 3,
+      "frage": "Zeige Nachname, Alter und Flugnummer aller Buchungen von Kunden, die **älter als 30** sind. (Auf Papier schreibst du `alter`, in SQL `kunde.\"alter\"`.)",
+      "loesung": "SELECT kunde.name, kunde.\"alter\", buchung.flugnr FROM kunde, buchung WHERE kunde.knr = buchung.knr AND kunde.\"alter\" > 30",
+      "hinweise": [
+        "Verknüpfe kunde und buchung. Dann der Filter auf das Alter.",
+        "kunde.\"alter\" > 30"
+      ],
+      "erklaerung": "Das Alter braucht Anführungszeichen. Ergebnis: Meyer (64, LH7) und Tiedemann (59, BA1)."
+    },
+    {
+      "id": "p-bib-verlag",
+      "typ": "sql",
+      "lz": [
+        "L24",
+        "L9"
+      ],
+      "thema": "2 Tabellen verknüpfen",
+      "db": "bibliothek",
+      "stufe": 2,
+      "frage": "Zeige **Titel und Verlagsname** aller Bücher, die im Jahr **{{jahr}}** erschienen sind.",
+      "loesung": "SELECT buch.titel, verlag.name FROM buch, verlag WHERE buch.verlagsid = verlag.verlagsid AND buch.jahr = {{jahr}}",
+      "parameter": [
+        {
+          "jahr": "1995"
+        },
+        {
+          "jahr": "1998"
+        },
+        {
+          "jahr": "2000"
+        },
+        {
+          "jahr": "1991"
+        }
+      ],
+      "hinweise": [
+        "Der Fremdschlüssel buch.verlagsid zeigt auf verlag.verlagsid.",
+        "Die Jahreszahl ist eine Zahl: ohne Anführungszeichen."
+      ],
+      "erklaerung": "1:n-Verknüpfung: Jedes Buch hat einen Verlag. Bedingung `buch.verlagsid = verlag.verlagsid`, dazu der Filter auf das Jahr {{jahr}}."
+    },
+    {
+      "id": "p-bib-sw",
+      "typ": "sql",
+      "lz": [
+        "L24",
+        "L7"
+      ],
+      "thema": "n:m über Zwischentabelle",
+      "db": "bibliothek",
+      "stufe": 3,
+      "frage": "Zeige die **Titel** aller Bücher mit dem Schlagwort **{{sw}}**.",
+      "loesung": "SELECT buch.titel FROM buch, buch_sw, schlagwort WHERE buch.buchid = buch_sw.buchid AND schlagwort.swid = buch_sw.swid AND schlagwort.schlagwort = '{{sw}}'",
+      "parameter": [
+        {
+          "sw": "SQL"
+        },
+        {
+          "sw": "Java"
+        },
+        {
+          "sw": "Animation"
+        },
+        {
+          "sw": "COBOL"
+        }
+      ],
+      "hinweise": [
+        "Zwischentabelle: buch_sw. Zwei Verknüpfungen.",
+        "Filter: schlagwort.schlagwort = '{{sw}}'"
+      ],
+      "erklaerung": "Buch und Schlagwort sind n:m. Weg: buch → buch_sw → schlagwort."
+    },
+    {
+      "id": "p-bib-autor",
+      "typ": "sql",
+      "lz": [
+        "L24",
+        "L7",
+        "L9"
+      ],
+      "thema": "n:m über Zwischentabelle",
+      "db": "bibliothek",
+      "stufe": 3,
+      "frage": "Zeige die **Titel** aller Bücher, die von **{{vn}} {{nn}}** geschrieben wurden (Vornamen und Nachname stehen in `autor`).",
+      "loesung": "SELECT buch.titel FROM buch, buch_aut, autor WHERE buch.buchid = buch_aut.buchid AND autor.autorid = buch_aut.autorid AND autor.vornamen = '{{vn}}' AND autor.nachname = '{{nn}}'",
+      "parameter": [
+        {
+          "vn": "Niklaus",
+          "nn": "Wirth"
+        },
+        {
+          "vn": "Konrad",
+          "nn": "Zuse"
+        },
+        {
+          "vn": "Thomas",
+          "nn": "Ottmann"
+        }
+      ],
+      "hinweise": [
+        "Die Verknüpfung läuft über buch_aut.",
+        "Zwei Filter für Vornamen und Nachname, wieder mit AND."
+      ],
+      "erklaerung": "Weg: buch → buch_aut → autor. Zwei Verknüpfungen und zwei Filter."
+    },
+    {
+      "id": "p-bib-vier",
+      "typ": "sql",
+      "lz": [
+        "L24",
+        "L7"
+      ],
+      "thema": "4 Tabellen verknüpfen",
+      "db": "bibliothek",
+      "stufe": 3,
+      "frage": "Zeige für alle Bücher von **Konrad Zuse** den **Titel** und den **Namen des Verlags**.",
+      "loesung": "SELECT buch.titel, verlag.name FROM buch, buch_aut, autor, verlag WHERE buch.buchid = buch_aut.buchid AND autor.autorid = buch_aut.autorid AND buch.verlagsid = verlag.verlagsid AND autor.nachname = 'Zuse'",
+      "hinweise": [
+        "Vier Tabellen brauchen drei Verknüpfungsbedingungen.",
+        "buch–buch_aut, autor–buch_aut, buch–verlag."
+      ],
+      "erklaerung": "n − 1 = 3 Bedingungen: buch–buch_aut, buch_aut–autor, buch–verlag. Dazu der Filter auf Zuse."
+    },
+    {
+      "id": "p-anzahl-verk",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "lz": [
+        "L24",
+        "L10"
+      ],
+      "thema": "Zeilen bei Verknüpfung",
+      "stufe": 2,
+      "frage": "Wie viele Zeilen liefert diese Abfrage?",
+      "abfrage": "SELECT kunde.name, buchung.sitz\nFROM kunde, buchung\nWHERE kunde.knr = buchung.knr\nAND kunde.name = '{{name}}'",
+      "zeigen": [
+        "kunde",
+        "buchung"
+      ],
+      "parameter": [
+        {
+          "name": "Beyenburg"
+        },
+        {
+          "name": "Paetzold"
+        },
+        {
+          "name": "Meyer"
+        },
+        {
+          "name": "Adlon"
+        }
+      ],
+      "hinweise": [
+        "Suche die knr des Kunden {{name}}.",
+        "Zähle die Buchungen mit dieser knr."
+      ],
+      "erklaerung": "Die Anzahl Zeilen ist die Zahl der Buchungen des Kunden {{name}}."
+    },
+    {
+      "id": "p-anzahl-teil",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "lz": [
+        "L24",
+        "L23"
+      ],
+      "thema": "teilweises Kreuzprodukt",
+      "stufe": 3,
+      "frage": "Der Entwickler hat die zweite Bedingung vergessen. Wie viele Zeilen liefert diese Abfrage?",
+      "abfrage": "SELECT kunde.name, flug.nach\nFROM kunde, buchung, flug\nWHERE kunde.knr = buchung.knr",
+      "zeigen": [
+        "kunde",
+        "buchung",
+        "flug"
+      ],
+      "hinweise": [
+        "Die erste Bedingung liefert 9 Zeilen aus kunde × buchung.",
+        "Jede dieser 9 Zeilen wird mit jedem Flug kombiniert. Wie viele Flüge gibt es?"
+      ],
+      "erklaerung": "9 · 5 = **45** Zeilen. Ohne `buchung.flugnr = flug.flugnr` wird jede Buchung mit allen 5 Flügen kombiniert."
+    },
+    {
+      "id": "p-anzahl-bib",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "lz": [
+        "L24",
+        "L7",
+        "L10"
+      ],
+      "thema": "Zeilen bei Zwischentabelle",
+      "db": "bibliothek",
+      "stufe": 3,
+      "frage": "Wie viele Zeilen liefert diese Abfrage?",
+      "abfrage": "SELECT buch.titel\nFROM buch, buch_sw\nWHERE buch.buchid = buch_sw.buchid\nAND buch_sw.swid = {{sw}}",
+      "zeigen": [
+        {
+          "titel": "buch_sw",
+          "sql": "SELECT * FROM buch_sw ORDER BY swid, buchid"
+        }
+      ],
+      "parameter": [
+        {
+          "sw": "2"
+        },
+        {
+          "sw": "3"
+        },
+        {
+          "sw": "4"
+        }
+      ],
+      "hinweise": [
+        "Zähle in buch_sw die Zeilen mit swid = {{sw}}.",
+        "Jede dieser Zeilen findet genau ein Buch."
+      ],
+      "erklaerung": "Jede Zeile der Zwischentabelle mit swid {{sw}} ergibt eine Zeile im Ergebnis."
+    },
+    {
+      "id": "p-zeilen-ankreuzen",
+      "typ": "ergebnis",
+      "modus": "zeilen",
+      "lz": [
+        "L24",
+        "L11"
+      ],
+      "thema": "Ergebnis angeben",
+      "stufe": 3,
+      "frage": "Welche Zeilen gehören zum Ergebnis dieser Abfrage? Kreuze alle an.",
+      "abfrage": "SELECT kunde.name, buchung.flugnr\nFROM kunde, buchung\nWHERE kunde.knr = buchung.knr\nAND buchung.sitz > 100",
+      "kandidaten": "SELECT kunde.name, buchung.flugnr FROM kunde, buchung WHERE kunde.knr = buchung.knr",
+      "zeigen": [
+        "kunde",
+        "buchung"
+      ],
+      "hinweise": [
+        "Finde zuerst die Buchungen mit sitz > 100.",
+        "Schlage dann die Nachnamen über die knr nach."
+      ],
+      "erklaerung": "Drei Buchungen haben sitz > 100: 1004 (123), 1006 (101), 1007 (102). Die zugehörigen Kunden sind Beyenburg, Tiedemann und Messdiener."
+    },
+    {
+      "id": "p-bedingung-flug",
+      "typ": "choice",
+      "lz": [
+        "L24"
+      ],
+      "thema": "Verknüpfungsbedingung",
+      "stufe": 1,
+      "frage": "Welche WHERE-Bedingung verknüpft die Tabellen `buchung` und `flug` richtig?",
+      "mischen": true,
+      "optionen": [
+        {
+          "text": "buchung.flugnr = flug.flugnr",
+          "richtig": true
+        },
+        {
+          "text": "buchung.bnr = flug.flugnr",
+          "warum": "bnr ist die Buchungsnummer, nicht der Verweis auf den Flug."
+        },
+        {
+          "text": "buchung.knr = flug.flugnr",
+          "warum": "knr ist die Kundennummer. flug hat keinen Bezug dazu."
+        },
+        {
+          "text": "buchung.sitz = flug.groesse",
+          "warum": "Gleiche Zahlen bedeuten nicht, dass die Daten zusammengehören. Es braucht Fremdschlüssel = Primärschlüssel."
+        }
+      ],
+      "hinweise": [
+        "Welches Attribut in buchung ist der Fremdschlüssel auf flug?"
+      ],
+      "erklaerung": "`buchung.flugnr` ist der Fremdschlüssel, `flug.flugnr` der Primärschlüssel."
+    },
+    {
+      "id": "p-bedingung-bib",
+      "typ": "zuordnen",
+      "lz": [
+        "L24",
+        "L4"
+      ],
+      "thema": "Verknüpfungsbedingung",
+      "db": "bibliothek",
+      "stufe": 2,
+      "frage": "Welche Bedingung verknüpft diese Tabellenpaare?",
+      "kategorien": [
+        "buch.verlagsid = verlag.verlagsid",
+        "buch.buchid = buch_aut.buchid",
+        "autor.autorid = buch_aut.autorid",
+        "buch.buchid = buch_sw.buchid"
+      ],
+      "elemente": [
+        {
+          "text": "buch und verlag",
+          "antwort": "buch.verlagsid = verlag.verlagsid",
+          "warum": "Fremdschlüssel verlagsid in buch."
+        },
+        {
+          "text": "buch und buch_aut",
+          "antwort": "buch.buchid = buch_aut.buchid",
+          "warum": "buchid ist der Fremdschlüssel in buch_aut."
+        },
+        {
+          "text": "autor und buch_aut",
+          "antwort": "autor.autorid = buch_aut.autorid",
+          "warum": "autorid ist der Fremdschlüssel in buch_aut."
+        },
+        {
+          "text": "buch und buch_sw",
+          "antwort": "buch.buchid = buch_sw.buchid",
+          "warum": "buchid ist der Fremdschlüssel in buch_sw."
+        }
+      ],
+      "hinweise": [
+        "Die Gleichheit besteht zwischen Fremdschlüssel und Primärschlüssel."
+      ],
+      "erklaerung": "Jedes Tabellenpaar wird über den Fremdschlüssel mit dem Primärschlüssel verknüpft."
+    },
+    {
+      "id": "p-zahl-bedingungen",
+      "typ": "text",
+      "lz": [
+        "L24",
+        "L7"
+      ],
+      "thema": "Anzahl Bedingungen",
+      "stufe": 2,
+      "frage": "Eine Abfrage verknüpft **{{n}} Tabellen** miteinander (alle über Primär- und Fremdschlüssel). Wie viele Verknüpfungsbedingungen braucht sie mindestens? (Zahl eintragen)",
+      "antworten": [
+        "{{b}}"
+      ],
+      "parameter": [
+        {
+          "n": "2",
+          "b": "1"
+        },
+        {
+          "n": "3",
+          "b": "2"
+        },
+        {
+          "n": "4",
+          "b": "3"
+        }
+      ],
+      "hinweise": [
+        "Jede Bedingung verbindet zwei Tabellen. Ketten: A–B, B–C, …"
+      ],
+      "erklaerung": "Bei {{n}} Tabellen braucht es {{n}} − 1 = **{{b}}** Bedingungen."
+    },
+    {
+      "id": "p-zwischen-warum",
+      "typ": "choice",
+      "lz": [
+        "L7",
+        "L24"
+      ],
+      "thema": "Zwischentabelle in FROM",
+      "db": "bibliothek",
+      "stufe": 2,
+      "frage": "Eine Abfrage zeigt Buchtitel und Autorennamen. Im SELECT steht keine Spalte aus `buch_aut`. Muss `buch_aut` trotzdem in FROM stehen?",
+      "mischen": true,
+      "optionen": [
+        {
+          "text": "Ja, weil `buch_aut` die Fremdschlüssel enthält, die Buch und Autor verknüpfen.",
+          "richtig": true
+        },
+        {
+          "text": "Nein, weil Spalten aus buch_aut nicht ausgewählt werden.",
+          "warum": "Die Tabelle wird nicht wegen ihrer Spalten gebraucht, sondern wegen der Verknüpfung."
+        },
+        {
+          "text": "Nein, buch und autor haben ja beide eine id-Spalte.",
+          "warum": "buchid und autorid sind verschiedene Dinge. Eine Gleichsetzung wäre sinnlos."
+        },
+        {
+          "text": "Ja, aber nur wenn das Buch mehr als einen Autor hat.",
+          "warum": "Immer: Die Tabellen buch und autor sind nur über buch_aut verknüpft."
+        }
+      ],
+      "hinweise": [
+        "Buch und Autor sind n:m."
+      ],
+      "erklaerung": "Buch und Autor sind n:m. Es gibt nur den Weg über die Zwischentabelle."
+    },
+    {
+      "id": "p-hand-kunde",
+      "typ": "tabelle",
+      "lz": [
+        "L24",
+        "L8"
+      ],
+      "thema": "Verknüpfung nachvollziehen",
+      "stufe": 2,
+      "frage": "Schlage in der Tabelle `kunde` den Nachnamen zur Kundennummer in `buchung` nach.",
+      "zeigen": [
+        "kunde"
+      ],
+      "tabellenname": "buchung mit Nachname",
+      "spalten": [
+        "bnr",
+        "knr",
+        "name"
+      ],
+      "zeilen": [
+        [
+          "1003",
+          "7",
+          {
+            "loesung": "Beyenburg"
+          }
+        ],
+        [
+          "1005",
+          "2",
+          {
+            "loesung": "Schmitz"
+          }
+        ],
+        [
+          "1007",
+          "5",
+          {
+            "loesung": "Messdiener"
+          }
+        ],
+        [
+          "1008",
+          "4",
+          {
+            "loesung": "Meyer"
+          }
+        ]
+      ],
+      "hinweise": [
+        "Suche die knr in der Tabelle kunde."
+      ],
+      "erklaerung": "Das ist die Verknüpfung `buchung.knr = kunde.knr`."
+    },
+    {
+      "id": "p-fehler-kp",
+      "typ": "choice",
+      "lz": [
+        "L24",
+        "L23"
+      ],
+      "thema": "typische Fehler",
+      "stufe": 2,
+      "frage": "Ein Schüler schreibt `SELECT kunde.name, flug.nach FROM kunde, buchung, flug WHERE kunde.knr = buchung.knr AND buchung.flugnr = flug.flugnr`. Er erhält 9 Zeilen. Dann lässt er die zweite Bedingung weg. Was passiert?",
+      "mischen": true,
+      "optionen": [
+        {
+          "text": "Es werden mehr Zeilen (45), weil jede Buchung mit jedem Flug kombiniert wird.",
+          "richtig": true
+        },
+        {
+          "text": "Es gibt eine Fehlermeldung.",
+          "warum": "Die Abfrage ist syntaktisch richtig, nur inhaltlich unsinnig."
+        },
+        {
+          "text": "Es bleiben 9 Zeilen, aber mit falschen Zielen.",
+          "warum": "Mehr Zeilen, nicht nur falsche Werte: 9 · 5 = 45."
+        },
+        {
+          "text": "Das Ergebnis bleibt gleich.",
+          "warum": "Ohne die Bedingung fehlt die Verknüpfung."
+        }
+      ],
+      "hinweise": [
+        "Ohne Bedingung zwischen zwei Tabellen entsteht ein Kreuzprodukt."
+      ],
+      "erklaerung": "Die Bedingung fehlt: 9 Buchungen · 5 Flüge = 45 Zeilen."
+    }
+  ]
+}

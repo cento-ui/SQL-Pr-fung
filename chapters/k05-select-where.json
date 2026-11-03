@@ -1,0 +1,1037 @@
+{
+  "id": "k05",
+  "titel": "Spuren filtern",
+  "untertitel": "WHERE, Vergleichsoperatoren und der Weg von der Frage in Worten zur SQL-Abfrage.",
+  "db": "flugbuchung",
+  "lernziele": [
+    "L9",
+    "L12",
+    "L15"
+  ],
+  "dauer": 40,
+  "schritte": [
+    {
+      "id": "s-where",
+      "typ": "info",
+      "titel": "Nur die passenden Zeilen: WHERE",
+      "story": [
+        {
+          "sprecher": "tabea",
+          "text": "NULL ist in eine Kiste gekrochen, die auf einen Flug nach Frankfurt verladen wurde. Ich will nicht alle Flüge sehen, sondern nur die, die dort starten. Dafür gibt es **WHERE**."
+        }
+      ],
+      "text": [
+        "Bisher hast du immer **alle** Zeilen einer Tabelle bekommen. Meistens willst du aber nur einen Teil davon. Mit **WHERE** legst du eine **Bedingung** fest. Die Datenbank prüft sie Zeile für Zeile. Nur Zeilen, bei denen die Bedingung stimmt, kommen ins Ergebnis.",
+        "```sql",
+        "SELECT *",
+        "FROM flug",
+        "WHERE von = 'Frankfurt'",
+        "```",
+        "Die Tabelle `flug` hat 5 Zeilen. Die Datenbank prüft jede einzelne:",
+        "| flugnr | fluglinie | von | nach | Bedingung `von = 'Frankfurt'` |",
+        "|---|---|---|---|---|",
+        "| US1 | USAirways | Frankfurt | Pittsburgh | stimmt, Zeile kommt ins Ergebnis |",
+        "| BA1 | BritishAirways | London | Berlin | stimmt nicht, Zeile fällt weg |",
+        "| GW4 | Germanwings | LondonStansted | Köln/Bonn | stimmt nicht, Zeile fällt weg |",
+        "| LH772 | Lufthansa | Frankfurt | Sydney | stimmt, Zeile kommt ins Ergebnis |",
+        "| LH7 | Lufthansa | Frankfurt | NewYorkJFK | stimmt, Zeile kommt ins Ergebnis |",
+        "Das Ergebnis hat also **3 Zeilen**.",
+        "## Die drei Teile einer Abfrage",
+        "- `SELECT` wählt **Spalten** aus (Fachwort: *Projektion*).",
+        "- `FROM` nennt die **Tabelle**.",
+        "- `WHERE` wählt **Zeilen** aus (Fachwort: *Selektion*).",
+        "Die Reihenfolge ist immer gleich: erst SELECT, dann FROM, dann WHERE.",
+        "> Merke: SELECT entscheidet, welche **Spalten** du siehst. WHERE entscheidet, welche **Zeilen** du siehst."
+      ]
+    },
+    {
+      "id": "a-where-von",
+      "typ": "sql",
+      "titel": "Flüge ab Frankfurt",
+      "lz": [
+        "L12",
+        "L9"
+      ],
+      "thema": "WHERE",
+      "stufe": 1,
+      "story": "Probier es selbst: Welche Flüge starten in Frankfurt?",
+      "frage": "Zeige alle Spalten der Flüge, die in **Frankfurt** starten (Spalte `von`).",
+      "loesung": "SELECT * FROM flug WHERE von = 'Frankfurt'",
+      "vorlage": "SELECT *\nFROM flug\nWHERE ",
+      "muss": [
+        {
+          "muster": "\\bWHERE\\b",
+          "meldung": "Verwende WHERE, um Zeilen auszuwählen."
+        }
+      ],
+      "hinweise": [
+        "Du brauchst alle drei Teile: SELECT, FROM und WHERE.",
+        "Die Bedingung heisst: Der Wert in der Spalte von ist gleich Frankfurt. Das Gleichheitszeichen schreibst du als einfaches =.",
+        "Text steht in einfachen Anführungszeichen: WHERE von = 'Frankfurt'"
+      ],
+      "erklaerung": "`SELECT * FROM flug WHERE von = 'Frankfurt'` liefert **3 Zeilen** (US1, LH772, LH7). Der Text `Frankfurt` steht in einfachen Anführungszeichen. Warum, erfährst du im nächsten Abschnitt."
+    },
+    {
+      "id": "s-text-zahl",
+      "typ": "info",
+      "titel": "Text und Zahlen in Bedingungen",
+      "story": [
+        {
+          "sprecher": "tabea",
+          "text": "Ein häufiger Fehler: Anführungszeichen vergessen. Das passiert auch Profis. Du weisst gleich, worauf du achten musst."
+        }
+      ],
+      "text": [
+        "In einer Bedingung vergleichst du eine **Spalte** mit einem **Wert**. Wie du den Wert schreibst, hängt vom Datentyp ab.",
+        "| Art des Werts | Schreibweise | Beispiel |",
+        "|---|---|---|",
+        "| Text | in **einfachen** Anführungszeichen `'…'` | `WHERE name = 'Meier'` |",
+        "| Zahl | **ohne** Anführungszeichen | `WHERE knr = 3` |",
+        "Warum die Anführungszeichen? Ohne sie hält SQL das Wort für den Namen einer **Spalte**. `WHERE name = Meier` würde eine Spalte `Meier` suchen. Die gibt es nicht, also kommt eine Fehlermeldung.",
+        "- Schreibe den Text **genau so**, wie er in der Tabelle steht. `'frankfurt'` ist nicht dasselbe wie `'Frankfurt'`.",
+        "- Spaltennamen schreibst du **ohne** Anführungszeichen: `von`, `name`.",
+        "## Sonderfall: die Spalte alter",
+        "In der Tabelle `kunde` gibt es die Spalte `alter`. In SQL ist ALTER aber ein Befehlswort (`ALTER TABLE`). Darum musst du die Spalte in **doppelten** Anführungszeichen schreiben: `\"alter\"`.",
+        "```sql",
+        "SELECT name, \"alter\"",
+        "FROM kunde",
+        "WHERE \"alter\" = 25",
+        "```",
+        "> Auf dem Papier in der Prüfung darfst du einfach `alter` schreiben. Am Computer brauchst du die doppelten Anführungszeichen.",
+        "> Merke: Text → einfache Anführungszeichen. Zahl → keine. Spaltenname → keine (ausser `\"alter\"`)."
+      ]
+    },
+    {
+      "id": "a-text-zahl",
+      "typ": "choice",
+      "titel": "Welche Abfrage stimmt?",
+      "lz": [
+        "L12",
+        "L15"
+      ],
+      "thema": "Text in Anführungszeichen",
+      "stufe": 1,
+      "story": "Tabea möchte die Kundin **Julia** finden.",
+      "frage": "Welche Abfrage zeigt alle Angaben der Kundin mit dem Vornamen Julia?",
+      "optionen": [
+        {
+          "text": "`SELECT * FROM kunde WHERE vorname = 'Julia'`",
+          "richtig": true,
+          "warum": "Richtig: Text steht in einfachen Anführungszeichen."
+        },
+        {
+          "text": "`SELECT * FROM kunde WHERE vorname = Julia`",
+          "warum": "Ohne Anführungszeichen sucht SQL eine Spalte namens Julia. Die gibt es nicht."
+        },
+        {
+          "text": "`SELECT * FROM kunde WHERE Julia = vorname`",
+          "warum": "Auch hier ist Julia nicht in Anführungszeichen. SQL sucht eine Spalte Julia."
+        },
+        {
+          "text": "`SELECT * FROM kunde WHERE vorname = 'Julia`",
+          "warum": "Das schliessende Anführungszeichen fehlt. Jedes Textstück braucht ein öffnendes und ein schliessendes `'`."
+        }
+      ],
+      "hinweise": [
+        "Julia ist ein Text, also ein Wert. Wie schreibt man Text in SQL?",
+        "Prüfe bei jeder Option: Sind die Anführungszeichen vollständig?"
+      ],
+      "erklaerung": "Text-Werte stehen in einfachen Anführungszeichen, und zwar auf beiden Seiten: `'Julia'`. Fehlt eines, meldet SQL einen Fehler."
+    },
+    {
+      "id": "a-kunde-name",
+      "typ": "sql",
+      "titel": "Kunde nach Nachname suchen",
+      "lz": [
+        "L12",
+        "L9"
+      ],
+      "thema": "WHERE mit Text",
+      "stufe": 1,
+      "story": "Eine Zeugin heisst {{name}}. Wer ist das genau?",
+      "frage": "Zeige `vorname` und `name` des Kunden mit dem Nachnamen **{{name}}** (Spalte `name`).",
+      "parameter": [
+        {
+          "name": "Meier"
+        },
+        {
+          "name": "Lahm"
+        },
+        {
+          "name": "Kowalski"
+        },
+        {
+          "name": "Adlon"
+        }
+      ],
+      "loesung": "SELECT vorname, name FROM kunde WHERE name = '{{name}}'",
+      "hinweise": [
+        "Welche Spalten willst du sehen (SELECT)? Aus welcher Tabelle (FROM)? Nach welcher Bedingung wählst du aus (WHERE)?",
+        "Die Bedingung vergleicht die Spalte name mit dem Text {{name}}.",
+        "SELECT vorname, name FROM kunde WHERE name = '…'"
+      ],
+      "erklaerung": "`SELECT vorname, name FROM kunde WHERE name = '{{name}}'` liefert genau eine Zeile. Das Wort `name` links ist die Spalte, `'{{name}}'` rechts der Textwert."
+    },
+    {
+      "id": "a-alter",
+      "typ": "sql",
+      "titel": "Genau so alt",
+      "lz": [
+        "L12",
+        "L15"
+      ],
+      "thema": "WHERE mit Zahl",
+      "stufe": 2,
+      "story": "Der Zeuge, der den Kater gesehen hat, ist {{zahl}} Jahre alt. Das ist alles, was wir wissen.",
+      "frage": "Zeige `name` und `alter` aller Kunden, die genau **{{zahl}}** Jahre alt sind. Denk an die doppelten Anführungszeichen bei `\"alter\"`.",
+      "parameter": [
+        {
+          "zahl": 25
+        },
+        {
+          "zahl": 29
+        },
+        {
+          "zahl": 33
+        },
+        {
+          "zahl": 64
+        }
+      ],
+      "loesung": "SELECT name, \"alter\" FROM kunde WHERE \"alter\" = {{zahl}}",
+      "hinweise": [
+        "Eine Zahl schreibst du ohne Anführungszeichen. Der Spaltenname \"alter\" dagegen mit doppelten.",
+        "SELECT name, \"alter\" FROM kunde WHERE … = {{zahl}}",
+        "Die Spalte \"alter\" kommt zweimal vor: in SELECT und in WHERE."
+      ],
+      "erklaerung": "`SELECT name, \"alter\" FROM kunde WHERE \"alter\" = {{zahl}}`. Die Zahl {{zahl}} steht ohne Anführungszeichen, die Spalte `\"alter\"` mit doppelten. Auf Papier darfst du `alter` einfach schreiben."
+    },
+    {
+      "id": "s-vergleich",
+      "typ": "info",
+      "titel": "Die Vergleichsoperatoren",
+      "story": [
+        {
+          "sprecher": "tabea",
+          "text": "Bis jetzt hast du nur nach «gleich» gefiltert. Oft brauchst du «mehr als», «höchstens» oder «nicht gleich». Dafür gibt es sechs Vergleichszeichen."
+        }
+      ],
+      "text": [
+        "Ein **Vergleichsoperator** steht zwischen Spalte und Wert. Er liefert für jede Zeile «stimmt» oder «stimmt nicht».",
+        "| Operator | Bedeutung | Beispiel | stimmt für |",
+        "|---|---|---|---|",
+        "| `=` | gleich | `\"alter\" = 25` | genau 25 |",
+        "| `<>` | ungleich | `\"alter\" <> 25` | alles ausser 25 |",
+        "| `<` | kleiner als | `\"alter\" < 25` | 24, 23, … (25 selbst nicht) |",
+        "| `<=` | kleiner oder gleich | `\"alter\" <= 25` | 25, 24, 23, … |",
+        "| `>` | grösser als | `\"alter\" > 25` | 26, 27, … (25 selbst nicht) |",
+        "| `>=` | grösser oder gleich | `\"alter\" >= 25` | 25, 26, 27, … |",
+        "## Die Grenze gehört dazu – oder nicht",
+        "Hier passieren die meisten Fehler. Bei `<` und `>` ist der Grenzwert **nicht** dabei. Bei `<=` und `>=` ist er **dabei**.",
+        "Übersetzungshilfe für die Alltagssprache:",
+        "- «mehr als», «über», «älter als» → `>`",
+        "- «mindestens», «ab», «oder älter» → `>=`",
+        "- «weniger als», «unter», «jünger als» → `<`",
+        "- «höchstens», «bis», «oder jünger» → `<=`",
+        "- «nicht», «ausser», «anders als» → `<>`",
+        "Das Zeichen für «ungleich» besteht aus **zwei** Zeichen: erst `<`, dann `>`. Das Hilfsblatt verwendet `<>`, also verwende es auch.",
+        "> Merke: `<` und `>` schliessen die Grenze aus, `<=` und `>=` schliessen sie ein."
+      ]
+    },
+    {
+      "id": "a-vergleich-zuordnen",
+      "typ": "zuordnen",
+      "titel": "Wörter und Operatoren",
+      "lz": [
+        "L15",
+        "L9"
+      ],
+      "thema": "Operatoren übersetzen",
+      "stufe": 1,
+      "story": "Ordne die Alltagswörter dem passenden Zeichen zu.",
+      "frage": "Welcher Operator passt zu welchem Ausdruck?",
+      "kategorien": [
+        "=",
+        "<>",
+        "<",
+        "<=",
+        ">",
+        ">="
+      ],
+      "elemente": [
+        {
+          "text": "gleich",
+          "antwort": "=",
+          "warum": "Gleich heisst `=`."
+        },
+        {
+          "text": "ungleich / nicht gleich",
+          "antwort": "<>",
+          "warum": "Ungleich heisst `<>`."
+        },
+        {
+          "text": "weniger als / jünger als",
+          "antwort": "<",
+          "warum": "Weniger als: Der Grenzwert selbst ist nicht dabei, also `<`."
+        },
+        {
+          "text": "höchstens",
+          "antwort": "<=",
+          "warum": "Höchstens heisst: bis und mit dem Grenzwert, also `<=`."
+        },
+        {
+          "text": "mehr als / älter als",
+          "antwort": ">",
+          "warum": "Mehr als: Der Grenzwert selbst ist nicht dabei, also `>`."
+        },
+        {
+          "text": "mindestens",
+          "antwort": ">=",
+          "warum": "Mindestens heisst: der Grenzwert und alles darüber, also `>=`."
+        }
+      ],
+      "hinweise": [
+        "Überlege bei jedem Ausdruck: Ist der Grenzwert selbst dabei?",
+        "«höchstens» und «mindestens» enthalten den Grenzwert, «mehr als» und «weniger als» nicht."
+      ],
+      "erklaerung": "Merke: «mehr/weniger als» schliesst die Grenze aus (`>`, `<`), «mindestens/höchstens» schliesst sie ein (`>=`, `<=`)."
+    },
+    {
+      "id": "a-grenze",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "titel": "Wie viele Kunden?",
+      "lz": [
+        "L10",
+        "L15",
+        "L12"
+      ],
+      "thema": "Grenzwerte",
+      "stufe": 2,
+      "story": "In der Prüfung führst du die Abfrage nicht aus. Du zählst selbst. Achte auf die Grenze!",
+      "frage": "Die Tabelle `kunde` siehst du unten. Wie viele Zeilen liefert diese Abfrage?",
+      "abfrage": "SELECT name\nFROM kunde\nWHERE \"alter\" {{op}} {{w}}",
+      "zeigen": [
+        "kunde"
+      ],
+      "parameter": [
+        {
+          "op": ">",
+          "w": 32
+        },
+        {
+          "op": ">=",
+          "w": 32
+        },
+        {
+          "op": "<",
+          "w": 25
+        },
+        {
+          "op": "<=",
+          "w": 25
+        }
+      ],
+      "hinweise": [
+        "Gehe die Zeilen der Tabelle von oben nach unten durch. Prüfe bei jedem alter: Stimmt die Bedingung?",
+        "Achte auf die Grenze {{w}}: Ist sie bei {{op}} dabei oder nicht?",
+        "Hake die passenden Zeilen auf Papier ab und zähle sie."
+      ],
+      "erklaerung": "Du prüfst jede Zeile einzeln: Nur wenn `\"alter\" {{op}} {{w}}` stimmt, kommt die Zeile ins Ergebnis. Ob der Grenzwert {{w}} selbst dazugehört, entscheidet der Operator."
+    },
+    {
+      "id": "a-ungleich",
+      "typ": "sql",
+      "titel": "Alles ausser …",
+      "lz": [
+        "L15",
+        "L12",
+        "L9"
+      ],
+      "thema": "Ungleich <>",
+      "stufe": 2,
+      "story": "Die Kiste war **nicht** auf dem Flug, den wir zuerst vermutet haben. Schliessen wir diesen aus.",
+      "frage": "Zeige `flugnr` und `{{spalte}}` aller Flüge, bei denen {{was}} **ungleich** '{{wert}}' ist.",
+      "parameter": [
+        {
+          "spalte": "von",
+          "was": "der Startort",
+          "wert": "Frankfurt"
+        },
+        {
+          "spalte": "fluglinie",
+          "was": "die Fluglinie",
+          "wert": "Lufthansa"
+        },
+        {
+          "spalte": "nach",
+          "was": "der Zielort",
+          "wert": "Berlin"
+        }
+      ],
+      "loesung": "SELECT flugnr, {{spalte}} FROM flug WHERE {{spalte}} <> '{{wert}}'",
+      "hinweise": [
+        "Für «ungleich» gibt es einen eigenen Operator mit zwei Zeichen.",
+        "WHERE {{spalte}} <> …",
+        "Der Wert ist Text und braucht Anführungszeichen: '{{wert}}'"
+      ],
+      "erklaerung": "`<>` heisst «ungleich». Die Zeilen, bei denen `{{spalte}}` gleich '{{wert}}' ist, fallen weg. Alle anderen bleiben."
+    },
+    {
+      "id": "s-text-datum",
+      "typ": "info",
+      "titel": "Text und Datum vergleichen",
+      "story": [
+        {
+          "sprecher": "tabea",
+          "text": "Auch Namen und Daten lassen sich mit < und > vergleichen. Der Trick: In welcher Reihenfolge stehen sie im Lexikon beziehungsweise im Kalender?"
+        }
+      ],
+      "text": [
+        "Die Operatoren `<`, `>` und die anderen funktionieren nicht nur für Zahlen.",
+        "## Text",
+        "Text wird **alphabetisch** verglichen, wie im Lexikon. `'Adlon' < 'Meier'` stimmt, weil A vor M kommt. Das Beispiel `WHERE name < 'C'` findet alle Namen, die im Alphabet vor C stehen, also mit A oder B beginnen.",
+        "## Datum und Uhrzeit",
+        "In unseren Datenbanken steht das Datum im Format **Jahr-Monat-Tag** mit Bindestrichen, z. B. `2025-09-22`. Dieses Format hat einen Vorteil: Es lässt sich wie Text vergleichen, und früher ist wirklich kleiner. Weil ein Datum Text ist, steht es in **einfachen Anführungszeichen**.",
+        "```sql",
+        "SELECT bnr, datum",
+        "FROM buchung",
+        "WHERE datum >= '2025-09-22'",
+        "```",
+        "Das liefert alle Buchungen vom 22. September 2025 **oder später**.",
+        "Mit Uhrzeiten geht es genauso, z. B. `WHERE ab < '12:00:00'` für Flüge, die vor Mittag starten.",
+        "> Merke: Text und Datum in einfachen Anführungszeichen. Alphabetisch beziehungsweise zeitlich «früher» ist «kleiner»."
+      ]
+    },
+    {
+      "id": "a-datum",
+      "typ": "sql",
+      "titel": "Buchungen nach Datum",
+      "lz": [
+        "L15",
+        "L12",
+        "L9"
+      ],
+      "thema": "Datum vergleichen",
+      "stufe": 2,
+      "story": "Die Kiste wurde {{text}} aufgegeben. Welche Buchungen kommen in Frage?",
+      "frage": "Zeige alle Spalten der Buchungen, deren Datum **{{text}}** liegt (Spalte `datum`).",
+      "parameter": [
+        {
+          "text": "vor dem 20. September 2025",
+          "op": "<",
+          "d": "2025-09-20"
+        },
+        {
+          "text": "am 22. September 2025 oder später",
+          "op": ">=",
+          "d": "2025-09-22"
+        },
+        {
+          "text": "nach dem 23. September 2025",
+          "op": ">",
+          "d": "2025-09-23"
+        },
+        {
+          "text": "am 22. September 2025 oder früher",
+          "op": "<=",
+          "d": "2025-09-22"
+        }
+      ],
+      "loesung": "SELECT * FROM buchung WHERE datum {{op}} '{{d}}'",
+      "hinweise": [
+        "Das Datum steht im Format Jahr-Monat-Tag, z. B. '{{d}}'. Es ist Text und braucht Anführungszeichen.",
+        "Gehört das genannte Datum selbst dazu? Das entscheidet, ob du < oder <= (beziehungsweise > oder >=) brauchst.",
+        "SELECT * FROM buchung WHERE datum … '{{d}}'"
+      ],
+      "erklaerung": "`SELECT * FROM buchung WHERE datum {{op}} '{{d}}'`. «früher» heisst kleiner, «später» heisst grösser. Ob das Datum selbst dazugehört, siehst du an den Wörtern «oder später/früher» (dann mit Gleichheitszeichen)."
+    },
+    {
+      "id": "s-uebersetzen",
+      "typ": "info",
+      "titel": "Aus Worten wird SQL",
+      "story": [
+        {
+          "sprecher": "tabea",
+          "text": "In der Prüfung bekommst du eine Frage in Worten. Du musst daraus die Abfrage bauen. Mit drei Fragen an den Text gelingt das fast immer."
+        }
+      ],
+      "text": [
+        "Gehe bei jeder Aufgabe in dieser Reihenfolge vor:",
+        "1. **Welche Spalten** soll ich anzeigen? → `SELECT …`",
+        "2. **In welcher Tabelle** stehen sie? → `FROM …`",
+        "3. **Welche Zeilen** will ich? Was ist die Bedingung? → `WHERE …`",
+        "## Ein Beispiel",
+        "> Zeige Namen und Vornamen aller Kunden, die älter als 30 sind.",
+        "| Frage | Antwort im Text | SQL |",
+        "|---|---|---|",
+        "| Welche Spalten? | «Namen und Vornamen» | `SELECT name, vorname` |",
+        "| Welche Tabelle? | «Kunden» | `FROM kunde` |",
+        "| Welche Bedingung? | «älter als 30» | `WHERE \"alter\" > 30` |",
+        "Zusammengesetzt:",
+        "```sql",
+        "SELECT name, vorname",
+        "FROM kunde",
+        "WHERE \"alter\" > 30",
+        "```",
+        "## Tipps",
+        "- «Zeige alles / alle Angaben» heisst `SELECT *`. Werden bestimmte Angaben genannt, schreibst du genau diese Spalten hin, **in der genannten Reihenfolge**.",
+        "- Suche die Tabelle im Schema (Hilfsblatt, Reiter «Schema»): Welche Tabelle enthält die genannten Spalten?",
+        "- Bei Zahlen und Grenzen: Ist der Grenzwert dabei? («mindestens», «höchstens» ja; «mehr als», «weniger als» nein.)",
+        "- Prüfe am Schluss: Text in Anführungszeichen? Zahl ohne? Die Reihenfolge SELECT, FROM, WHERE stimmt?",
+        "> Merke: Spalten → SELECT, Tabelle → FROM, Bedingung → WHERE."
+      ]
+    },
+    {
+      "id": "a-uebersetzen-1",
+      "typ": "sql",
+      "titel": "Flüge nach Sydney",
+      "lz": [
+        "L9",
+        "L12"
+      ],
+      "thema": "Text in SQL",
+      "stufe": 1,
+      "story": "Die Spur führt nach Australien. Gehe die drei Fragen durch.",
+      "frage": "Zeige Flugnummer, Fluglinie und Startort aller Flüge, die nach **Sydney** fliegen.",
+      "loesung": "SELECT flugnr, fluglinie, von FROM flug WHERE nach = 'Sydney'",
+      "hinweise": [
+        "Welche Spalten? Flugnummer, Fluglinie und Startort. Wie heissen diese Spalten in der Tabelle flug?",
+        "Die Bedingung bezieht sich auf das Ziel. Welche Spalte enthält das Ziel?",
+        "SELECT flugnr, fluglinie, von FROM flug WHERE … = 'Sydney'"
+      ],
+      "erklaerung": "Spalten: `flugnr, fluglinie, von` (in der genannten Reihenfolge). Tabelle: `flug`. Bedingung: das Ziel ist Sydney, also `nach = 'Sydney'`. Das Ergebnis ist eine Zeile (LH772)."
+    },
+    {
+      "id": "a-uebersetzen-2",
+      "typ": "sql",
+      "titel": "Grosse Flugzeuge",
+      "lz": [
+        "L9",
+        "L15",
+        "L12"
+      ],
+      "thema": "Text in SQL",
+      "stufe": 2,
+      "story": "Die Kiste war gross. Sie passt nur in ein grosses Flugzeug.",
+      "frage": "Zeige `flugnr`, `von`, `nach` und `groesse` aller Flüge mit **mehr als 400** Plätzen (Spalte `groesse` gibt die Anzahl Plätze an).",
+      "loesung": "SELECT flugnr, von, nach, groesse FROM flug WHERE groesse > 400",
+      "hinweise": [
+        "Wie übersetzt du «mehr als»? Gehört der Grenzwert 400 selbst dazu?",
+        "groesse ist eine Zahl: keine Anführungszeichen.",
+        "WHERE groesse > 400"
+      ],
+      "erklaerung": "«Mehr als 400» heisst `groesse > 400`. Die Grenze gehört nicht dazu. Ergebnis: eine Zeile (LH7 mit 421 Plätzen)."
+    },
+    {
+      "id": "a-zeilen",
+      "typ": "ergebnis",
+      "modus": "zeilen",
+      "titel": "Welche Zeilen kommen heraus?",
+      "lz": [
+        "L11",
+        "L12",
+        "L15"
+      ],
+      "thema": "Ergebniszeilen angeben",
+      "stufe": 2,
+      "story": "Jetzt nicht nur zählen, sondern die Zeilen selbst bestimmen, ohne die Abfrage auszuführen.",
+      "frage": "Welche Zeilen liefert diese Abfrage?",
+      "abfrage": "SELECT knr, name\nFROM kunde\nWHERE \"alter\" < 26",
+      "kandidaten": "SELECT knr, name FROM kunde",
+      "zeigen": [
+        "kunde"
+      ],
+      "hinweise": [
+        "Gehe die Tabelle kunde Zeile für Zeile durch und prüfe: Ist alter kleiner als 26?",
+        "Ist 26 selbst kleiner als 26? Nein. Kunde 1 (alter 26) fällt also weg."
+      ],
+      "erklaerung": "Zeilen, bei denen alter kleiner als 26 ist: Schmitz (25), Messdiener (15) und Lahm (23). Adlon ist genau 26 und fällt weg, denn `<` schliesst die Grenze aus. Ausgegeben werden nur die Spalten `knr` und `name`."
+    },
+    {
+      "id": "a-pruefung",
+      "typ": "sql",
+      "titel": "Hohe Sitznummern",
+      "lz": [
+        "L9",
+        "L12",
+        "L15"
+      ],
+      "thema": "Text in SQL",
+      "stufe": 2,
+      "story": "Zum Abschluss eine Aufgabe im Prüfungsstil, ohne Vorlage.",
+      "frage": "Zeige `bnr`, `flugnr` und `sitz` aller Buchungen, bei denen die Sitznummer **grösser als 100** ist.",
+      "loesung": "SELECT bnr, flugnr, sitz FROM buchung WHERE sitz > 100",
+      "hinweise": [
+        "Aus welcher Tabelle stammen die Spalten bnr, flugnr und sitz?",
+        "Die Bedingung betrifft die Spalte sitz. Es ist eine Zahl.",
+        "WHERE sitz > 100"
+      ],
+      "erklaerung": "`SELECT bnr, flugnr, sitz FROM buchung WHERE sitz > 100` liefert 3 Zeilen (Sitze 123, 101 und 102). Damit beherrschst du die Grundform jeder Abfrage."
+    }
+  ],
+  "pool": [
+    {
+      "id": "p-alter-vergleich",
+      "typ": "sql",
+      "lz": [
+        "L15",
+        "L12"
+      ],
+      "thema": "Vergleichsoperatoren",
+      "stufe": 1,
+      "frage": "Zeige `name` und `alter` aller Kunden, die {{text}} (Spalte `alter`, am Computer `\"alter\"`).",
+      "parameter": [
+        {
+          "text": "älter als 30 sind",
+          "op": ">",
+          "z": 30
+        },
+        {
+          "text": "mindestens 33 Jahre alt sind",
+          "op": ">=",
+          "z": 33
+        },
+        {
+          "text": "jünger als 25 sind",
+          "op": "<",
+          "z": 25
+        },
+        {
+          "text": "höchstens 25 Jahre alt sind",
+          "op": "<=",
+          "z": 25
+        }
+      ],
+      "loesung": "SELECT name, \"alter\" FROM kunde WHERE \"alter\" {{op}} {{z}}",
+      "hinweise": [
+        "Übersetze die Alltagssprache in einen Operator. Gehört der Grenzwert dazu?",
+        "WHERE \"alter\" … {{z}}"
+      ],
+      "erklaerung": "`WHERE \"alter\" {{op}} {{z}}`: Der Operator entscheidet, ob der Grenzwert {{z}} dazugehört."
+    },
+    {
+      "id": "p-flug-groesse",
+      "typ": "sql",
+      "lz": [
+        "L15",
+        "L9"
+      ],
+      "thema": "Vergleichsoperatoren",
+      "stufe": 1,
+      "frage": "Zeige `flugnr` und `groesse` aller Flüge mit {{text}}.",
+      "parameter": [
+        {
+          "text": "mindestens 380 Plätzen",
+          "op": ">=",
+          "z": 380
+        },
+        {
+          "text": "weniger als 380 Plätzen",
+          "op": "<",
+          "z": 380
+        },
+        {
+          "text": "genau 220 Plätzen",
+          "op": "=",
+          "z": 220
+        },
+        {
+          "text": "mehr als 220 Plätzen",
+          "op": ">",
+          "z": 220
+        }
+      ],
+      "loesung": "SELECT flugnr, groesse FROM flug WHERE groesse {{op}} {{z}}",
+      "hinweise": [
+        "Die Anzahl Plätze steht in der Spalte groesse. Es ist eine Zahl.",
+        "WHERE groesse … {{z}}"
+      ],
+      "erklaerung": "`WHERE groesse {{op}} {{z}}`. Zahlen schreibst du ohne Anführungszeichen."
+    },
+    {
+      "id": "p-linie",
+      "typ": "sql",
+      "lz": [
+        "L12",
+        "L9"
+      ],
+      "thema": "WHERE mit Text",
+      "stufe": 1,
+      "frage": "Zeige `flugnr`, `von` und `nach` aller Flüge der Fluglinie **{{linie}}**.",
+      "parameter": [
+        {
+          "linie": "Lufthansa"
+        },
+        {
+          "linie": "USAirways"
+        },
+        {
+          "linie": "Germanwings"
+        },
+        {
+          "linie": "BritishAirways"
+        }
+      ],
+      "loesung": "SELECT flugnr, von, nach FROM flug WHERE fluglinie = '{{linie}}'",
+      "hinweise": [
+        "Die Bedingung betrifft die Spalte fluglinie. Der Wert ist Text.",
+        "WHERE fluglinie = '{{linie}}'"
+      ],
+      "erklaerung": "`WHERE fluglinie = '{{linie}}'` wählt nur die Flüge dieser Fluglinie aus."
+    },
+    {
+      "id": "p-kunde-nummer",
+      "typ": "sql",
+      "lz": [
+        "L12",
+        "L9"
+      ],
+      "thema": "WHERE mit Zahl",
+      "stufe": 1,
+      "frage": "Zeige alle Spalten der Buchungen des Kunden mit der Kundennummer **{{k}}** (Spalte `knr` in der Tabelle `buchung`).",
+      "parameter": [
+        {
+          "k": 7
+        },
+        {
+          "k": 8
+        },
+        {
+          "k": 2
+        },
+        {
+          "k": 4
+        }
+      ],
+      "loesung": "SELECT * FROM buchung WHERE knr = {{k}}",
+      "hinweise": [
+        "Die Buchungen stehen in der Tabelle buchung. Wähle alle Spalten mit *.",
+        "WHERE knr = {{k}} (Zahl ohne Anführungszeichen)"
+      ],
+      "erklaerung": "`SELECT * FROM buchung WHERE knr = {{k}}`. Die Kundennummer ist eine Zahl, darum ohne Anführungszeichen."
+    },
+    {
+      "id": "p-anzahl-flug",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "lz": [
+        "L10",
+        "L15",
+        "L12"
+      ],
+      "thema": "Zeilen zählen",
+      "stufe": 1,
+      "frage": "Wie viele Zeilen liefert diese Abfrage?",
+      "abfrage": "SELECT *\nFROM flug\nWHERE groesse {{op}} {{w}}",
+      "zeigen": [
+        "flug"
+      ],
+      "parameter": [
+        {
+          "op": ">=",
+          "w": 380
+        },
+        {
+          "op": ">",
+          "w": 380
+        },
+        {
+          "op": "<",
+          "w": 380
+        },
+        {
+          "op": "<>",
+          "w": 220
+        }
+      ],
+      "hinweise": [
+        "Prüfe jede Zeile der Tabelle flug einzeln.",
+        "Achte auf den Grenzwert {{w}}."
+      ],
+      "erklaerung": "Gezählt werden die Zeilen, bei denen `groesse {{op}} {{w}}` stimmt."
+    },
+    {
+      "id": "p-anzahl-buchung",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "lz": [
+        "L10",
+        "L12"
+      ],
+      "thema": "Zeilen zählen",
+      "stufe": 1,
+      "frage": "Wie viele Zeilen liefert diese Abfrage?",
+      "abfrage": "SELECT bnr\nFROM buchung\nWHERE flugnr = '{{f}}'",
+      "zeigen": [
+        "buchung"
+      ],
+      "parameter": [
+        {
+          "f": "US1"
+        },
+        {
+          "f": "GW4"
+        },
+        {
+          "f": "LH772"
+        },
+        {
+          "f": "BA1"
+        }
+      ],
+      "hinweise": [
+        "Gehe die Spalte flugnr von oben nach unten durch.",
+        "Zähle jede Zeile, in der {{f}} steht."
+      ],
+      "erklaerung": "Gezählt werden die Buchungen, bei denen `flugnr` gleich '{{f}}' ist."
+    },
+    {
+      "id": "p-anzahl-text",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "lz": [
+        "L10",
+        "L15",
+        "L12"
+      ],
+      "thema": "Text vergleichen",
+      "stufe": 3,
+      "frage": "Wie viele Zeilen liefert diese Abfrage? (Text wird alphabetisch verglichen.)",
+      "abfrage": "SELECT name\nFROM kunde\nWHERE name < 'C'",
+      "zeigen": [
+        "kunde"
+      ],
+      "hinweise": [
+        "Welche Namen stehen im Alphabet vor dem Buchstaben C?",
+        "Namen mit A oder B am Anfang stehen vor 'C'."
+      ],
+      "erklaerung": "Vor 'C' stehen alle Namen, die mit A oder B beginnen: Adlon, Beyenburg und Ackermann. Ein Name, der mit C beginnt, wäre nicht kleiner als 'C'."
+    },
+    {
+      "id": "p-zeilen-flug",
+      "typ": "ergebnis",
+      "modus": "zeilen",
+      "lz": [
+        "L11",
+        "L12",
+        "L15"
+      ],
+      "thema": "Ergebniszeilen angeben",
+      "stufe": 2,
+      "frage": "Welche Zeilen liefert diese Abfrage?",
+      "abfrage": "SELECT flugnr, nach\nFROM flug\nWHERE groesse = 220",
+      "kandidaten": "SELECT flugnr, nach FROM flug",
+      "zeigen": [
+        "flug"
+      ],
+      "hinweise": [
+        "Suche die Flüge, bei denen groesse genau 220 ist.",
+        "Achte darauf, welche Spalten ausgegeben werden."
+      ],
+      "erklaerung": "Zwei Flüge haben 220 Plätze: BA1 (Berlin) und GW4 (Köln/Bonn)."
+    },
+    {
+      "id": "p-zeilen-buchung",
+      "typ": "ergebnis",
+      "modus": "zeilen",
+      "lz": [
+        "L11",
+        "L12",
+        "L15"
+      ],
+      "thema": "Ergebniszeilen angeben",
+      "stufe": 2,
+      "frage": "Welche Zeilen liefert diese Abfrage?",
+      "abfrage": "SELECT bnr, sitz\nFROM buchung\nWHERE sitz <= 55",
+      "kandidaten": "SELECT bnr, sitz FROM buchung",
+      "zeigen": [
+        "buchung"
+      ],
+      "hinweise": [
+        "Prüfe bei jeder Zeile, ob sitz höchstens 55 ist.",
+        "Sitz 55 gehört dazu, denn <= schliesst die Grenze ein."
+      ],
+      "erklaerung": "Sitz 12, 54, 55 und 24 sind höchstens 55 (Buchungen 1001, 1002, 1003, 1008). Sitz 55 ist dabei, denn `<=` schliesst die Grenze ein."
+    },
+    {
+      "id": "p-choice-mindestens",
+      "typ": "choice",
+      "lz": [
+        "L15",
+        "L9"
+      ],
+      "thema": "Operatoren übersetzen",
+      "stufe": 1,
+      "frage": "Welche Bedingung wählt alle Kunden aus, die **mindestens 30 Jahre** alt sind?",
+      "optionen": [
+        {
+          "text": "`WHERE \"alter\" >= 30`",
+          "richtig": true,
+          "warum": "Richtig: mindestens 30 heisst 30 und mehr."
+        },
+        {
+          "text": "`WHERE \"alter\" > 30`",
+          "warum": "Mit `>` wäre ein 30-Jähriger nicht dabei. «Mindestens» schliesst 30 ein."
+        },
+        {
+          "text": "`WHERE \"alter\" <= 30`",
+          "warum": "Das wären Kunden bis höchstens 30, also genau die falsche Richtung."
+        },
+        {
+          "text": "`WHERE \"alter\" = 30`",
+          "warum": "Das wären nur Kunden, die genau 30 sind."
+        }
+      ],
+      "hinweise": [
+        "Mindestens 30: Ist 30 selbst dabei? Und gehen die Zahlen nach oben oder nach unten?"
+      ],
+      "erklaerung": "«Mindestens» schliesst den Grenzwert ein und meint «30 oder mehr»: `>=`."
+    },
+    {
+      "id": "p-choice-fehler",
+      "typ": "choice",
+      "lz": [
+        "L12",
+        "L15"
+      ],
+      "thema": "Typische Fehler",
+      "stufe": 2,
+      "frage": "Am Computer meldet diese Abfrage einen Fehler:\n\n```sql\nSELECT name FROM kunde WHERE alter >= 30\n```\n\nWas ist die Ursache?",
+      "optionen": [
+        {
+          "text": "`alter` ist ein Befehlswort und muss in doppelten Anführungszeichen stehen: `\"alter\"`",
+          "richtig": true,
+          "warum": "Richtig: ALTER ist ein SQL-Befehlswort (ALTER TABLE). Als Spaltenname braucht es doppelte Anführungszeichen."
+        },
+        {
+          "text": "Die Zahl 30 braucht Anführungszeichen",
+          "warum": "Zahlen schreibst du ohne Anführungszeichen."
+        },
+        {
+          "text": "Es fehlt ein Semikolon am Ende",
+          "warum": "Das Semikolon am Ende ist freiwillig."
+        },
+        {
+          "text": "`>=` gibt es in SQL nicht",
+          "warum": "`>=` ist ein normaler Vergleichsoperator."
+        }
+      ],
+      "hinweise": [
+        "Alle Teile ausser einem sind in Ordnung. Wo hast du in diesem Kapitel eine Sonderregel kennengelernt?"
+      ],
+      "erklaerung": "In diesem Fall sagt man: `alter` ist ein reserviertes Wort. Am Computer schreibst du `\"alter\"`, auf Papier in der Prüfung genügt `alter`."
+    },
+    {
+      "id": "p-text-name",
+      "typ": "text",
+      "lz": [
+        "L11",
+        "L12"
+      ],
+      "thema": "Ergebnis ablesen",
+      "stufe": 1,
+      "frage": "Welcher Wert steht im Ergebnis dieser Abfrage?\n\n```sql\nSELECT name\nFROM kunde\nWHERE knr = {{k}}\n```",
+      "zeigen": [
+        "kunde"
+      ],
+      "parameter": [
+        {
+          "k": 6,
+          "name": "Tiedemann"
+        },
+        {
+          "k": 9,
+          "name": "Kowalski"
+        },
+        {
+          "k": 10,
+          "name": "Ackermann"
+        },
+        {
+          "k": 5,
+          "name": "Messdiener"
+        }
+      ],
+      "antworten": [
+        "{{name}}"
+      ],
+      "hinweise": [
+        "Suche die Zeile mit knr = {{k}} und lies die Spalte name ab."
+      ],
+      "erklaerung": "Die Bedingung `knr = {{k}}` trifft genau eine Zeile. Aus ihr wird die Spalte `name` ausgegeben: **{{name}}**."
+    },
+    {
+      "id": "p-sql-zeit",
+      "typ": "sql",
+      "lz": [
+        "L15",
+        "L9",
+        "L12"
+      ],
+      "thema": "Uhrzeit vergleichen",
+      "stufe": 2,
+      "frage": "Zeige `flugnr` und `ab` (Abflugzeit) aller Flüge, die **vor 12:00 Uhr** abfliegen. Uhrzeiten stehen im Format `'08:00:00'`.",
+      "loesung": "SELECT flugnr, ab FROM flug WHERE ab < '12:00:00'",
+      "hinweise": [
+        "Die Uhrzeit ist Text und braucht Anführungszeichen. Vergleiche sie mit <.",
+        "WHERE ab < '12:00:00'"
+      ],
+      "erklaerung": "Uhrzeiten im Format `hh:mm:ss` lassen sich wie Text vergleichen: früher ist kleiner. Ergebnis: US1 (11:20), GW4 (08:00), LH7 (10:00)."
+    },
+    {
+      "id": "p-sql-nicht-julia",
+      "typ": "sql",
+      "lz": [
+        "L9",
+        "L15",
+        "L12"
+      ],
+      "thema": "Ungleich <>",
+      "stufe": 2,
+      "frage": "Zeige `vorname` und `name` aller Kunden, deren Vorname **nicht** «Michael» ist.",
+      "loesung": "SELECT vorname, name FROM kunde WHERE vorname <> 'Michael'",
+      "hinweise": [
+        "«nicht» übersetzt du mit dem Operator für ungleich.",
+        "WHERE vorname <> 'Michael'"
+      ],
+      "erklaerung": "`<>` heisst «ungleich». Ergebnis: alle Kunden ausser Michael Kowalski (10 Zeilen)."
+    },
+    {
+      "id": "p-sql-sitz",
+      "typ": "sql",
+      "lz": [
+        "L9",
+        "L12",
+        "L15"
+      ],
+      "thema": "Text in SQL",
+      "stufe": 3,
+      "frage": "Tabea hat auf einem Zettel gelesen: «Die Kiste hatte die Buchung 1006». Zeige alle Spalten dieser Buchung (Spalte `bnr`).",
+      "loesung": "SELECT * FROM buchung WHERE bnr = 1006",
+      "hinweise": [
+        "Welche Tabelle enthält Buchungen? Welche Spalte enthält die Buchungsnummer?",
+        "bnr ist eine Zahl: keine Anführungszeichen."
+      ],
+      "erklaerung": "`SELECT * FROM buchung WHERE bnr = 1006`. Der Primärschlüssel `bnr` ist eindeutig, darum kommt genau eine Zeile heraus."
+    },
+    {
+      "id": "p-sql-kunden-mitte",
+      "typ": "sql",
+      "lz": [
+        "L9",
+        "L15",
+        "L12"
+      ],
+      "thema": "Text in SQL",
+      "stufe": 3,
+      "frage": "Zeige `knr`, `vorname` und `name` aller Kunden, die **höchstens 27 Jahre** alt sind.",
+      "loesung": "SELECT knr, vorname, name FROM kunde WHERE \"alter\" <= 27",
+      "hinweise": [
+        "«höchstens» heisst: bis und mit 27.",
+        "WHERE \"alter\" <= 27"
+      ],
+      "erklaerung": "`<=` schliesst die 27 ein. Ergebnis: Adlon (26), Schmitz (25), Messdiener (15), Paetzold (27) und Lahm (23)."
+    }
+  ]
+}

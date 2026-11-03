@@ -1,0 +1,1469 @@
+{
+  "id": "k08",
+  "titel": "Unscharfe Zeugenaussagen",
+  "untertitel": "Muster mit LIKE, Bereiche mit BETWEEN, Listen mit IN und leere Werte mit IS NULL.",
+  "db": "bibliothek",
+  "lernziele": [
+    "L16",
+    "L17",
+    "L18"
+  ],
+  "dauer": 50,
+  "schritte": [
+    {
+      "id": "s-start",
+      "typ": "info",
+      "titel": "Zeugen erinnern sich ungenau",
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Meine Mitarbeiter erinnern sich nur ungefähr: «Der Titel hatte irgendwas mit Datenbank.» «Es war Anfang der Neunziger.» «Der Preis stand nicht drin.»"
+        },
+        {
+          "sprecher": "tabea",
+          "text": "Genau dafür gibt es in SQL drei Werkzeuge: Muster, Bereiche und leere Werte."
+        }
+      ],
+      "text": [
+        "## Was dich in diesem Kapitel erwartet",
+        "Bis jetzt hast du Werte mit `=` verglichen. Das geht nur, wenn du den genauen Wert kennst. Hier lernst du, was du tun kannst, wenn du ihn nicht genau kennst:",
+        "- **Muster** mit `LIKE`: «Der Titel beginnt mit …», «der Name enthält …»",
+        "- **Bereiche und Listen** mit `BETWEEN` und `IN`: «zwischen 1990 und 1992», «Verlag 3, 4 oder 5»",
+        "- **Leere Werte** mit `IS NULL`: «der Preis fehlt»",
+        "Wir bleiben in der Datenbank *bibliothek* mit den Tabellen `buch`, `verlag`, `autor` und `schlagwort`. Das Hilfsblatt (Taste H) zeigt die Schreibweise dieser Operatoren."
+      ]
+    },
+    {
+      "id": "s-like",
+      "typ": "info",
+      "titel": "Muster suchen mit LIKE",
+      "story": "Stell dir vor, du suchst im Bibliothekskatalog nach «Algorithmen …». Du weisst nur den Anfang. Dann arbeitest du mit einem Muster.",
+      "text": [
+        "## LIKE und die zwei Platzhalter",
+        "`LIKE` vergleicht einen Text mit einem **Muster**. Im Muster gibt es zwei Platzhalter:",
+        "| Zeichen | Bedeutung | Beispiel |",
+        "|---|---|---|",
+        "| `%` | beliebig viele Zeichen (auch null) | `'A%'` passt auf Auto, Apfel, A |",
+        "| `_` | genau ein beliebiges Zeichen | `'A_t'` passt auf Ast, nicht auf Apfel |",
+        "Das Muster steht wie jeder Text in **einfachen Anführungszeichen**.",
+        "## Die wichtigsten Muster",
+        "| Muster | Bedeutung |",
+        "|---|---|",
+        "| `'Algo%'` | beginnt mit «Algo» |",
+        "| `'%ung'` | endet mit «ung» |",
+        "| `'%Daten%'` | enthält «Daten» irgendwo |",
+        "| `'M__er'` | M, dann genau zwei Zeichen, dann «er» (Meier, Maier, Meyer) |",
+        "```sql",
+        "SELECT titel, jahr",
+        "FROM buch",
+        "WHERE titel LIKE 'Algorithmen%'",
+        "```",
+        "## NOT LIKE",
+        "`NOT LIKE` liefert die Zeilen, die **nicht** zum Muster passen.",
+        "```sql",
+        "SELECT name",
+        "FROM verlag",
+        "WHERE name NOT LIKE '%Springer%'",
+        "```",
+        "## Gross- und Kleinschreibung in SQLite",
+        "> Merkpunkt: In SQLite (das hier läuft) ignoriert `LIKE` die Unterschiede zwischen grossen und kleinen Buchstaben A–Z. `'meier' LIKE 'M%'` ist wahr. Das normale `=` unterscheidet dagegen: `nachname = 'meier'` findet «Meier» **nicht**. Andere Datenbanken verhalten sich teils anders. Schreibe Muster deshalb so, wie die Wörter in der Tabelle stehen.",
+        "## Das Leerzeichen zählt",
+        "Auch ein Leerzeichen ist ein Zeichen. `'Windows __'` passt auf «Windows 95» und «Windows NT», aber nicht auf «Windows 2000» (vier Zeichen nach dem Leerzeichen).",
+        "> Merke: `%` = beliebig viele Zeichen, `_` = genau ein Zeichen."
+      ]
+    },
+    {
+      "id": "a-like-anfang",
+      "typ": "sql",
+      "titel": "Titel beginnt mit …",
+      "lz": [
+        "L16",
+        "L9"
+      ],
+      "thema": "LIKE",
+      "stufe": 1,
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Ein Zeuge sagt: «Der Titel beginnt mit Algorithmen.»"
+        }
+      ],
+      "frage": "Zeige `titel` und `jahr` aller Bücher, deren Titel mit **Algorithmen** beginnt.",
+      "loesung": "SELECT titel, jahr FROM buch WHERE titel LIKE 'Algorithmen%'",
+      "muss": [
+        {
+          "muster": "\\bLIKE\\b",
+          "meldung": "Verwende LIKE."
+        }
+      ],
+      "hinweise": [
+        "Verwende LIKE statt =.",
+        "Das Muster beginnt mit dem festen Anfang. Was folgt danach? Beliebig viele Zeichen: %",
+        "WHERE titel LIKE 'Algorithmen%'"
+      ],
+      "erklaerung": "`'Algorithmen%'` heisst: zuerst «Algorithmen», danach beliebig viele Zeichen. Du erhältst 4 Bücher. «Grundlagen der Algorithmen» ist nicht dabei, denn dort steht das Wort nicht am Anfang."
+    },
+    {
+      "id": "a-like-enthaelt",
+      "typ": "sql",
+      "titel": "Titel enthält …",
+      "lz": [
+        "L16",
+        "L9"
+      ],
+      "thema": "LIKE",
+      "stufe": 1,
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "«Irgendwas mit Datenbank» hat der andere Zeuge gesagt. Das kann auch «Datenbanken» oder «Datenbanksysteme» sein."
+        }
+      ],
+      "frage": "Zeige den `titel` aller Bücher, in deren Titel **Datenbank** vorkommt (an beliebiger Stelle).",
+      "loesung": "SELECT titel FROM buch WHERE titel LIKE '%Datenbank%'",
+      "muss": [
+        {
+          "muster": "\\bLIKE\\b",
+          "meldung": "Verwende LIKE."
+        }
+      ],
+      "hinweise": [
+        "Das Wort kann vorne, in der Mitte oder hinten stehen. Wo braucht es Platzhalter?",
+        "Vor und nach dem Wort: %Datenbank%",
+        "WHERE titel LIKE '%Datenbank%'"
+      ],
+      "erklaerung": "`'%Datenbank%'` passt auf alles, was irgendwo «Datenbank» enthält: auch «Datenbanken» und «Datenbanksysteme». Du erhältst 7 Titel."
+    },
+    {
+      "id": "a-like-unterstrich",
+      "typ": "sql",
+      "titel": "Genau zwei Zeichen dazwischen",
+      "lz": [
+        "L16",
+        "L9"
+      ],
+      "thema": "LIKE _",
+      "stufe": 2,
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Der Name der Autorin wurde mir diktiert: Er beginnt mit M, endet auf «er», und dazwischen sind genau zwei Buchstaben."
+        }
+      ],
+      "frage": "Zeige `nachname` und `vornamen` aller Autoren, deren Nachname mit **M** beginnt, mit **er** endet und dazwischen **genau zwei** Zeichen hat.",
+      "loesung": "SELECT nachname, vornamen FROM autor WHERE nachname LIKE 'M__er'",
+      "muss": [
+        {
+          "muster": "\\bLIKE\\b",
+          "meldung": "Verwende LIKE."
+        }
+      ],
+      "hinweise": [
+        "Ein Unterstrich steht für genau ein Zeichen.",
+        "Du brauchst zwei Unterstriche zwischen M und er.",
+        "WHERE nachname LIKE 'M__er'"
+      ],
+      "erklaerung": "`'M__er'` hat 5 Zeichen: M, zwei beliebige, e, r. Passt auf Meier, Maier und Meyer. «Müller» hat 6 Zeichen, «Mueller» 7, die passen nicht. Mit `'M%er'` kämen sie aber alle dazu."
+    },
+    {
+      "id": "a-like-zeilen",
+      "typ": "ergebnis",
+      "modus": "zeilen",
+      "titel": "Welche Schlagwörter passen?",
+      "lz": [
+        "L16",
+        "L11"
+      ],
+      "thema": "LIKE _",
+      "stufe": 2,
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Kreuze an, welche Schlagwörter zum Muster passen. Achte auf das Leerzeichen."
+        }
+      ],
+      "frage": "Welche Schlagwörter stehen im Ergebnis?",
+      "abfrage": "SELECT schlagwort\nFROM schlagwort\nWHERE schlagwort LIKE 'Windows __'",
+      "kandidaten": "SELECT schlagwort FROM schlagwort WHERE schlagwort LIKE 'Windows%'",
+      "zeigen": [
+        "schlagwort"
+      ],
+      "hinweise": [
+        "Das Muster hat nach «Windows» ein Leerzeichen und dann genau zwei Zeichen.",
+        "Zähle bei jedem Kandidaten die Zeichen nach «Windows »."
+      ],
+      "erklaerung": "«Windows 95», «Windows 98» und «Windows NT» haben nach dem Leerzeichen genau zwei Zeichen. «Windows 2000» hat vier. Der Unterstrich zählt auch Buchstaben, nicht nur Ziffern."
+    },
+    {
+      "id": "a-not-like",
+      "typ": "sql",
+      "titel": "Muster ausschliessen",
+      "lz": [
+        "L16",
+        "L9"
+      ],
+      "thema": "NOT LIKE",
+      "stufe": 2,
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Die Verlage, deren Name mit S beginnt, haben wir schon geprüft."
+        }
+      ],
+      "frage": "Zeige `name` und `ort` aller Verlage, deren Name **nicht** mit **S** beginnt.",
+      "loesung": "SELECT name, ort FROM verlag WHERE name NOT LIKE 'S%'",
+      "muss": [
+        {
+          "muster": "\\bNOT\\s+LIKE\\b",
+          "meldung": "Verwende NOT LIKE."
+        }
+      ],
+      "hinweise": [
+        "Das Gegenstück zu LIKE heisst NOT LIKE.",
+        "WHERE name NOT LIKE 'S%'"
+      ],
+      "erklaerung": "`NOT LIKE 'S%'` lässt alle Namen weg, die mit S beginnen (Springer, Springer Lehrbuch, Sybex, Spektrum). Es bleiben 16 Verlage. Ein kleines s am Anfang würde in SQLite ebenfalls ausgeschlossen."
+    },
+    {
+      "id": "s-between-in",
+      "typ": "info",
+      "titel": "Bereiche und Listen: BETWEEN und IN",
+      "story": "«Anfang der Neunziger» ist ein Bereich. «Verlag 3, 4 oder 5» ist eine Liste. Beides kannst du kürzer schreiben als mit vielen AND und OR.",
+      "text": [
+        "## BETWEEN … AND … (Bereich)",
+        "`x BETWEEN a AND b` ist wahr, wenn x zwischen a und b liegt. **Die Grenzen a und b gehören dazu.** Es ist eine Kurzschreibweise für `x >= a AND x <= b`.",
+        "```sql",
+        "SELECT titel, jahr",
+        "FROM buch",
+        "WHERE jahr BETWEEN 1990 AND 1992",
+        "```",
+        "Das liefert auch Bücher von 1990 und von 1992. Kleinere Zahl zuerst: `BETWEEN 1992 AND 1990` findet nichts.",
+        "`NOT BETWEEN` ist das Gegenteil: ausserhalb des Bereichs (die Grenzen selbst gehören dann nicht dazu).",
+        "```sql",
+        "WHERE jahr NOT BETWEEN 1980 AND 2000",
+        "```",
+        "BETWEEN funktioniert mit Zahlen, mit Datum und auch mit Text.",
+        "## IN (Liste)",
+        "`x IN (a, b, c)` ist wahr, wenn x **einer** der Werte in der Liste ist. Es ist eine Kurzschreibweise für `x = a OR x = b OR x = c`.",
+        "```sql",
+        "SELECT schlagwort",
+        "FROM schlagwort",
+        "WHERE schlagwort IN ('Java', 'SQL', 'COBOL')",
+        "```",
+        "Die Werte stehen in Klammern, mit Komma getrennt. Texte in einfachen Anführungszeichen, Zahlen ohne.",
+        "`NOT IN` liefert alle Zeilen, deren Wert **nicht** in der Liste vorkommt.",
+        "```sql",
+        "WHERE verlagsid NOT IN (1, 2, 3)",
+        "```",
+        "> Merke: BETWEEN schliesst beide Grenzen ein. IN ersetzt viele OR. NOT IN ist das Gegenteil von IN."
+      ]
+    },
+    {
+      "id": "a-between",
+      "typ": "sql",
+      "titel": "Anfang der Neunziger",
+      "lz": [
+        "L17",
+        "L9"
+      ],
+      "thema": "BETWEEN",
+      "stufe": 1,
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "«Anfang der Neunziger», sagt der Zeuge, das heisst für uns 1990 bis 1992."
+        }
+      ],
+      "frage": "Zeige `titel` und `jahr` aller Bücher, die **zwischen 1990 und 1992** erschienen sind (beide Jahre eingeschlossen). Verwende `BETWEEN`.",
+      "loesung": "SELECT titel, jahr FROM buch WHERE jahr BETWEEN 1990 AND 1992",
+      "muss": [
+        {
+          "muster": "\\bBETWEEN\\b",
+          "meldung": "Verwende BETWEEN."
+        }
+      ],
+      "hinweise": [
+        "BETWEEN steht nach dem Spaltennamen.",
+        "Zwischen die beiden Zahlen gehört AND.",
+        "WHERE jahr BETWEEN 1990 AND 1992"
+      ],
+      "erklaerung": "`jahr BETWEEN 1990 AND 1992` ist dasselbe wie `jahr >= 1990 AND jahr <= 1992`. Die Grenzen gehören dazu, darum sind auch die Bücher von 1990 und 1992 im Ergebnis (5 Zeilen)."
+    },
+    {
+      "id": "a-between-anzahl",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "titel": "Grenzen mitzählen",
+      "lz": [
+        "L17",
+        "L10"
+      ],
+      "thema": "BETWEEN",
+      "stufe": 1,
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Zähle selbst. Gehören die Randwerte dazu?"
+        }
+      ],
+      "frage": "Wie viele Zeilen liefert diese Abfrage?",
+      "abfrage": "SELECT *\nFROM verlag\nWHERE verlagsid BETWEEN 5 AND 9",
+      "zeigen": [
+        "verlag"
+      ],
+      "hinweise": [
+        "BETWEEN schliesst die Grenzen mit ein.",
+        "Zähle von 5 bis 9, beide Zahlen mitgezählt."
+      ],
+      "erklaerung": "Die Verlage 5, 6, 7, 8 und 9 erfüllen `verlagsid >= 5 AND verlagsid <= 9`. Ergebnis: **5** Zeilen. Wer die Grenzen vergisst, kommt auf 3."
+    },
+    {
+      "id": "a-in",
+      "typ": "sql",
+      "titel": "Eine Liste von Werten",
+      "lz": [
+        "L17",
+        "L9"
+      ],
+      "thema": "IN",
+      "stufe": 1,
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Wir suchen nur die Schlagwörter Java, SQL und COBOL."
+        }
+      ],
+      "frage": "Zeige alle `schlagwort`-Einträge, die **Java**, **SQL** oder **COBOL** heissen. Verwende `IN`.",
+      "loesung": "SELECT schlagwort FROM schlagwort WHERE schlagwort IN ('Java', 'SQL', 'COBOL')",
+      "muss": [
+        {
+          "muster": "\\bIN\\s*\\(",
+          "meldung": "Verwende IN (…)."
+        }
+      ],
+      "hinweise": [
+        "Hinter IN steht eine Liste in Klammern, die Werte sind durch Komma getrennt.",
+        "Texte brauchen einfache Anführungszeichen.",
+        "WHERE schlagwort IN ('Java', 'SQL', 'COBOL')"
+      ],
+      "erklaerung": "`IN` prüft, ob der Wert in der Liste vorkommt. Das ist kürzer als `schlagwort = 'Java' OR schlagwort = 'SQL' OR schlagwort = 'COBOL'`. Ergebnis: 3 Zeilen."
+    },
+    {
+      "id": "a-not-in",
+      "typ": "sql",
+      "titel": "Alles ausser der Liste",
+      "lz": [
+        "L17",
+        "L9"
+      ],
+      "thema": "NOT IN",
+      "stufe": 2,
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Die Windows-Schlagwörter kennen wir schon. Zeig mir alle anderen."
+        }
+      ],
+      "frage": "Zeige alle `schlagwort`-Einträge, die **nicht** `Windows 95`, `Windows 98`, `Windows 2000` oder `Windows NT` heissen. Verwende `NOT IN`.",
+      "loesung": "SELECT schlagwort FROM schlagwort WHERE schlagwort NOT IN ('Windows 95', 'Windows 98', 'Windows 2000', 'Windows NT')",
+      "muss": [
+        {
+          "muster": "\\bNOT\\s+IN\\b",
+          "meldung": "Verwende NOT IN."
+        }
+      ],
+      "hinweise": [
+        "NOT IN ist das Gegenteil von IN.",
+        "Die vier Windows-Werte kommen in die Klammer.",
+        "WHERE schlagwort NOT IN ('Windows 95', 'Windows 98', 'Windows 2000', 'Windows NT')"
+      ],
+      "erklaerung": "`NOT IN` lässt alle Zeilen weg, deren Wert in der Liste steht. Es bleiben 16 von 20 Schlagwörtern."
+    },
+    {
+      "id": "s-null",
+      "typ": "info",
+      "titel": "Leere Werte: NULL",
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Bei manchen Büchern wurde der Preis nie erfasst. Das Feld ist leer. In der Datenbank heisst das **NULL**."
+        },
+        {
+          "sprecher": "tabea",
+          "text": "Genau dieses Wort trägt mein Kater im Namen. Wo ist NULL? Er ist unauffindbar, wenn man ihn falsch sucht."
+        }
+      ],
+      "text": [
+        "## Was ist NULL?",
+        "**NULL** bedeutet: «Für diese Zelle gibt es keinen Wert.» Er ist unbekannt oder wurde nie eingetragen. NULL ist **nicht** die Zahl 0 und **nicht** der leere Text. Ein Preis von 0 wäre ein Gratisbuch, ein Preis NULL ist ein unbekannter Preis.",
+        "Ein Ausschnitt aus `buch`. Bei Buch 3010 sind `preis` und `waehrung` NULL:",
+        "| buchid | titel | jahr | preis | waehrung |",
+        "|---|---|---|---|---|",
+        "| 3009 | Relationale Datenbanken | 1991 | 18.0 | DM |",
+        "| 3010 | Relationale Datenbanken in der Praxis | 1991 | NULL | NULL |",
+        "## NULL abfragen: IS NULL",
+        "```sql",
+        "SELECT titel",
+        "FROM buch",
+        "WHERE preis IS NULL",
+        "```",
+        "und das Gegenstück:",
+        "```sql",
+        "SELECT titel",
+        "FROM buch",
+        "WHERE preis IS NOT NULL",
+        "```",
+        "## Der häufigste Fehler: = NULL",
+        "`preis = NULL` ist **falsch**. Der Vergleich mit einem unbekannten Wert ist weder wahr noch falsch, sondern «unbekannt». `WHERE` lässt nur Zeilen durch, bei denen die Bedingung **wahr** ist. Darum liefert `= NULL` nie eine Zeile, ebenso `<> NULL`.",
+        "> Prüfe auf leere Werte immer mit `IS NULL` oder `IS NOT NULL`, nie mit `=`.",
+        "## Weitere Fallen mit NULL",
+        "Zeilen mit NULL fallen bei fast jedem Vergleich heraus, auch bei den Gegenteilen:",
+        "- `preis < 20` findet das Buch 3010 nicht. `preis >= 20` auch nicht.",
+        "- `waehrung <> 'DM'` und `waehrung NOT IN ('DM')` finden Zeilen mit leerer Währung nicht.",
+        "- `titel NOT LIKE '%SQL%'` findet Zeilen mit leerem Titel nicht.",
+        "Willst du diese Zeilen auch haben, ergänze `OR … IS NULL`, mit Klammern, falls mehrere Bedingungen im Spiel sind: `jahr = 1991 AND (preis IS NULL OR preis < 20)`.",
+        "## NOT IN und NULL in der Liste",
+        "Steht in der Liste selbst ein NULL, zum Beispiel `verlagsid NOT IN (1, 2, NULL)`, dann ist die Bedingung für jede Zeile entweder falsch oder unbekannt, nie wahr. Das Ergebnis ist **leer**. Schreibe deshalb nie NULL in eine IN-Liste.",
+        "> Merke: IS NULL / IS NOT NULL für leere Werte. Mit NULL ist kein Vergleich mit `=` möglich."
+      ]
+    },
+    {
+      "id": "a-null-sql",
+      "typ": "sql",
+      "titel": "Bücher ohne Preis",
+      "lz": [
+        "L18",
+        "L9"
+      ],
+      "thema": "IS NULL",
+      "stufe": 1,
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Bei einigen Büchern steht kein Preis im Katalog."
+        }
+      ],
+      "frage": "Zeige `buchid` und `jahr` aller Bücher, bei denen der `preis` fehlt (NULL).",
+      "loesung": "SELECT buchid, jahr FROM buch WHERE preis IS NULL",
+      "muss": [
+        {
+          "muster": "\\bIS\\s+NULL\\b",
+          "meldung": "Verwende IS NULL."
+        }
+      ],
+      "hinweise": [
+        "Vergleiche nicht mit =. Für leere Werte gibt es ein eigenes Wort.",
+        "WHERE preis IS NULL"
+      ],
+      "erklaerung": "`preis IS NULL` findet die 6 Bücher ohne Preisangabe. Ein Buch (3031) hat sogar gar keine Angaben ausser der Signatur. Mit `preis = NULL` hättest du kein Buch gefunden."
+    },
+    {
+      "id": "a-null-fehler",
+      "typ": "choice",
+      "titel": "Welche Abfrage findet NULL?",
+      "lz": [
+        "L18"
+      ],
+      "thema": "IS NULL",
+      "stufe": 1,
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Ich möchte alle Bücher ohne ISBN finden. Vier Mitarbeiter haben vier Abfragen geschrieben."
+        }
+      ],
+      "frage": "Welche Abfrage findet alle Bücher, bei denen die `isbn` fehlt?",
+      "mischen": true,
+      "optionen": [
+        {
+          "text": "SELECT titel FROM buch WHERE isbn IS NULL",
+          "richtig": true
+        },
+        {
+          "text": "SELECT titel FROM buch WHERE isbn = NULL",
+          "warum": "Der Vergleich mit NULL ist nie wahr. Die Abfrage liefert keine Zeile."
+        },
+        {
+          "text": "SELECT titel FROM buch WHERE isbn = ''",
+          "warum": "Das sucht den leeren Text, nicht NULL. Fehlende Werte sind hier NULL."
+        },
+        {
+          "text": "SELECT titel FROM buch WHERE isbn = 0",
+          "warum": "0 ist eine Zahl, NULL bedeutet «kein Wert»."
+        }
+      ],
+      "hinweise": [
+        "NULL ist weder 0 noch leerer Text.",
+        "Für NULL gibt es ein eigenes Prüfwort mit IS."
+      ],
+      "erklaerung": "Nur `IS NULL` findet fehlende Werte. Mit `= NULL`, `= ''` oder `= 0` suchst du etwas anderes."
+    },
+    {
+      "id": "a-not-null-sql",
+      "typ": "sql",
+      "titel": "Mit Währung erfasst",
+      "lz": [
+        "L18",
+        "L9"
+      ],
+      "thema": "IS NOT NULL",
+      "stufe": 2,
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Nun die Bücher aus dem Jahr 2001, bei denen die Währung eingetragen ist."
+        }
+      ],
+      "frage": "Zeige `titel` und `waehrung` aller Bücher aus dem Jahr **2001**, bei denen die `waehrung` **eingetragen** ist.",
+      "loesung": "SELECT titel, waehrung FROM buch WHERE jahr = 2001 AND waehrung IS NOT NULL",
+      "muss": [
+        {
+          "muster": "\\bIS\\s+NOT\\s+NULL\\b",
+          "meldung": "Verwende IS NOT NULL."
+        }
+      ],
+      "hinweise": [
+        "Zwei Bedingungen, beide müssen gelten.",
+        "Eingetragen heisst: nicht NULL.",
+        "WHERE jahr = 2001 AND waehrung IS NOT NULL"
+      ],
+      "erklaerung": "`IS NOT NULL` hält nur Zeilen mit einem Wert. Zusammen mit `jahr = 2001` ergibt das 4 Bücher."
+    },
+    {
+      "id": "a-null-anzahl",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "titel": "Die versteckte Zeile",
+      "lz": [
+        "L18",
+        "L10"
+      ],
+      "thema": "NULL-Falle",
+      "stufe": 2,
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Achtung, Falle: Hier ist eine Zeile mit leerem Ort."
+        }
+      ],
+      "frage": "Wie viele Zeilen liefert diese Abfrage?",
+      "abfrage": "SELECT *\nFROM verlag\nWHERE ort <> 'Bonn'",
+      "zeigen": [
+        "verlag"
+      ],
+      "hinweise": [
+        "Es gibt 20 Verlage. Wie viele sitzen in Bonn?",
+        "Und beim Verlag Prentice Hall ist der Ort leer. Ist «leer <> Bonn» wahr?"
+      ],
+      "erklaerung": "In Bonn sitzen 3 Verlage (1, 16, 18). Von den übrigen 17 hat der Verlag 19 (Prentice Hall) keinen Ort. Ein Vergleich mit NULL ist nie wahr, auch nicht mit `<>`. Ergebnis: **16** Zeilen."
+    },
+    {
+      "id": "a-null-oder",
+      "typ": "sql",
+      "titel": "Leer oder klein",
+      "lz": [
+        "L18",
+        "L15"
+      ],
+      "thema": "IS NULL mit OR",
+      "stufe": 3,
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Die Bücher von 1991 mit unbekanntem Preis oder einem Preis unter 20 will ich als Erstes prüfen."
+        }
+      ],
+      "frage": "Zeige `titel`, `jahr` und `preis` aller Bücher aus dem Jahr **1991**, deren Preis **entweder unbekannt (NULL) oder kleiner als 20** ist.",
+      "loesung": "SELECT titel, jahr, preis FROM buch WHERE jahr = 1991 AND (preis IS NULL OR preis < 20)",
+      "muss": [
+        {
+          "muster": "\\bIS\\s+NULL\\b",
+          "meldung": "Verwende IS NULL."
+        },
+        {
+          "muster": "\\(",
+          "meldung": "Setze Klammern um den OR-Teil."
+        }
+      ],
+      "hinweise": [
+        "Das «entweder … oder» gehört in eine Klammer.",
+        "WHERE jahr = 1991 AND (preis IS NULL OR …)"
+      ],
+      "erklaerung": "`preis < 20` findet Zeilen mit NULL nicht. Mit `OR preis IS NULL` holst du sie dazu. Die Klammer ist nötig, weil AND sonst zuerst gebunden würde. Ergebnis: 2 Zeilen."
+    },
+    {
+      "id": "a-mix",
+      "typ": "sql",
+      "titel": "Alles zusammen",
+      "lz": [
+        "L9",
+        "L16",
+        "L17",
+        "L18"
+      ],
+      "thema": "Muster, Bereich und NULL",
+      "stufe": 3,
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Zum Schluss ein Fall mit allem: Der Titel enthält «Datenbank», das Buch ist aus den Neunzigern (bis und mit 2000) und der Preis ist bekannt."
+        }
+      ],
+      "frage": "Zeige `titel` und `jahr` aller Bücher, deren Titel **Datenbank** enthält, die **zwischen 1990 und 2000** erschienen sind und bei denen der **Preis bekannt** ist.",
+      "loesung": "SELECT titel, jahr FROM buch WHERE titel LIKE '%Datenbank%' AND jahr BETWEEN 1990 AND 2000 AND preis IS NOT NULL",
+      "hinweise": [
+        "Du brauchst drei Bedingungen, mit AND verbunden: LIKE, BETWEEN, IS NOT NULL.",
+        "Das Muster mit % vor und nach dem Wort.",
+        "WHERE titel LIKE '%Datenbank%' AND jahr BETWEEN 1990 AND 2000 AND preis IS NOT NULL"
+      ],
+      "erklaerung": "Die drei Werkzeuge lassen sich mit `AND` kombinieren. Von den 7 Titeln mit «Datenbank» bleiben 4 übrig."
+    },
+    {
+      "id": "s-ende",
+      "typ": "info",
+      "titel": "Zusammenfassung",
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Danke. Jetzt kann ich meine Kartei durchsuchen, auch wenn die Angaben unscharf sind."
+        },
+        {
+          "sprecher": "tabea",
+          "text": "Und ich weiss, warum NULL so schwer zu finden ist."
+        }
+      ],
+      "text": [
+        "## Zusammenfassung",
+        "- `LIKE` / `NOT LIKE` mit Muster: `%` = beliebig viele Zeichen, `_` = genau ein Zeichen. In SQLite ignoriert LIKE bei A–Z die Gross-/Kleinschreibung, `=` nicht.",
+        "- `x BETWEEN a AND b` schliesst a und b ein (`x >= a AND x <= b`). `NOT BETWEEN` ist das Gegenteil.",
+        "- `x IN (a, b, c)` ersetzt mehrere `OR`. `NOT IN` ist das Gegenteil.",
+        "- Leere Werte: `IS NULL` / `IS NOT NULL`. Niemals `= NULL`.",
+        "- Zeilen mit NULL fallen bei `<>`, `NOT LIKE`, `NOT IN`, `NOT BETWEEN` heraus. Ergänze bei Bedarf `OR … IS NULL`.",
+        "- Eine IN-Liste enthält nie NULL."
+      ]
+    }
+  ],
+  "pool": [
+    {
+      "id": "p-like-anfang-param",
+      "typ": "sql",
+      "lz": [
+        "L16",
+        "L9"
+      ],
+      "thema": "LIKE",
+      "stufe": 1,
+      "frage": "Zeige den `titel` aller Bücher, deren Titel mit **{{m}}** beginnt.",
+      "loesung": "SELECT titel FROM buch WHERE titel LIKE '{{m}}%'",
+      "muss": [
+        {
+          "muster": "\\bLIKE\\b",
+          "meldung": "Verwende LIKE."
+        }
+      ],
+      "parameter": [
+        {
+          "m": "Computer"
+        },
+        {
+          "m": "3D"
+        },
+        {
+          "m": "Theoretische"
+        },
+        {
+          "m": "Windows"
+        }
+      ],
+      "hinweise": [
+        "Der feste Anfang steht vorne, danach folgt ein Platzhalter.",
+        "LIKE '{{m}}%'"
+      ],
+      "erklaerung": "`titel LIKE '{{m}}%'`: zuerst «{{m}}», danach beliebig viele Zeichen."
+    },
+    {
+      "id": "p-like-enthaelt-param",
+      "typ": "sql",
+      "lz": [
+        "L16",
+        "L9"
+      ],
+      "thema": "LIKE",
+      "stufe": 1,
+      "frage": "Zeige `titel` und `jahr` aller Bücher, in deren Titel **{{w}}** vorkommt (an beliebiger Stelle).",
+      "loesung": "SELECT titel, jahr FROM buch WHERE titel LIKE '%{{w}}%'",
+      "muss": [
+        {
+          "muster": "\\bLIKE\\b",
+          "meldung": "Verwende LIKE."
+        }
+      ],
+      "parameter": [
+        {
+          "w": "Datenbank"
+        },
+        {
+          "w": "Informatik"
+        },
+        {
+          "w": "Java"
+        },
+        {
+          "w": "Programm"
+        }
+      ],
+      "hinweise": [
+        "Das Wort kann überall stehen: Platzhalter auf beiden Seiten.",
+        "LIKE '%{{w}}%'"
+      ],
+      "erklaerung": "`'%{{w}}%'` findet alle Titel, die «{{w}}» irgendwo enthalten."
+    },
+    {
+      "id": "p-like-signatur-param",
+      "typ": "sql",
+      "lz": [
+        "L16",
+        "L9"
+      ],
+      "thema": "LIKE _",
+      "stufe": 2,
+      "frage": "Die Signatur eines Buchs besteht aus einem Kürzel, einem Leerzeichen und einer Nummer. Zeige `titel` und `signatur` aller Bücher, deren Signatur zum Muster **{{s}}** passt (das letzte Zeichen ist beliebig, aber genau eines).",
+      "loesung": "SELECT titel, signatur FROM buch WHERE signatur LIKE '{{s}}'",
+      "muss": [
+        {
+          "muster": "\\bLIKE\\b",
+          "meldung": "Verwende LIKE."
+        }
+      ],
+      "parameter": [
+        {
+          "s": "DAT 40_"
+        },
+        {
+          "s": "PRG 60_"
+        },
+        {
+          "s": "GRA 10_"
+        },
+        {
+          "s": "ALG 20_"
+        }
+      ],
+      "hinweise": [
+        "Ein Unterstrich steht für genau ein Zeichen.",
+        "Du kannst das Muster direkt aus der Frage abschreiben."
+      ],
+      "erklaerung": "`signatur LIKE '{{s}}'`: Der Unterstrich passt auf genau ein beliebiges Zeichen, hier die letzte Ziffer."
+    },
+    {
+      "id": "p-not-like-sql",
+      "typ": "sql",
+      "lz": [
+        "L16",
+        "L9"
+      ],
+      "thema": "NOT LIKE",
+      "stufe": 2,
+      "frage": "Zeige alle `schlagwort`-Einträge, die **nicht** mit «Windows» beginnen.",
+      "loesung": "SELECT schlagwort FROM schlagwort WHERE schlagwort NOT LIKE 'Windows%'",
+      "muss": [
+        {
+          "muster": "\\bNOT\\s+LIKE\\b",
+          "meldung": "Verwende NOT LIKE."
+        }
+      ],
+      "hinweise": [
+        "Das Gegenstück zu LIKE.",
+        "NOT LIKE 'Windows%'"
+      ],
+      "erklaerung": "`NOT LIKE 'Windows%'` lässt die 4 Windows-Einträge weg, es bleiben 16 Schlagwörter."
+    },
+    {
+      "id": "p-like-passt",
+      "typ": "zuordnen",
+      "lz": [
+        "L16"
+      ],
+      "thema": "Muster prüfen",
+      "stufe": 2,
+      "frage": "Passt das Muster auf das Wort **Apfel**? Ordne jedes Muster zu (SQLite, LIKE).",
+      "kategorien": [
+        "passt",
+        "passt nicht"
+      ],
+      "elemente": [
+        {
+          "text": "`'A%'`",
+          "antwort": "passt",
+          "warum": "A am Anfang, dahinter beliebig viel."
+        },
+        {
+          "text": "`'A_t'`",
+          "antwort": "passt nicht",
+          "warum": "Das Muster hat nur 3 Zeichen, Apfel hat 5."
+        },
+        {
+          "text": "`'%pf%'`",
+          "antwort": "passt",
+          "warum": "«pf» steckt in der Mitte."
+        },
+        {
+          "text": "`'_pfel'`",
+          "antwort": "passt",
+          "warum": "Ein beliebiger Buchstabe, dann «pfel»."
+        },
+        {
+          "text": "`'%el_'`",
+          "antwort": "passt nicht",
+          "warum": "Nach «el» müsste noch genau ein Zeichen folgen."
+        },
+        {
+          "text": "`'a%'`",
+          "antwort": "passt",
+          "warum": "In SQLite ignoriert LIKE bei A–Z die Gross-/Kleinschreibung."
+        }
+      ],
+      "hinweise": [
+        "% = beliebig viele Zeichen (auch keines), _ = genau eines.",
+        "Zähle bei jedem Muster, wie viele Zeichen mindestens nötig sind."
+      ],
+      "erklaerung": "Apfel hat 5 Zeichen. `'A_t'` verlangt genau 3 Zeichen, `'%el_'` verlangt ein Zeichen nach «el». Das kleine `'a%'` passt in SQLite trotzdem."
+    },
+    {
+      "id": "p-like-gross-klein",
+      "typ": "choice",
+      "lz": [
+        "L16"
+      ],
+      "thema": "Gross/Klein",
+      "stufe": 2,
+      "frage": "In der Tabelle `autor` steht der Nachname **Meier**. Welche Abfrage findet ihn in SQLite?",
+      "mehrfach": true,
+      "mischen": true,
+      "optionen": [
+        {
+          "text": "WHERE nachname LIKE 'meier'",
+          "richtig": true
+        },
+        {
+          "text": "WHERE nachname LIKE 'M%'",
+          "richtig": true
+        },
+        {
+          "text": "WHERE nachname = 'Meier'",
+          "richtig": true
+        },
+        {
+          "text": "WHERE nachname = 'meier'",
+          "warum": "Das Gleichheitszeichen unterscheidet Gross- und Kleinschreibung. «meier» ist ein anderer Text als «Meier»."
+        }
+      ],
+      "hinweise": [
+        "LIKE ignoriert in SQLite die Gross-/Kleinschreibung bei A–Z, = nicht.",
+        "Ein Muster ohne Platzhalter funktioniert wie ein Vergleich."
+      ],
+      "erklaerung": "Drei der Abfragen finden Meier. Nur `= 'meier'` nicht, weil das Gleichheitszeichen auf die Schreibweise achtet."
+    },
+    {
+      "id": "p-like-anzahl-param",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "lz": [
+        "L16",
+        "L10"
+      ],
+      "thema": "LIKE",
+      "stufe": 2,
+      "frage": "Wie viele Zeilen liefert diese Abfrage?",
+      "abfrage": "SELECT *\nFROM verlag\nWHERE {{sp}} LIKE '{{m}}'",
+      "zeigen": [
+        "verlag"
+      ],
+      "parameter": [
+        {
+          "sp": "name",
+          "m": "%er"
+        },
+        {
+          "sp": "name",
+          "m": "S%"
+        },
+        {
+          "sp": "ort",
+          "m": "%Heidelberg%"
+        },
+        {
+          "sp": "ort",
+          "m": "B%"
+        }
+      ],
+      "hinweise": [
+        "Gehe die Zeilen der Tabelle der Reihe nach durch und prüfe die Spalte {{sp}} gegen das Muster.",
+        "Beachte, wo der Platzhalter steht: Anfang, Mitte oder Ende?"
+      ],
+      "erklaerung": "Bei `{{sp}} LIKE '{{m}}'` zählst du alle Zeilen, deren {{sp}} zum Muster passt. Zeilen mit leerem Wert (NULL) passen nie."
+    },
+    {
+      "id": "p-not-like-null",
+      "typ": "choice",
+      "lz": [
+        "L16",
+        "L18"
+      ],
+      "thema": "NOT LIKE und NULL",
+      "stufe": 3,
+      "frage": "In `buch` gibt es 46 Zeilen. In 2 Titeln steht «SQL», und in 2 Zeilen ist der Titel leer (NULL). Die Abfrage `SELECT * FROM buch WHERE titel NOT LIKE '%SQL%'` liefert **42** Zeilen. Warum nicht 44?",
+      "mischen": true,
+      "optionen": [
+        {
+          "text": "Zeilen mit leerem Titel (NULL) erfüllen NOT LIKE nicht: Der Vergleich ist unbekannt, nicht wahr.",
+          "richtig": true
+        },
+        {
+          "text": "NOT LIKE zählt jede Zeile doppelt.",
+          "warum": "Nein, jede Zeile wird einmal geprüft."
+        },
+        {
+          "text": "Zwei der Titel werden doppelt abgezogen.",
+          "warum": "Jede Zeile wird nur einmal geprüft."
+        },
+        {
+          "text": "Die Abfrage ist fehlerhaft und müsste eine Fehlermeldung liefern.",
+          "warum": "Sie ist gültig, nur NULL-Zeilen fehlen."
+        }
+      ],
+      "hinweise": [
+        "46 - 2 = 44. Wo verschwinden die 2 weiteren Zeilen?",
+        "Was ergibt ein Vergleich mit NULL?"
+      ],
+      "erklaerung": "Bei leerem Titel ist `titel LIKE '%SQL%'` unbekannt, und `NOT unbekannt` bleibt unbekannt. WHERE lässt nur wahre Zeilen durch. Willst du sie dabei haben, ergänzt du `OR titel IS NULL`."
+    },
+    {
+      "id": "p-between-param",
+      "typ": "sql",
+      "lz": [
+        "L17",
+        "L9"
+      ],
+      "thema": "BETWEEN",
+      "stufe": 1,
+      "frage": "Zeige `titel` und `jahr` aller Bücher, die zwischen {{a}} und {{b}} erschienen sind (beide Jahre eingeschlossen). Verwende `BETWEEN`.",
+      "loesung": "SELECT titel, jahr FROM buch WHERE jahr BETWEEN {{a}} AND {{b}}",
+      "muss": [
+        {
+          "muster": "\\bBETWEEN\\b",
+          "meldung": "Verwende BETWEEN."
+        }
+      ],
+      "parameter": [
+        {
+          "a": 1995,
+          "b": 1996
+        },
+        {
+          "a": 1980,
+          "b": 1983
+        },
+        {
+          "a": 1998,
+          "b": 1999
+        },
+        {
+          "a": 2000,
+          "b": 2002
+        }
+      ],
+      "hinweise": [
+        "jahr BETWEEN … AND …",
+        "Die kleinere Zahl steht zuerst."
+      ],
+      "erklaerung": "`jahr BETWEEN {{a}} AND {{b}}` entspricht `jahr >= {{a}} AND jahr <= {{b}}`. Die Grenzen gehören dazu."
+    },
+    {
+      "id": "p-not-between-sql",
+      "typ": "sql",
+      "lz": [
+        "L17",
+        "L9"
+      ],
+      "thema": "NOT BETWEEN",
+      "stufe": 2,
+      "frage": "Zeige `titel` und `jahr` aller Bücher, die **nicht** zwischen 1985 und 1999 erschienen sind. Verwende `NOT BETWEEN`.",
+      "loesung": "SELECT titel, jahr FROM buch WHERE jahr NOT BETWEEN 1985 AND 1999",
+      "muss": [
+        {
+          "muster": "\\bNOT\\s+BETWEEN\\b",
+          "meldung": "Verwende NOT BETWEEN."
+        }
+      ],
+      "hinweise": [
+        "NOT BETWEEN a AND b",
+        "jahr NOT BETWEEN 1985 AND 1999"
+      ],
+      "erklaerung": "`NOT BETWEEN` liefert alles ausserhalb des Bereichs. 1985 und 1999 selbst gehören zum Bereich und sind deshalb nicht im Ergebnis. Das Buch ohne Jahr (NULL) fehlt ebenfalls."
+    },
+    {
+      "id": "p-in-param",
+      "typ": "sql",
+      "lz": [
+        "L17",
+        "L9"
+      ],
+      "thema": "IN",
+      "stufe": 1,
+      "frage": "Zeige `titel` und `verlagsid` aller Bücher der Verlage mit den Nummern {{ids}}. Verwende `IN`.",
+      "loesung": "SELECT titel, verlagsid FROM buch WHERE verlagsid IN ({{ids}})",
+      "muss": [
+        {
+          "muster": "\\bIN\\s*\\(",
+          "meldung": "Verwende IN (…)."
+        }
+      ],
+      "parameter": [
+        {
+          "ids": "11, 12, 13"
+        },
+        {
+          "ids": "15, 16"
+        },
+        {
+          "ids": "3, 4"
+        },
+        {
+          "ids": "7, 9, 10"
+        }
+      ],
+      "hinweise": [
+        "Die Nummern stehen in Klammern, durch Komma getrennt.",
+        "WHERE verlagsid IN ({{ids}})"
+      ],
+      "erklaerung": "`verlagsid IN ({{ids}})` ersetzt eine Kette von `verlagsid = … OR verlagsid = …`."
+    },
+    {
+      "id": "p-not-in-sql",
+      "typ": "sql",
+      "lz": [
+        "L17",
+        "L9"
+      ],
+      "thema": "NOT IN",
+      "stufe": 2,
+      "frage": "Zeige `name` und `ort` aller Verlage, die weder in Berlin noch in Bonn noch in München sitzen und deren Ort bekannt ist. Verwende `NOT IN`.",
+      "loesung": "SELECT name, ort FROM verlag WHERE ort NOT IN ('Berlin', 'Bonn', 'München')",
+      "muss": [
+        {
+          "muster": "\\bNOT\\s+IN\\b",
+          "meldung": "Verwende NOT IN."
+        }
+      ],
+      "hinweise": [
+        "Die drei Städte kommen in eine Liste.",
+        "ort NOT IN ('Berlin', 'Bonn', 'München')"
+      ],
+      "erklaerung": "`NOT IN` schliesst die drei Städte aus. Der Verlag mit leerem Ort fehlt von selbst, weil ein Vergleich mit NULL nie wahr ist."
+    },
+    {
+      "id": "p-between-grenzen",
+      "typ": "choice",
+      "lz": [
+        "L17"
+      ],
+      "thema": "BETWEEN Grenzen",
+      "stufe": 1,
+      "frage": "Welche dieser Zahlen erfüllen `x BETWEEN 5 AND 10`? Wähle alle richtigen.",
+      "mehrfach": true,
+      "mischen": true,
+      "optionen": [
+        {
+          "text": "5",
+          "richtig": true
+        },
+        {
+          "text": "7",
+          "richtig": true
+        },
+        {
+          "text": "10",
+          "richtig": true
+        },
+        {
+          "text": "4",
+          "warum": "4 liegt unter der unteren Grenze 5."
+        },
+        {
+          "text": "11",
+          "warum": "11 liegt über der oberen Grenze 10."
+        }
+      ],
+      "hinweise": [
+        "BETWEEN schliesst die Grenzen ein."
+      ],
+      "erklaerung": "`x BETWEEN 5 AND 10` ist `x >= 5 AND x <= 10`. Also gelten 5, 7 und 10, aber nicht 4 und 11."
+    },
+    {
+      "id": "p-between-gleich",
+      "typ": "choice",
+      "lz": [
+        "L17",
+        "L15"
+      ],
+      "thema": "BETWEEN umschreiben",
+      "stufe": 2,
+      "frage": "Welche Bedingung bedeutet dasselbe wie `preis BETWEEN 20 AND 30`?",
+      "mischen": true,
+      "optionen": [
+        {
+          "text": "preis >= 20 AND preis <= 30",
+          "richtig": true
+        },
+        {
+          "text": "preis > 20 AND preis < 30",
+          "warum": "Hier gehören 20 und 30 nicht dazu, bei BETWEEN schon."
+        },
+        {
+          "text": "preis >= 20 OR preis <= 30",
+          "warum": "Mit OR ist die Bedingung fast immer wahr. Es muss AND sein."
+        },
+        {
+          "text": "preis = 20 OR preis = 30",
+          "warum": "Das sind nur die beiden Grenzwerte, nicht alles dazwischen."
+        }
+      ],
+      "hinweise": [
+        "Gehören die Grenzen dazu?",
+        "Beide Seiten müssen gleichzeitig stimmen."
+      ],
+      "erklaerung": "BETWEEN ist die Kurzform für `>= a AND <= b`."
+    },
+    {
+      "id": "p-in-gleich",
+      "typ": "choice",
+      "lz": [
+        "L17"
+      ],
+      "thema": "IN umschreiben",
+      "stufe": 1,
+      "frage": "Welche Bedingung bedeutet dasselbe wie `ort IN ('Bonn', 'Kiel')`?",
+      "mischen": true,
+      "optionen": [
+        {
+          "text": "ort = 'Bonn' OR ort = 'Kiel'",
+          "richtig": true
+        },
+        {
+          "text": "ort = 'Bonn' AND ort = 'Kiel'",
+          "warum": "Ein Ort kann nicht beides gleichzeitig sein."
+        },
+        {
+          "text": "ort BETWEEN 'Bonn' AND 'Kiel'",
+          "warum": "BETWEEN meint alles dazwischen, nicht nur die zwei Werte."
+        },
+        {
+          "text": "ort <> 'Bonn' OR ort <> 'Kiel'",
+          "warum": "Das ist fast immer wahr: Ein Ort ist praktisch immer von mindestens einem der beiden verschieden."
+        }
+      ],
+      "hinweise": [
+        "IN heisst: eines davon."
+      ],
+      "erklaerung": "`IN` ist eine Kette von `OR`-Vergleichen mit `=`."
+    },
+    {
+      "id": "p-between-zeilen",
+      "typ": "ergebnis",
+      "modus": "zeilen",
+      "lz": [
+        "L17",
+        "L11"
+      ],
+      "thema": "BETWEEN und NOT IN",
+      "stufe": 3,
+      "frage": "Welche Verlagsnamen stehen im Ergebnis?",
+      "abfrage": "SELECT name\nFROM verlag\nWHERE verlagsid BETWEEN 8 AND 11\nAND ort NOT IN ('Berlin', 'Kiel')",
+      "kandidaten": "SELECT name FROM verlag WHERE verlagsid >= 7 AND verlagsid <= 12",
+      "zeigen": [
+        "verlag"
+      ],
+      "hinweise": [
+        "Zuerst BETWEEN: Welche Verlagsnummern 8 bis 11 gibt es?",
+        "Streiche davon alle mit ort Berlin oder Kiel. Achtung: «Berlin; Heidelberg» ist nicht «Berlin»."
+      ],
+      "erklaerung": "Verlage 8 bis 11: Springer Lehrbuch (Berlin; Heidelberg), Markt und Technik (Haar bei München), Nordsee-Verlag (Kiel), Cornelsen (Berlin). Kiel und Berlin fallen weg. Es bleiben Springer Lehrbuch und Markt und Technik."
+    },
+    {
+      "id": "p-notin-ergebnis-param",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "lz": [
+        "L17",
+        "L18",
+        "L10"
+      ],
+      "thema": "NOT IN und NULL",
+      "stufe": 3,
+      "frage": "Wie viele Zeilen liefert diese Abfrage? (Der Verlag 19 hat keinen Ort.)",
+      "abfrage": "SELECT *\nFROM verlag\nWHERE ort NOT IN ({{liste}})",
+      "zeigen": [
+        "verlag"
+      ],
+      "parameter": [
+        {
+          "liste": "'Bonn', 'Berlin'"
+        },
+        {
+          "liste": "'Zürich', 'Basel', 'Kiel'"
+        },
+        {
+          "liste": "'München'"
+        }
+      ],
+      "hinweise": [
+        "Zähle zuerst die Verlage mit bekanntem Ort. Streiche dann die Orte aus der Liste.",
+        "Die Zeile mit leerem Ort kommt nie ins Ergebnis."
+      ],
+      "erklaerung": "Von 20 Verlagen haben 19 einen Ort. Ziehe davon die Verlage mit den Orten aus der Liste ab. Der Verlag ohne Ort bleibt wegen NULL ausserhalb des Ergebnisses."
+    },
+    {
+      "id": "p-notin-null-liste",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "lz": [
+        "L18",
+        "L17",
+        "L10"
+      ],
+      "thema": "NOT IN mit NULL in der Liste",
+      "stufe": 3,
+      "frage": "Wie viele Zeilen liefert diese Abfrage? Achtung: In der Liste steht NULL.",
+      "abfrage": "SELECT *\nFROM verlag\nWHERE verlagsid NOT IN (1, 2, NULL)",
+      "zeigen": [
+        "verlag"
+      ],
+      "hinweise": [
+        "x NOT IN (1, 2, NULL) heisst: x <> 1 AND x <> 2 AND x <> NULL.",
+        "Der Vergleich mit NULL ist nie wahr."
+      ],
+      "erklaerung": "Der letzte Teil `verlagsid <> NULL` ist nie wahr. Weil alle Teile mit AND verbunden sind, ist die ganze Bedingung nie wahr. Ergebnis: **0** Zeilen. Eine IN-Liste enthält nie NULL."
+    },
+    {
+      "id": "p-null-param",
+      "typ": "sql",
+      "lz": [
+        "L18",
+        "L9"
+      ],
+      "thema": "IS NULL",
+      "stufe": 1,
+      "frage": "Zeige `buchid` und `jahr` aller Bücher, bei denen die Spalte `{{s}}` leer (NULL) ist.",
+      "loesung": "SELECT buchid, jahr FROM buch WHERE {{s}} IS NULL",
+      "muss": [
+        {
+          "muster": "\\bIS\\s+NULL\\b",
+          "meldung": "Verwende IS NULL."
+        }
+      ],
+      "parameter": [
+        {
+          "s": "preis"
+        },
+        {
+          "s": "isbn"
+        },
+        {
+          "s": "waehrung"
+        },
+        {
+          "s": "auflage"
+        }
+      ],
+      "hinweise": [
+        "Nicht mit = vergleichen.",
+        "WHERE {{s}} IS NULL"
+      ],
+      "erklaerung": "`{{s}} IS NULL` findet alle Zeilen, in denen kein Wert für {{s}} steht."
+    },
+    {
+      "id": "p-not-null-param",
+      "typ": "sql",
+      "lz": [
+        "L18",
+        "L9"
+      ],
+      "thema": "IS NOT NULL",
+      "stufe": 1,
+      "frage": "Zeige `buchid` und `{{s}}` aller Bücher, bei denen `{{s}}` eingetragen ist.",
+      "loesung": "SELECT buchid, {{s}} FROM buch WHERE {{s}} IS NOT NULL",
+      "muss": [
+        {
+          "muster": "\\bIS\\s+NOT\\s+NULL\\b",
+          "meldung": "Verwende IS NOT NULL."
+        }
+      ],
+      "parameter": [
+        {
+          "s": "isbn"
+        },
+        {
+          "s": "preis"
+        },
+        {
+          "s": "auflage"
+        },
+        {
+          "s": "waehrung"
+        }
+      ],
+      "hinweise": [
+        "Das Gegenteil von IS NULL.",
+        "WHERE {{s}} IS NOT NULL"
+      ],
+      "erklaerung": "`IS NOT NULL` hält nur Zeilen, in denen ein Wert steht."
+    },
+    {
+      "id": "p-gleich-null",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "lz": [
+        "L18",
+        "L10"
+      ],
+      "thema": "= NULL",
+      "stufe": 2,
+      "frage": "Wie viele Zeilen liefert diese Abfrage?",
+      "abfrage": "SELECT *\nFROM buch\nWHERE preis = NULL",
+      "zeigen": [
+        {
+          "titel": "Bücher ohne Preis (Ausschnitt)",
+          "sql": "SELECT buchid, titel, preis FROM buch WHERE buchid >= 3009 AND buchid <= 3011"
+        }
+      ],
+      "hinweise": [
+        "Es gibt Bücher ohne Preis. Findet `= NULL` sie?",
+        "Ein Vergleich mit NULL ist nie wahr."
+      ],
+      "erklaerung": "`preis = NULL` ist für **keine** Zeile wahr, auch nicht für die Bücher ohne Preis. Ergebnis: **0** Zeilen. Richtig wäre `preis IS NULL`."
+    },
+    {
+      "id": "p-null-fallen",
+      "typ": "choice",
+      "lz": [
+        "L18",
+        "L15"
+      ],
+      "thema": "NULL-Falle",
+      "stufe": 3,
+      "frage": [
+        "Die Abfrage soll alle Bücher liefern, die **nicht** mehr als 20 kosten, auch solche ohne Preis:",
+        "```sql",
+        "SELECT titel FROM buch",
+        "WHERE preis <= 20",
+        "```",
+        "Was fehlt im Ergebnis?"
+      ],
+      "mischen": true,
+      "optionen": [
+        {
+          "text": "Bücher ohne Preis (NULL), denn der Vergleich ist für sie nicht wahr. Abhilfe: OR preis IS NULL.",
+          "richtig": true
+        },
+        {
+          "text": "Bücher mit genau 20, denn <= schliesst 20 nicht ein.",
+          "warum": "<= schliesst 20 ein."
+        },
+        {
+          "text": "Bücher mit Preis 0.",
+          "warum": "0 ist kleiner als 20, diese Bücher kämen ins Ergebnis."
+        },
+        {
+          "text": "Nichts, die Abfrage ist vollständig.",
+          "warum": "Bücher ohne Preis fehlen."
+        }
+      ],
+      "hinweise": [
+        "Was geschieht bei Zeilen mit NULL im Vergleich?",
+        "Welche Bedingung holt NULL-Zeilen ins Ergebnis?"
+      ],
+      "erklaerung": "Zeilen mit NULL erfüllen `preis <= 20` nicht. Mit `WHERE preis <= 20 OR preis IS NULL` nimmst du sie dazu."
+    },
+    {
+      "id": "p-null-oder-sql",
+      "typ": "sql",
+      "lz": [
+        "L18",
+        "L15"
+      ],
+      "thema": "IS NULL mit OR",
+      "stufe": 2,
+      "frage": "Zeige `name` und `ort` aller Verlage, deren Ort **leer** ist **oder** mit **Z** beginnt.",
+      "loesung": "SELECT name, ort FROM verlag WHERE ort IS NULL OR ort LIKE 'Z%'",
+      "muss": [
+        {
+          "muster": "\\bIS\\s+NULL\\b",
+          "meldung": "Verwende IS NULL."
+        }
+      ],
+      "hinweise": [
+        "Zwei Bedingungen, eine reicht: OR.",
+        "ort IS NULL OR ort LIKE …"
+      ],
+      "erklaerung": "`ort IS NULL OR ort LIKE 'Z%'` liefert Prentice Hall (kein Ort) und die beiden Zürcher Verlage."
+    },
+    {
+      "id": "p-null-zeilen",
+      "typ": "ergebnis",
+      "modus": "zeilen",
+      "lz": [
+        "L18",
+        "L11"
+      ],
+      "thema": "IS NULL",
+      "stufe": 2,
+      "frage": "Welche Verlagsnamen stehen im Ergebnis?",
+      "abfrage": "SELECT name\nFROM verlag\nWHERE ort IS NULL OR ort LIKE 'Z%'",
+      "kandidaten": "SELECT name FROM verlag WHERE verlagsid >= 13 AND verlagsid <= 20",
+      "zeigen": [
+        "verlag"
+      ],
+      "hinweise": [
+        "Suche die Zeile, in der ort leer ist.",
+        "Und die Zeilen, bei denen ort mit Z beginnt."
+      ],
+      "erklaerung": "Leerer Ort: Prentice Hall. Ort mit Z: Orell Füssli und vdf Hochschulverlag (beide Zürich)."
+    },
+    {
+      "id": "p-null-wahl",
+      "typ": "choice",
+      "lz": [
+        "L18",
+        "L9"
+      ],
+      "thema": "Text in Bedingung",
+      "stufe": 2,
+      "frage": "Gesucht: alle Bücher aus dem Jahr 1991, die **keine** Preisangabe haben. Welche Bedingung ist richtig?",
+      "mischen": true,
+      "optionen": [
+        {
+          "text": "WHERE jahr = 1991 AND preis IS NULL",
+          "richtig": true
+        },
+        {
+          "text": "WHERE jahr = 1991 AND preis = NULL",
+          "warum": "= NULL liefert nie eine Zeile."
+        },
+        {
+          "text": "WHERE jahr = 1991 OR preis IS NULL",
+          "warum": "Mit OR kommen auch alle Bücher ohne Preis aus anderen Jahren dazu."
+        },
+        {
+          "text": "WHERE jahr = 1991 AND preis IS NOT NULL",
+          "warum": "Das sind die Bücher mit Preis."
+        }
+      ],
+      "hinweise": [
+        "Beide Bedingungen müssen gleichzeitig gelten.",
+        "Für NULL gibt es IS NULL."
+      ],
+      "erklaerung": "Jahr und leerer Preis müssen zugleich stimmen: `jahr = 1991 AND preis IS NULL`. Das ergibt das Buch 3010."
+    }
+  ]
+}

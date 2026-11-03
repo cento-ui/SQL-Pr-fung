@@ -1,0 +1,1729 @@
+{
+ "id": "k13",
+ "titel": "Prüfungspool",
+ "untertitel": "Aufgaben im Stil der echten Prüfung, quer durch alle Lernziele.",
+ "db": "bibliothek",
+ "lernziele": [],
+ "dauer": 0,
+ "schritte": [],
+ "pool": [
+  {
+   "id": "p-redundanz-begriff",
+   "typ": "choice",
+   "lz": [
+    "L1"
+   ],
+   "thema": "Redundanz",
+   "stufe": 2,
+   "frage": "Was bedeutet **Redundanz** in einer Datenbank?",
+   "optionen": [
+    {
+     "text": "Dieselbe Information ist mehrfach gespeichert.",
+     "warum": "Genau: Das ist die Definition.",
+     "richtig": true
+    },
+    {
+     "text": "Ein Wert fehlt und ist NULL.",
+     "warum": "Fehlende Werte sind NULL, nicht Redundanz."
+    },
+    {
+     "text": "Zwei Tabellen sind über einen Fremdschlüssel verbunden.",
+     "warum": "Das ist eine logische Verknüpfung, keine Redundanz."
+    },
+    {
+     "text": "Die Datenbank ist zu gross, um sie zu durchsuchen.",
+     "warum": "Die Grösse spielt für den Begriff keine Rolle."
+    }
+   ],
+   "hinweise": [
+    "Das Wort kommt von «überflüssig, doppelt»."
+   ],
+   "erklaerung": "**Redundanz** heisst: Dieselbe Information steht mehrfach in der Datenbank, zum Beispiel der Verlag «Springer» in jeder Zeile eines Buchs dieses Verlags."
+  },
+  {
+   "id": "p-redundanz-erkennen",
+   "typ": "choice",
+   "lz": [
+    "L1",
+    "L2"
+   ],
+   "thema": "Redundanz erkennen",
+   "stufe": 2,
+   "frage": [
+    "Eine einzige Tabelle `buecher` enthält alle Angaben:",
+    "",
+    "| titel | autor | verlag | verlagsort |",
+    "|---|---|---|---|",
+    "| Datenbanksysteme | Kemper | Oldenbourg | München |",
+    "| Theoretische Informatik | Hromkovic | Teubner | Stuttgart |",
+    "| Einführung in die Informatik | Gumm | Oldenbourg | München |",
+    "| 3D-computergrafische Darstellungen | Tönnies | Oldenbourg | München |",
+    "",
+    "Wo steckt hier **Redundanz**?"
+   ],
+   "optionen": [
+    {
+     "text": "Verlag und Verlagsort von «Oldenbourg» stehen dreimal.",
+     "warum": "Genau: Die Angabe wiederholt sich in mehreren Zeilen.",
+     "richtig": true
+    },
+    {
+     "text": "Es gibt vier Zeilen.",
+     "warum": "Die Zahl der Zeilen sagt nichts über Wiederholungen aus."
+    },
+    {
+     "text": "Die Spalte titel enthält Text.",
+     "warum": "Der Datentyp hat mit Redundanz nichts zu tun."
+    },
+    {
+     "text": "Jeder Titel kommt nur einmal vor.",
+     "warum": "Das ist gerade kein Problem. Die Verlagsangaben wiederholen sich."
+    }
+   ],
+   "hinweise": [
+    "Suche Angaben, die in mehreren Zeilen genau gleich vorkommen."
+   ],
+   "erklaerung": "Der Verlag Oldenbourg samt Ort steht in drei Zeilen. Das ist Redundanz. Besser: eine eigene Tabelle `verlag`, im Buch nur die verlagsid."
+  },
+  {
+   "id": "p-probleme-einzeltabelle",
+   "typ": "choice",
+   "lz": [
+    "L2",
+    "L1"
+   ],
+   "thema": "Probleme Einzeltabelle",
+   "stufe": 3,
+   "frage": [
+    "In einer grossen Tabelle steht bei jedem Buch der Verlag mit Name und Ort. Welche Probleme entstehen dadurch? (Mehrere Antworten möglich.)"
+   ],
+   "optionen": [
+    {
+     "text": "Der Verlag muss umbenannt werden: Man muss viele Zeilen ändern und kann eine vergessen.",
+     "warum": "Richtig: grosser Änderungsaufwand und Gefahr von Inkonsistenz.",
+     "richtig": true
+    },
+    {
+     "text": "Es kann Tippfehler geben: «Addison Wesley» und «Addison-Wesley» gelten als zwei Verlage.",
+     "warum": "Richtig: Inkonsistenz.",
+     "richtig": true
+    },
+    {
+     "text": "Es wird unnötig viel Speicher gebraucht.",
+     "warum": "Richtig: Dieselben Angaben sind mehrfach gespeichert.",
+     "richtig": true
+    },
+    {
+     "text": "Man kann keine Spalte mit Text speichern.",
+     "warum": "Text ist kein Problem."
+    },
+    {
+     "text": "Die Abfragen sind immer schneller.",
+     "warum": "Das Gegenteil ist nicht der Punkt: Redundanz ist ein Nachteil, kein Vorteil."
+    }
+   ],
+   "hinweise": [
+    "Denke an: Speicher, Tippfehler, Änderungen, neue Einträge."
+   ],
+   "erklaerung": "Redundanz führt zu **mehr Speicherbedarf**, zu **Inkonsistenz** (unterschiedliche Schreibweisen) und zu **Änderungsaufwand**. Zudem kann man einen Verlag ohne Buch gar nicht erfassen.",
+   "mehrfach": true
+  },
+  {
+   "id": "p-autorin-ohne-buch",
+   "typ": "choice",
+   "lz": [
+    "L2"
+   ],
+   "thema": "Einfügeproblem",
+   "stufe": 3,
+   "frage": "In der einen grossen Tabelle `buecher` hat jede Zeile ein Buch. Die neue Autorin «Anna Berg» hat noch kein Buch geschrieben. Was ist das Problem?",
+   "optionen": [
+    {
+     "text": "Man kann sie nicht erfassen, ohne ein Buch (oder leere Felder) zu erfinden.",
+     "warum": "Richtig: Ohne Buch gibt es keine Zeile, in der sie stehen könnte.",
+     "richtig": true
+    },
+    {
+     "text": "Es gibt gar kein Problem, man fügt einfach eine Zeile mit NULL-Werten ein.",
+     "warum": "Das geht zwar technisch, ist aber genau das Problem: Zeilen mit lauter leeren Feldern sind Datenmüll."
+    },
+    {
+     "text": "Autorinnen dürfen nur in Tabellen mit Primärschlüssel stehen.",
+     "warum": "Das stimmt so nicht."
+    },
+    {
+     "text": "Der Name ist zu lang für den Datentyp.",
+     "warum": "Das hat nichts damit zu tun."
+    }
+   ],
+   "hinweise": [
+    "Was müsste in der Zeile stehen, damit sie einen Sinn ergibt?"
+   ],
+   "erklaerung": "Wenn Autoren und Bücher in derselben Tabelle stehen, kann man eine Autorin ohne Buch nicht sauber speichern. Getrennte Tabellen `autor` und `buch` lösen das."
+  },
+  {
+   "id": "p-begriffe-tabelle",
+   "typ": "zuordnen",
+   "lz": [
+    "L3"
+   ],
+   "thema": "Fachbegriffe",
+   "stufe": 2,
+   "frage": [
+    "Gegeben ist die Tabelle `verlag`:",
+    "",
+    "| verlagsid | name | ort |",
+    "|---|---|---|",
+    "| 1 | Addison Wesley | Bonn |",
+    "| 2 | Springer | Berlin |",
+    "",
+    "Ordne zu."
+   ],
+   "kategorien": [
+    "Relation",
+    "Datensatz",
+    "Attribut",
+    "Attributwert"
+   ],
+   "elemente": [
+    {
+     "text": "`verlag`",
+     "antwort": "Relation",
+     "warum": "Tabelle mit Namen = Relation."
+    },
+    {
+     "text": "`2 | Springer | Berlin`",
+     "antwort": "Datensatz",
+     "warum": "Eine ganze Zeile ist ein Datensatz."
+    },
+    {
+     "text": "`ort`",
+     "antwort": "Attribut",
+     "warum": "Spaltenname = Attribut."
+    },
+    {
+     "text": "`Bonn`",
+     "antwort": "Attributwert",
+     "warum": "Ein einzelner Eintrag = Attributwert."
+    }
+   ],
+   "hinweise": [
+    "Relation = Tabelle, Datensatz = Zeile, Attribut = Spalte."
+   ],
+   "erklaerung": "Die **Relation** `verlag` hat 2 **Datensätze** und 3 **Attribute**. Der **Attributwert** steht in einer einzelnen Zelle."
+  },
+  {
+   "id": "p-logische-verknuepfung",
+   "typ": "choice",
+   "lz": [
+    "L3",
+    "L4"
+   ],
+   "thema": "Logische Verknüpfung",
+   "stufe": 2,
+   "frage": "Das Buch 3005 hat in der Spalte `verlagsid` den Wert 5. Wie weiss man, welcher Verlag gemeint ist?",
+   "optionen": [
+    {
+     "text": "Die verlagsid 5 verweist auf den Datensatz mit verlagsid 5 in der Tabelle `verlag`: eine logische Verknüpfung.",
+     "warum": "Richtig: Der Fremdschlüssel verweist auf den Primärschlüssel.",
+     "richtig": true
+    },
+    {
+     "text": "Man muss den Verlagsnamen in der Tabelle `buch` nachschlagen.",
+     "warum": "Der Name steht gerade nicht in `buch`, nur die Nummer."
+    },
+    {
+     "text": "Die Zahl 5 ist die Anzahl Verlage.",
+     "warum": "Es ist ein Verweis, keine Anzahl."
+    },
+    {
+     "text": "Das ist nicht möglich.",
+     "warum": "Doch, genau dafür gibt es Schlüssel."
+    }
+   ],
+   "hinweise": [
+    "Welche Spalte der Tabelle `verlag` entspricht der Spalte verlagsid in `buch`?"
+   ],
+   "erklaerung": "Datensätze verschiedener Tabellen sind **logisch verknüpft**: Der Wert des Fremdschlüssels (`buch.verlagsid`) ist der Wert des Primärschlüssels (`verlag.verlagsid`).",
+   "db": "bibliothek"
+  },
+  {
+   "id": "p-pk-fk-buchung",
+   "typ": "zuordnen",
+   "lz": [
+    "L4"
+   ],
+   "thema": "PK und FK",
+   "stufe": 2,
+   "db": "flugbuchung",
+   "frage": "Die Tabelle `buchung(bnr, knr, flugnr, sitz, datum)` verbindet Kunden und Flüge. Ordne jede Spalte zu.",
+   "kategorien": [
+    "Primärschlüssel",
+    "Fremdschlüssel",
+    "weder noch"
+   ],
+   "elemente": [
+    {
+     "text": "bnr",
+     "antwort": "Primärschlüssel",
+     "warum": "Die Buchungsnummer identifiziert jede Buchung eindeutig."
+    },
+    {
+     "text": "knr",
+     "antwort": "Fremdschlüssel",
+     "warum": "Verweist auf kunde.knr."
+    },
+    {
+     "text": "flugnr",
+     "antwort": "Fremdschlüssel",
+     "warum": "Verweist auf flug.flugnr."
+    },
+    {
+     "text": "sitz",
+     "antwort": "weder noch",
+     "warum": "Ein normales Attribut."
+    },
+    {
+     "text": "datum",
+     "antwort": "weder noch",
+     "warum": "Ein normales Attribut."
+    }
+   ],
+   "hinweise": [
+    "Ein Fremdschlüssel ist in einer anderen Tabelle der Primärschlüssel."
+   ],
+   "erklaerung": "`bnr` ist der **Primärschlüssel** (eindeutig, nie NULL). `knr` und `flugnr` sind **Fremdschlüssel**: Sie zeigen auf Primärschlüssel anderer Tabellen."
+  },
+  {
+   "id": "p-pk-aussagen",
+   "typ": "choice",
+   "lz": [
+    "L4"
+   ],
+   "thema": "Primärschlüssel",
+   "stufe": 3,
+   "frage": "Welche Aussagen über einen **Primärschlüssel** sind richtig? (Mehrere Antworten möglich.)",
+   "optionen": [
+    {
+     "text": "Er identifiziert jeden Datensatz der Tabelle eindeutig.",
+     "warum": "Richtig.",
+     "richtig": true
+    },
+    {
+     "text": "Er darf nie NULL sein.",
+     "warum": "Richtig.",
+     "richtig": true
+    },
+    {
+     "text": "Er kann aus mehreren Attributen zusammengesetzt sein.",
+     "warum": "Richtig, z. B. (buchid, autorid) in buch_aut.",
+     "richtig": true
+    },
+    {
+     "text": "Er darf nur ein Zahlenwert sein.",
+     "warum": "Auch Text ist möglich, z. B. die Flugnummer 'LH772'."
+    },
+    {
+     "text": "Jeder Wert darf in der Tabelle mehrfach vorkommen.",
+     "warum": "Im Gegenteil: Er muss eindeutig sein."
+    }
+   ],
+   "hinweise": [
+    "Eindeutig, nie leer, minimal."
+   ],
+   "erklaerung": "Ein Primärschlüssel ist **eindeutig** und **nie NULL**; er kann **zusammengesetzt** sein und soll **minimal** sein (nicht mehr Attribute als nötig).",
+   "mehrfach": true
+  },
+  {
+   "id": "p-pk-minimal",
+   "typ": "choice",
+   "lz": [
+    "L4"
+   ],
+   "thema": "Zusammengesetzter Schlüssel",
+   "stufe": 3,
+   "frage": [
+    "Die Tabelle `buch_aut(buchid, autorid, rolle, rang)` verbindet Bücher und Autoren. Welcher Primärschlüssel ist **minimal** und eindeutig?"
+   ],
+   "optionen": [
+    {
+     "text": "(buchid, autorid)",
+     "warum": "Ein Autor erscheint bei einem Buch nur einmal.",
+     "richtig": true
+    },
+    {
+     "text": "(buchid, autorid, rolle)",
+     "warum": "Zwar eindeutig, aber nicht minimal: rolle ist überflüssig."
+    },
+    {
+     "text": "buchid allein",
+     "warum": "Ein Buch kann mehrere Autoren haben, der Wert würde sich wiederholen."
+    },
+    {
+     "text": "rang",
+     "warum": "rang ist nur 1, 2, ... und wiederholt sich."
+    }
+   ],
+   "hinweise": [
+    "Minimal heisst: Lässt du ein Attribut weg, ist es nicht mehr eindeutig."
+   ],
+   "erklaerung": "(buchid, autorid) ist eindeutig und minimal. Jedes weitere Attribut wäre überflüssig, jedes weniger nicht mehr eindeutig.",
+   "db": "bibliothek"
+  },
+  {
+   "id": "p-datentypen",
+   "typ": "zuordnen",
+   "lz": [
+    "L5"
+   ],
+   "thema": "Datentypen",
+   "stufe": 2,
+   "frage": "Welcher Datentyp passt am besten?",
+   "kategorien": [
+    "INTEGER",
+    "TEXT",
+    "REAL",
+    "BOOLEAN",
+    "Datum"
+   ],
+   "elemente": [
+    {
+     "text": "Anzahl Seiten eines Buchs",
+     "antwort": "INTEGER",
+     "warum": "Ganze Zahl."
+    },
+    {
+     "text": "Titel eines Buchs",
+     "antwort": "TEXT",
+     "warum": "Zeichenkette."
+    },
+    {
+     "text": "Preis in Franken (z. B. 24.95)",
+     "antwort": "REAL",
+     "warum": "Kommazahl."
+    },
+    {
+     "text": "Buch ist ausgeliehen: ja oder nein",
+     "antwort": "BOOLEAN",
+     "warum": "Nur zwei Zustände."
+    },
+    {
+     "text": "Erscheinungsdatum 2001-05-17",
+     "antwort": "Datum",
+     "warum": "Ein Datum."
+    }
+   ],
+   "hinweise": [
+    "Ganze Zahl, Kommazahl, Text, Wahr/Falsch, Datum."
+   ],
+   "erklaerung": "INTEGER = ganze Zahl, REAL = Kommazahl, TEXT = Zeichenkette, BOOLEAN = wahr/falsch, Datum für Kalenderdaten."
+  },
+  {
+   "id": "p-datentyp-telefon",
+   "typ": "choice",
+   "lz": [
+    "L5"
+   ],
+   "thema": "Datentyp wählen",
+   "stufe": 3,
+   "frage": "Eine Telefonnummer wie `044 123 45 67` soll gespeichert werden. Welcher Datentyp ist am geeignetsten?",
+   "optionen": [
+    {
+     "text": "TEXT",
+     "warum": "Führende Null, Leerzeichen und «+» gehen bei Zahlen verloren. Man rechnet nicht mit Telefonnummern.",
+     "richtig": true
+    },
+    {
+     "text": "INTEGER",
+     "warum": "Die führende 0 ginge verloren, die Leerzeichen auch."
+    },
+    {
+     "text": "REAL",
+     "warum": "Telefonnummern sind keine Kommazahlen."
+    },
+    {
+     "text": "BOOLEAN",
+     "warum": "Nur ja/nein."
+    }
+   ],
+   "hinweise": [
+    "Rechnest du mit einer Telefonnummer?"
+   ],
+   "erklaerung": "Wenn man mit einer «Zahl» nicht rechnet und Formatzeichen oder führende Nullen wichtig sind, nimmt man **TEXT**."
+  },
+  {
+   "id": "p-schema-was",
+   "typ": "choice",
+   "lz": [
+    "L6"
+   ],
+   "thema": "Datenbankschema",
+   "stufe": 2,
+   "frage": "Was zeigt ein **Datenbankschema**?",
+   "optionen": [
+    {
+     "text": "Die Tabellen mit ihren Attributen, Datentypen, Primär- und Fremdschlüsseln und die Verbindungen.",
+     "warum": "Das ist der Bauplan der Datenbank.",
+     "richtig": true
+    },
+    {
+     "text": "Alle Datensätze aller Tabellen.",
+     "warum": "Das wären die Daten, nicht das Schema."
+    },
+    {
+     "text": "Nur das Ergebnis der letzten Abfrage.",
+     "warum": "Das hat nichts mit dem Schema zu tun."
+    },
+    {
+     "text": "Eine Liste der Benutzer.",
+     "warum": "Nein."
+    }
+   ],
+   "hinweise": [
+    "Schema = Bauplan, nicht Inhalt."
+   ],
+   "erklaerung": "Ein **Schema** beschreibt den Aufbau: Tabellen, Attribute, Datentypen, Schlüssel und Beziehungen (meist als Pfeile vom Fremd- zum Primärschlüssel). Die Daten stehen nicht darin."
+  },
+  {
+   "id": "p-schema-pfeil",
+   "typ": "choice",
+   "lz": [
+    "L6",
+    "L4"
+   ],
+   "thema": "Schema lesen",
+   "stufe": 3,
+   "frage": [
+    "Gegeben:",
+    "",
+    "- `kunde(knr, name, vorname, alter)`",
+    "- `flug(flugnr, fluglinie, von, nach, ab, an, groesse)`",
+    "- `buchung(bnr, knr, flugnr, sitz, datum)`",
+    "",
+    "Welche **Pfeile** (Verbindungen) gehören ins Schema?"
+   ],
+   "optionen": [
+    {
+     "text": "buchung.knr → kunde.knr und buchung.flugnr → flug.flugnr",
+     "warum": "Richtig: beide Fremdschlüssel von buchung zeigen auf Primärschlüssel.",
+     "richtig": true
+    },
+    {
+     "text": "kunde.knr → flug.flugnr",
+     "warum": "Kunde und Flug sind nicht direkt verbunden, nur über buchung."
+    },
+    {
+     "text": "kunde.name → buchung.sitz",
+     "warum": "Verbindungen gehen von Fremdschlüssel zu Primärschlüssel, nicht zwischen normalen Attributen."
+    },
+    {
+     "text": "flug.von → flug.nach",
+     "warum": "Das ist keine Verbindung zwischen Tabellen."
+    }
+   ],
+   "hinweise": [
+    "Welche Spalten in `buchung` heissen gleich wie ein Primärschlüssel einer anderen Tabelle?"
+   ],
+   "erklaerung": "`buchung` trägt zwei Fremdschlüssel: `knr` (zeigt auf kunde) und `flugnr` (zeigt auf flug).",
+   "db": "flugbuchung"
+  },
+  {
+   "id": "p-nm-warum",
+   "typ": "choice",
+   "lz": [
+    "L7",
+    "L4"
+   ],
+   "thema": "n:m-Beziehung",
+   "stufe": 3,
+   "frage": "Ein Buch kann mehrere Autoren haben, ein Autor mehrere Bücher. Warum braucht man dafür eine **eigene Tabelle** (`buch_aut`)?",
+   "optionen": [
+    {
+     "text": "Ohne sie müsste man in einer Zelle mehrere Werte speichern oder Datensätze doppelt führen (Redundanz).",
+     "warum": "Genau: Eine Zelle darf nur einen Wert haben.",
+     "richtig": true
+    },
+    {
+     "text": "Weil SQL sonst keine Tabellen verknüpfen kann.",
+     "warum": "Verknüpfen geht, die Frage ist, wie man die Beziehung speichert."
+    },
+    {
+     "text": "Weil Primärschlüssel nur aus zwei Spalten bestehen dürfen.",
+     "warum": "Das stimmt nicht."
+    },
+    {
+     "text": "Weil Zwischentabellen weniger Speicher brauchen.",
+     "warum": "Das ist nicht der Grund."
+    }
+   ],
+   "hinweise": [
+    "Wo würdest du beim Buch mit zwei Autoren die zwei Autoren-Ids speichern?"
+   ],
+   "erklaerung": "Eine n:m-Beziehung lässt sich mit nur einem Fremdschlüssel nicht abbilden. Die **Zwischentabelle** enthält zu jeder Paarung einen Datensatz mit beiden Fremdschlüsseln.",
+   "db": "bibliothek"
+  },
+  {
+   "id": "p-tabelle-buchung",
+   "typ": "tabelle",
+   "lz": [
+    "L8",
+    "L4"
+   ],
+   "thema": "Tabelle füllen",
+   "stufe": 2,
+   "db": "flugbuchung",
+   "frage": "Die Kundin **Lea Brunner** (knr 12) bucht am 2025-10-01 den Flug **BA1**, Sitz **14**. Es ist die Buchung Nummer **1010**. Ergänze den Datensatz in `buchung`.",
+   "tabellenname": "buchung (Ausschnitt)",
+   "spalten": [
+    "bnr",
+    "knr",
+    "flugnr",
+    "sitz",
+    "datum"
+   ],
+   "zeilen": [
+    [
+     "1008",
+     "4",
+     "LH7",
+     "24",
+     "2025-09-22"
+    ],
+    [
+     "1009",
+     "8",
+     "US1",
+     "79",
+     "2025-09-23"
+    ],
+    [
+     {
+      "loesung": "1010"
+     },
+     {
+      "loesung": "12"
+     },
+     {
+      "loesung": "BA1"
+     },
+     {
+      "loesung": "14"
+     },
+     {
+      "loesung": "2025-10-01"
+     }
+    ]
+   ],
+   "hinweise": [
+    "knr ist die Kundennummer, nicht der Name."
+   ],
+   "erklaerung": "Die Buchung verweist über die Fremdschlüssel knr = 12 und flugnr = BA1 auf Kundin und Flug."
+  },
+  {
+   "id": "p-tabelle-zwischen",
+   "typ": "tabelle",
+   "lz": [
+    "L8",
+    "L7"
+   ],
+   "thema": "Zwischentabelle füllen",
+   "stufe": 3,
+   "db": "bibliothek",
+   "frage": [
+    "Das Buch **3036** hat zwei Autoren: **224** (Hauptautor, rang 1) und **203** (rang 2). Erfasse beide in der Zwischentabelle `buch_aut` (rolle für beide: V).",
+    "",
+    "Die Spalten sind `buchid`, `autorid`, `rolle`, `rang`."
+   ],
+   "tabellenname": "buch_aut (Ausschnitt)",
+   "spalten": [
+    "buchid",
+    "autorid",
+    "rolle",
+    "rang"
+   ],
+   "zeilen": [
+    [
+     {
+      "loesung": "3036"
+     },
+     {
+      "loesung": "224"
+     },
+     {
+      "loesung": "V"
+     },
+     {
+      "loesung": "1"
+     }
+    ],
+    [
+     {
+      "loesung": "3036"
+     },
+     {
+      "loesung": "203"
+     },
+     {
+      "loesung": "V"
+     },
+     {
+      "loesung": "2"
+     }
+    ]
+   ],
+   "hinweise": [
+    "Ein Datensatz pro Paarung Buch/Autor."
+   ],
+   "erklaerung": "Pro Autor eines Buchs gibt es **einen Datensatz** in der Zwischentabelle. Das Buch kommt zweimal vor, das ist erlaubt, weil nur die Kombination (buchid, autorid) eindeutig sein muss."
+  },
+  {
+   "id": "p-flug-frankfurt",
+   "typ": "sql",
+   "lz": [
+    "L12",
+    "L9"
+   ],
+   "thema": "SELECT FROM WHERE",
+   "stufe": 2,
+   "frage": "Gib Flugnummer und Zielort (`nach`) aller Flüge aus, die in **Frankfurt** starten.",
+   "loesung": "SELECT flugnr, nach FROM flug WHERE von = 'Frankfurt'",
+   "hinweise": [
+    "Text steht in einfachen Anführungszeichen.",
+    "Spalten: flugnr, nach. Tabelle: flug."
+   ],
+   "erklaerung": "`SELECT` wählt die Spalten, `FROM` die Tabelle, `WHERE` filtert. Text-Werte stehen in `'…'`.",
+   "db": "flugbuchung"
+  },
+  {
+   "id": "p-kunde-alter-sortiert",
+   "typ": "sql",
+   "lz": [
+    "L13",
+    "L15",
+    "L9"
+   ],
+   "thema": "ORDER BY DESC",
+   "stufe": 2,
+   "frage": "Gib Name und Vorname aller Kunden aus, die **älter als 30** sind, der Älteste zuerst.",
+   "loesung": "SELECT name, vorname FROM kunde WHERE \"alter\" > 30 ORDER BY \"alter\" DESC",
+   "hinweise": [
+    "Auf Papier darfst du `alter` schreiben; in der Datenbank hier `\"alter\"`.",
+    "Absteigend = DESC."
+   ],
+   "erklaerung": "`WHERE \"alter\" > 30` filtert, `ORDER BY \"alter\" DESC` sortiert absteigend. Spalten, nach denen man sortiert, müssen nicht im SELECT stehen.",
+   "db": "flugbuchung",
+   "reihenfolge": true
+  },
+  {
+   "id": "p-flug-sort-zwei",
+   "typ": "sql",
+   "lz": [
+    "L21",
+    "L13"
+   ],
+   "thema": "Zwei Sortierkriterien",
+   "stufe": 3,
+   "frage": "Gib Flugnummer, Fluglinie und Grösse aller Flüge aus. Sortiere zuerst nach **Fluglinie aufsteigend**, bei gleicher Fluglinie nach **Grösse absteigend**.",
+   "loesung": "SELECT flugnr, fluglinie, groesse FROM flug ORDER BY fluglinie ASC, groesse DESC",
+   "hinweise": [
+    "Zwei Kriterien trennst du mit Komma.",
+    "Jedes Kriterium hat sein eigenes ASC/DESC."
+   ],
+   "erklaerung": "`ORDER BY fluglinie ASC, groesse DESC`: Das zweite Kriterium gilt nur bei Gleichheit im ersten (hier beide Lufthansa-Flüge).",
+   "db": "flugbuchung",
+   "reihenfolge": true
+  },
+  {
+   "id": "p-distinct-kunden",
+   "typ": "sql",
+   "lz": [
+    "L14"
+   ],
+   "thema": "DISTINCT",
+   "stufe": 2,
+   "frage": "Welche Kunden (Kundennummer `knr`) haben mindestens eine Buchung? Jede Kundennummer soll **nur einmal** erscheinen.",
+   "loesung": "SELECT DISTINCT knr FROM buchung",
+   "hinweise": [
+    "Kundin 7 hat zwei Buchungen.",
+    "DISTINCT steht direkt nach SELECT."
+   ],
+   "erklaerung": "`DISTINCT` entfernt doppelte Zeilen im Ergebnis. Ohne DISTINCT erschiene die 7 zweimal.",
+   "db": "flugbuchung"
+  },
+  {
+   "id": "p-klammern-verlag",
+   "typ": "sql",
+   "lz": [
+    "L22",
+    "L15",
+    "L9"
+   ],
+   "thema": "Klammern",
+   "stufe": 3,
+   "frage": "Gib die Titel aller Bücher aus, die vom Verlag **1 oder 3** stammen und **vor 1993** erschienen sind.",
+   "loesung": "SELECT titel FROM buch WHERE (verlagsid = 1 OR verlagsid = 3) AND jahr < 1993",
+   "hinweise": [
+    "AND bindet stärker als OR. Wie erzwingst du, dass die OR-Bedingung zuerst gilt?",
+    "Setze die zwei Verlagsbedingungen in Klammern."
+   ],
+   "erklaerung": "Ohne Klammern würde `verlagsid = 3 AND jahr < 1993` zuerst verknüpft (AND vor OR), und alle Bücher von Verlag 1 kämen unabhängig vom Jahr.",
+   "db": "bibliothek",
+   "muss": [
+    {
+     "muster": "\\(",
+     "meldung": "Setze die OR-Bedingung in Klammern."
+    }
+   ]
+  },
+  {
+   "id": "p-like-titel",
+   "typ": "sql",
+   "lz": [
+    "L16"
+   ],
+   "thema": "LIKE %",
+   "stufe": 2,
+   "frage": "Gib die Titel aller Bücher aus, die irgendwo im Titel das Wort **Datenbank** enthalten.",
+   "loesung": "SELECT titel FROM buch WHERE titel LIKE '%Datenbank%'",
+   "hinweise": [
+    "% steht für beliebig viele Zeichen (auch keines).",
+    "Vor und nach dem Wort braucht es ein %."
+   ],
+   "erklaerung": "`LIKE '%Datenbank%'` findet das Wort an jeder Stelle, auch in «Datenbanken» oder «Datenbanksysteme».",
+   "db": "bibliothek",
+   "muss": [
+    {
+     "muster": "\\bLIKE\\b",
+     "meldung": "Verwende LIKE."
+    }
+   ]
+  },
+  {
+   "id": "p-like-unterstrich",
+   "typ": "sql",
+   "lz": [
+    "L16"
+   ],
+   "thema": "LIKE _",
+   "stufe": 3,
+   "frage": "Gib Id und Nachname aller Autoren aus, deren Nachname **fünf Buchstaben** hat, mit **M** beginnt und mit **er** endet (z. B. Meier, Maier).",
+   "loesung": "SELECT autorid, nachname FROM autor WHERE nachname LIKE 'M__er'",
+   "hinweise": [
+    "_ steht für genau ein Zeichen.",
+    "M, zwei beliebige Zeichen, er."
+   ],
+   "erklaerung": "Jedes `_` ersetzt **genau ein** Zeichen. `'M__er'` passt auf Meier, Maier und Meyer, nicht auf «Müller» (6 Buchstaben).",
+   "db": "bibliothek"
+  },
+  {
+   "id": "p-between-preis",
+   "typ": "sql",
+   "lz": [
+    "L17"
+   ],
+   "thema": "BETWEEN",
+   "stufe": 2,
+   "frage": "Gib Titel und Preis aller Bücher aus, deren Preis **von 20 bis 30** (Grenzen eingeschlossen) liegt.",
+   "loesung": "SELECT titel, preis FROM buch WHERE preis BETWEEN 20 AND 30",
+   "hinweise": [
+    "BETWEEN a AND b schliesst die Grenzen ein."
+   ],
+   "erklaerung": "`BETWEEN 20 AND 30` ist dasselbe wie `preis >= 20 AND preis <= 30`.",
+   "db": "bibliothek",
+   "muss": [
+    {
+     "muster": "\\bBETWEEN\\b",
+     "meldung": "Verwende BETWEEN."
+    }
+   ]
+  },
+  {
+   "id": "p-in-waehrung",
+   "typ": "sql",
+   "lz": [
+    "L17",
+    "L9"
+   ],
+   "thema": "IN",
+   "stufe": 2,
+   "frage": "Gib Titel und Währung aller Bücher aus, bei denen die Währung **CHF** oder **EUR** ist. Verwende `IN`.",
+   "loesung": "SELECT titel, waehrung FROM buch WHERE waehrung IN ('CHF', 'EUR')",
+   "hinweise": [
+    "IN (...) mit Werten in Klammern, durch Komma getrennt."
+   ],
+   "erklaerung": "`IN ('CHF', 'EUR')` ersetzt `waehrung = 'CHF' OR waehrung = 'EUR'`.",
+   "db": "bibliothek",
+   "muss": [
+    {
+     "muster": "\\bIN\\b",
+     "meldung": "Verwende IN."
+    }
+   ]
+  },
+  {
+   "id": "p-not-in-flug",
+   "typ": "sql",
+   "lz": [
+    "L17",
+    "L15"
+   ],
+   "thema": "NOT IN",
+   "stufe": 3,
+   "frage": "Gib die Flugnummern aller Flüge aus, die **weder** von Lufthansa **noch** von USAirways sind.",
+   "loesung": "SELECT flugnr FROM flug WHERE fluglinie NOT IN ('Lufthansa', 'USAirways')",
+   "hinweise": [
+    "Alles ausser den zwei Fluglinien.",
+    "NOT IN (...)"
+   ],
+   "erklaerung": "`NOT IN` schliesst die genannten Werte aus: übrig bleiben BA1 und GW4.",
+   "db": "flugbuchung"
+  },
+  {
+   "id": "p-null-verlag",
+   "typ": "sql",
+   "lz": [
+    "L18",
+    "L12"
+   ],
+   "thema": "IS NULL",
+   "stufe": 2,
+   "frage": "Gib den Namen aller Verlage aus, bei denen der **Ort unbekannt** (leer) ist.",
+   "loesung": "SELECT name FROM verlag WHERE ort IS NULL",
+   "hinweise": [
+    "Auf NULL prüft man nicht mit =."
+   ],
+   "erklaerung": "Leere Werte (NULL) erkennt man mit `IS NULL`. `ort = NULL` liefert nie ein Ergebnis.",
+   "db": "bibliothek",
+   "muss": [
+    {
+     "muster": "\\bIS NULL\\b",
+     "meldung": "Verwende IS NULL."
+    }
+   ]
+  },
+  {
+   "id": "p-null-preis",
+   "typ": "sql",
+   "lz": [
+    "L18",
+    "L15"
+   ],
+   "thema": "IS NULL und AND",
+   "stufe": 3,
+   "frage": "Gib Titel und Jahr aller Bücher aus, bei denen der **Preis unbekannt**, das **Erscheinungsjahr aber bekannt** ist.",
+   "loesung": "SELECT titel, jahr FROM buch WHERE preis IS NULL AND jahr IS NOT NULL",
+   "hinweise": [
+    "Zwei Bedingungen mit AND.",
+    "IS NULL und IS NOT NULL."
+   ],
+   "erklaerung": "`preis IS NULL AND jahr IS NOT NULL` kombiniert beide Prüfungen.",
+   "db": "bibliothek"
+  },
+  {
+   "id": "p-count-verlag",
+   "typ": "sql",
+   "lz": [
+    "L19",
+    "L9"
+   ],
+   "thema": "COUNT",
+   "stufe": 2,
+   "frage": "Wie viele Bücher hat der Verlag mit der verlagsid **4** (Vieweg)? Gib nur die Anzahl aus.",
+   "loesung": "SELECT COUNT(*) FROM buch WHERE verlagsid = 4",
+   "hinweise": [
+    "COUNT(*) zählt Zeilen."
+   ],
+   "erklaerung": "`COUNT(*)` zählt die Zeilen, die die WHERE-Bedingung erfüllen. Das Ergebnis ist eine einzige Zeile mit einer Zahl.",
+   "db": "bibliothek"
+  },
+  {
+   "id": "p-count-spalte",
+   "typ": "sql",
+   "lz": [
+    "L19"
+   ],
+   "thema": "COUNT(spalte)",
+   "stufe": 3,
+   "frage": "Bei wie vielen Büchern ist der **Preis bekannt**? Gib nur die Anzahl aus (ohne WHERE).",
+   "loesung": "SELECT COUNT(preis) FROM buch",
+   "hinweise": [
+    "COUNT(spalte) zählt nur Zeilen, in denen die Spalte nicht NULL ist."
+   ],
+   "erklaerung": "`COUNT(preis)` ignoriert NULL-Werte, `COUNT(*)` würde alle Bücher zählen.",
+   "db": "bibliothek"
+  },
+  {
+   "id": "p-max-min",
+   "typ": "sql",
+   "lz": [
+    "L19",
+    "L20"
+   ],
+   "thema": "MAX, MIN, Alias",
+   "stufe": 3,
+   "frage": "Gib den **höchsten** und den **tiefsten** Preis der Bücher in **EUR** aus. Nenne die Spalten `hoechster` und `tiefster`.",
+   "loesung": "SELECT MAX(preis) AS hoechster, MIN(preis) AS tiefster FROM buch WHERE waehrung = 'EUR'",
+   "hinweise": [
+    "Zwei Aggregatfunktionen in einem SELECT sind erlaubt.",
+    "Alias mit AS."
+   ],
+   "erklaerung": "`MAX` und `MIN` geben je einen Wert zurück, `AS` benennt die Spalten um.",
+   "db": "bibliothek",
+   "spaltennamen": true
+  },
+  {
+   "id": "p-avg-alias",
+   "typ": "sql",
+   "lz": [
+    "L19",
+    "L20"
+   ],
+   "thema": "AVG und AS",
+   "stufe": 3,
+   "frage": "Berechne den **Durchschnittspreis** der Bücher in **EUR**. Die Spalte soll `durchschnitt` heissen.",
+   "loesung": "SELECT AVG(preis) AS durchschnitt FROM buch WHERE waehrung = 'EUR'",
+   "hinweise": [
+    "AVG(spalte) berechnet den Durchschnitt."
+   ],
+   "erklaerung": "`AVG(preis)` mittelt alle Preise, die die WHERE-Bedingung erfüllen. NULL-Werte zählen nicht mit.",
+   "db": "bibliothek",
+   "spaltennamen": true
+  },
+  {
+   "id": "p-alias-verlag",
+   "typ": "sql",
+   "lz": [
+    "L20"
+   ],
+   "thema": "Alias AS",
+   "stufe": 2,
+   "frage": "Gib die Spalte `name` der Tabelle `verlag` als `verlag` und die Spalte `ort` als `standort` aus.",
+   "loesung": "SELECT name AS verlag, ort AS standort FROM verlag",
+   "hinweise": [
+    "AS steht hinter dem alten Namen."
+   ],
+   "erklaerung": "Mit `AS neuername` gibst du einer Spalte im Ergebnis einen anderen Namen.",
+   "db": "bibliothek",
+   "spaltennamen": true
+  },
+  {
+   "id": "p-count-distinct",
+   "typ": "sql",
+   "lz": [
+    "L14",
+    "L19"
+   ],
+   "thema": "COUNT(DISTINCT)",
+   "stufe": 3,
+   "frage": "Wie viele **verschiedene Kunden** haben mindestens eine Buchung? Gib nur die Anzahl aus.",
+   "loesung": "SELECT COUNT(DISTINCT knr) FROM buchung",
+   "hinweise": [
+    "Doppelte Kundennummern dürfen nicht mehrfach zählen."
+   ],
+   "erklaerung": "`COUNT(DISTINCT knr)` zählt jede Kundennummer nur einmal. `COUNT(knr)` würde alle 9 Buchungen zählen.",
+   "db": "flugbuchung"
+  },
+  {
+   "id": "p-verknuepfen-kunde",
+   "typ": "sql",
+   "lz": [
+    "L24",
+    "L9"
+   ],
+   "thema": "Zwei Tabellen verknüpfen",
+   "stufe": 2,
+   "frage": "Gib den Namen der Kunden zusammen mit der Flugnummer ihrer Buchungen aus.",
+   "loesung": "SELECT kunde.name, buchung.flugnr FROM kunde, buchung WHERE kunde.knr = buchung.knr",
+   "hinweise": [
+    "Zwei Tabellen im FROM, durch Komma getrennt.",
+    "Verknüpfe über knr."
+   ],
+   "erklaerung": "`kunde.knr = buchung.knr` verbindet jede Buchung mit dem passenden Kunden. Ohne diese Bedingung entstünde ein Kreuzprodukt (99 Zeilen).",
+   "db": "flugbuchung"
+  },
+  {
+   "id": "p-verknuepfen-drei",
+   "typ": "sql",
+   "lz": [
+    "L24",
+    "L7",
+    "L9"
+   ],
+   "thema": "Drei Tabellen",
+   "stufe": 3,
+   "frage": "Gib Name und Vorname der Kunden aus, die einen Flug **nach Sydney** gebucht haben.",
+   "loesung": "SELECT kunde.name, kunde.vorname FROM kunde, buchung, flug WHERE kunde.knr = buchung.knr AND buchung.flugnr = flug.flugnr AND flug.nach = 'Sydney'",
+   "hinweise": [
+    "Drei Tabellen: kunde, buchung, flug.",
+    "Zwei Verknüpfungsbedingungen plus der Filter auf Sydney."
+   ],
+   "erklaerung": "`buchung` ist die Zwischentabelle zwischen kunde und flug. Mit n Tabellen brauchst du n−1 Verknüpfungsbedingungen, dazu den Filter.",
+   "db": "flugbuchung"
+  },
+  {
+   "id": "p-verknuepfen-autor",
+   "typ": "sql",
+   "lz": [
+    "L24",
+    "L7"
+   ],
+   "thema": "Über Zwischentabelle",
+   "stufe": 3,
+   "frage": "Gib die Titel aller Bücher aus, die vom Autor mit dem Nachnamen **Wirth** geschrieben wurden.",
+   "loesung": "SELECT buch.titel FROM buch, buch_aut, autor WHERE buch.buchid = buch_aut.buchid AND autor.autorid = buch_aut.autorid AND autor.nachname = 'Wirth'",
+   "hinweise": [
+    "buch_aut ist die Zwischentabelle.",
+    "Verknüpfe buch mit buch_aut und autor mit buch_aut."
+   ],
+   "erklaerung": "Wie auf dem Hilfsblatt: `T1.id = T2.id_T1 AND T3.id = T2.id_T3`, dazu der Filter auf den Nachnamen.",
+   "db": "bibliothek"
+  },
+  {
+   "id": "p-verknuepfen-alias",
+   "typ": "sql",
+   "lz": [
+    "L24",
+    "L20"
+   ],
+   "thema": "Tabellenalias",
+   "stufe": 3,
+   "frage": "Gib Titel und Verlagsname aller Bücher aus, deren Verlag in **Zürich** sitzt. Verwende die Tabellenalias `b` und `v`.",
+   "loesung": "SELECT b.titel, v.name FROM buch b, verlag v WHERE b.verlagsid = v.verlagsid AND v.ort = 'Zürich'",
+   "hinweise": [
+    "FROM buch b, verlag v",
+    "Verknüpfe über verlagsid."
+   ],
+   "erklaerung": "Ein Tabellenalias steht direkt hinter dem Tabellennamen und kürzt `buch.titel` zu `b.titel`.",
+   "db": "bibliothek"
+  },
+  {
+   "id": "p-insel-null",
+   "typ": "sql",
+   "lz": [
+    "L18",
+    "L12"
+   ],
+   "thema": "Insel: IS NULL",
+   "stufe": 2,
+   "frage": "Gib die Gegenstände aus, die **keinen Besitzer** haben.",
+   "loesung": "SELECT gegenstand FROM gegenstand WHERE besitzer IS NULL",
+   "hinweise": [
+    "Kein Besitzer = leerer Wert."
+   ],
+   "erklaerung": "Ohne Besitzer heisst: `besitzer IS NULL`.",
+   "db": "insel"
+  },
+  {
+   "id": "p-insel-verknuepft",
+   "typ": "sql",
+   "lz": [
+    "L24",
+    "L9"
+   ],
+   "thema": "Insel: Besitzer nennen",
+   "stufe": 3,
+   "frage": "Gib die Gegenstände zusammen mit dem **Namen ihres Besitzers** aus (nur Gegenstände mit Besitzer).",
+   "loesung": "SELECT gegenstand.gegenstand, bewohner.name FROM gegenstand, bewohner WHERE gegenstand.besitzer = bewohner.bewohnernr",
+   "hinweise": [
+    "Der Fremdschlüssel heisst besitzer."
+   ],
+   "erklaerung": "`gegenstand.besitzer` ist Fremdschlüssel auf `bewohner.bewohnernr`. Gegenstände mit NULL-Besitzer fallen bei der Verknüpfung weg.",
+   "db": "insel"
+  },
+  {
+   "id": "p-e-or-and",
+   "typ": "ergebnis",
+   "lz": [
+    "L10",
+    "L15"
+   ],
+   "thema": "Anzahl: OR und Vergleich",
+   "stufe": 2,
+   "frage": "Wie viele Zeilen liefert diese Abfrage?",
+   "abfrage": "SELECT name FROM kunde\nWHERE \"alter\" < 30 OR name LIKE 'M%'",
+   "hinweise": [
+    "Zähle die Kunden unter 30, dann die mit M, ohne jemanden doppelt zu zählen."
+   ],
+   "erklaerung": "Jeder Kunde, der **mindestens eine** Bedingung erfüllt, kommt vor, aber nur einmal pro Zeile. Es sind 9.",
+   "db": "flugbuchung",
+   "zeigen": [
+    "kunde"
+   ],
+   "modus": "anzahl"
+  },
+  {
+   "id": "p-e-distinct",
+   "typ": "ergebnis",
+   "lz": [
+    "L10",
+    "L14"
+   ],
+   "thema": "Anzahl: DISTINCT",
+   "stufe": 3,
+   "frage": "Wie viele Zeilen liefert diese Abfrage?",
+   "abfrage": "SELECT DISTINCT von\nFROM flug",
+   "hinweise": [
+    "Wie viele verschiedene Abflugorte gibt es?"
+   ],
+   "erklaerung": "Frankfurt kommt dreimal vor, zählt aber einmal. Mit London und LondonStansted (zwei verschiedene Werte) sind es 3 Zeilen.",
+   "db": "flugbuchung",
+   "zeigen": [
+    "flug"
+   ],
+   "modus": "anzahl"
+  },
+  {
+   "id": "p-e-count",
+   "typ": "ergebnis",
+   "lz": [
+    "L10",
+    "L19"
+   ],
+   "thema": "Anzahl: Aggregat",
+   "stufe": 3,
+   "frage": "Wie viele Zeilen liefert diese Abfrage? (Achtung: Es ist nicht die Zahl der Kunden.)",
+   "abfrage": "SELECT COUNT(*)\nFROM kunde\nWHERE \"alter\" > 30",
+   "hinweise": [
+    "Eine Aggregatfunktion fasst alles zu einer Zeile zusammen."
+   ],
+   "erklaerung": "Aggregatfunktionen ohne GROUP BY liefern immer **eine einzige Zeile**, auch wenn der Wert dort 4 ist.",
+   "db": "flugbuchung",
+   "zeigen": [
+    "kunde"
+   ],
+   "modus": "anzahl"
+  },
+  {
+   "id": "p-e-prioritaet",
+   "typ": "ergebnis",
+   "lz": [
+    "L22",
+    "L10"
+   ],
+   "thema": "Anzahl: ohne Klammern",
+   "stufe": 3,
+   "frage": "Wie viele Zeilen liefert diese Abfrage? Beachte: AND bindet stärker als OR.",
+   "abfrage": "SELECT flugnr\nFROM flug\nWHERE von = 'London' OR von = 'Frankfurt' AND groesse > 400",
+   "hinweise": [
+    "Der AND-Teil gilt nur für Frankfurt."
+   ],
+   "erklaerung": "Gelesen wird: `von = 'London'` **oder** (`von = 'Frankfurt'` und `groesse > 400`). Treffer: BA1 (London) und LH7 (Frankfurt, 421). Es sind 2.",
+   "db": "flugbuchung",
+   "zeigen": [
+    "flug"
+   ],
+   "modus": "anzahl"
+  },
+  {
+   "id": "p-e-klammern",
+   "typ": "ergebnis",
+   "lz": [
+    "L22",
+    "L10"
+   ],
+   "thema": "Anzahl: mit Klammern",
+   "stufe": 3,
+   "frage": "Wie viele Zeilen liefert diese Abfrage?",
+   "abfrage": "SELECT flugnr\nFROM flug\nWHERE (von = 'London' OR von = 'Frankfurt') AND groesse > 400",
+   "hinweise": [
+    "Die Klammer gilt zuerst, dann muss auch noch groesse > 400 stimmen."
+   ],
+   "erklaerung": "Beide Orte müssen zusätzlich `groesse > 400` erfüllen. Nur LH7 trifft zu: **1** Zeile.",
+   "db": "flugbuchung",
+   "zeigen": [
+    "flug"
+   ],
+   "modus": "anzahl"
+  },
+  {
+   "id": "p-e-between-in",
+   "typ": "ergebnis",
+   "lz": [
+    "L10",
+    "L17"
+   ],
+   "thema": "Anzahl: BETWEEN",
+   "stufe": 2,
+   "frage": "Wie viele Zeilen liefert diese Abfrage?",
+   "abfrage": "SELECT name\nFROM kunde\nWHERE \"alter\" BETWEEN 25 AND 30",
+   "hinweise": [
+    "Die Grenzen 25 und 30 zählen mit."
+   ],
+   "erklaerung": "BETWEEN schliesst die Grenzen ein: 26, 25, 29, 27, 28 – das sind 5 Kunden.",
+   "db": "flugbuchung",
+   "zeigen": [
+    "kunde"
+   ],
+   "modus": "anzahl"
+  },
+  {
+   "id": "p-e-null",
+   "typ": "ergebnis",
+   "lz": [
+    "L10",
+    "L18"
+   ],
+   "thema": "Anzahl: NULL",
+   "stufe": 3,
+   "frage": "Wie viele Zeilen liefert diese Abfrage?",
+   "abfrage": "SELECT name\nFROM verlag\nWHERE ort IS NOT NULL",
+   "hinweise": [
+    "Zähle alle Verlage und ziehe die ohne Ort ab."
+   ],
+   "erklaerung": "Es gibt 20 Verlage, einer hat keinen Ort (NULL). Ergebnis: 19.",
+   "db": "bibliothek",
+   "zeigen": [
+    {
+     "titel": "verlag (name, ort)",
+     "sql": "SELECT name, ort FROM verlag"
+    }
+   ],
+   "modus": "anzahl"
+  },
+  {
+   "id": "p-e-kreuz1",
+   "typ": "ergebnis",
+   "lz": [
+    "L23",
+    "L10"
+   ],
+   "thema": "Kreuzprodukt zählen",
+   "stufe": 2,
+   "frage": "Wie viele Zeilen liefert diese Abfrage?",
+   "abfrage": "SELECT *\nFROM kunde, flug",
+   "hinweise": [
+    "Kreuzprodukt: Zeilen multiplizieren."
+   ],
+   "erklaerung": "Jede der 11 Kunden-Zeilen wird mit jeder der 5 Flug-Zeilen kombiniert: 11 · 5 = **55**.",
+   "db": "flugbuchung",
+   "zeigen": [
+    "kunde",
+    "flug"
+   ],
+   "modus": "anzahl"
+  },
+  {
+   "id": "p-e-kreuz2",
+   "typ": "ergebnis",
+   "lz": [
+    "L23",
+    "L10",
+    "L15"
+   ],
+   "thema": "Kreuzprodukt mit WHERE",
+   "stufe": 3,
+   "frage": "Wie viele Zeilen liefert diese Abfrage?",
+   "abfrage": "SELECT *\nFROM buchung, flug\nWHERE flug.von = 'Frankfurt'",
+   "hinweise": [
+    "Erst das Kreuzprodukt, dann die Bedingung, die nur die flug-Tabelle betrifft."
+   ],
+   "erklaerung": "Die Bedingung betrifft nur `flug`. Frankfurt-Flüge: 3. Jede der 9 Buchungen kombiniert sich mit jedem davon: 9 · 3 = **27**.",
+   "db": "flugbuchung",
+   "zeigen": [
+    "buchung",
+    "flug"
+   ],
+   "modus": "anzahl"
+  },
+  {
+   "id": "p-e-join-anzahl",
+   "typ": "ergebnis",
+   "lz": [
+    "L24",
+    "L10"
+   ],
+   "thema": "Anzahl: Verknüpfung",
+   "stufe": 3,
+   "frage": "Wie viele Zeilen liefert diese Abfrage?",
+   "abfrage": "SELECT kunde.name, buchung.flugnr\nFROM kunde, buchung\nWHERE kunde.knr = buchung.knr",
+   "hinweise": [
+    "Jede Buchung gehört genau zu einem Kunden."
+   ],
+   "erklaerung": "Jede Buchung findet genau einen Kunden. Es entstehen so viele Zeilen wie Buchungen: **9**.",
+   "db": "flugbuchung",
+   "zeigen": [
+    "kunde",
+    "buchung"
+   ],
+   "modus": "anzahl"
+  },
+  {
+   "id": "p-e-zeilen1",
+   "typ": "ergebnis",
+   "lz": [
+    "L11",
+    "L17"
+   ],
+   "thema": "Zeilen angeben: BETWEEN",
+   "stufe": 2,
+   "frage": "Welche Zeilen liefert diese Abfrage? Kreuze alle an.",
+   "abfrage": "SELECT name, vorname\nFROM kunde\nWHERE \"alter\" BETWEEN 25 AND 30",
+   "hinweise": [
+    "Prüfe jede Kandidatenzeile mit der Altersangabe."
+   ],
+   "erklaerung": "Alter 25 bis 30: Adlon (26), Schmitz (25), Beyenburg (29), Paetzold (27), Ackermann (28).",
+   "db": "flugbuchung",
+   "zeigen": [
+    "kunde"
+   ],
+   "modus": "zeilen",
+   "kandidaten": "SELECT name, vorname FROM kunde"
+  },
+  {
+   "id": "p-e-zeilen2",
+   "typ": "ergebnis",
+   "lz": [
+    "L11",
+    "L18",
+    "L15"
+   ],
+   "thema": "Zeilen angeben: IS NULL",
+   "stufe": 3,
+   "frage": "Welche Zeilen liefert diese Abfrage? Kreuze alle an.",
+   "abfrage": "SELECT name, gold\nFROM bewohner\nWHERE gold IS NULL OR gold < 100",
+   "hinweise": [
+    "NULL ist weder kleiner noch grösser als 100. Die zweite Bedingung erfasst es nicht, aber die erste."
+   ],
+   "erklaerung": "Treffer: gold unter 100 (Wanda Welle 95, Gustav Gecko 60, Udo Uhu 75, Sven Sturm 0, Gast 0) und gold ist NULL (Kater NULL).",
+   "db": "insel",
+   "zeigen": [
+    {
+     "titel": "bewohner (name, gold)",
+     "sql": "SELECT name, gold FROM bewohner"
+    }
+   ],
+   "modus": "zeilen",
+   "kandidaten": "SELECT name, gold FROM bewohner"
+  },
+  {
+   "id": "p-e-zeilen3",
+   "typ": "ergebnis",
+   "lz": [
+    "L11",
+    "L16",
+    "L22"
+   ],
+   "thema": "Zeilen angeben: LIKE und NOT",
+   "stufe": 3,
+   "frage": "Welche Zeilen liefert diese Abfrage? Kreuze alle an.",
+   "abfrage": "SELECT flugnr, fluglinie\nFROM flug\nWHERE fluglinie LIKE '%Airways' OR NOT von = 'Frankfurt'",
+   "hinweise": [
+    "Prüfe beide Teile einzeln."
+   ],
+   "erklaerung": "US1: USAirways endet auf «Airways»; BA1: BritishAirways, ebenfalls; GW4: Von ist nicht Frankfurt. LH772 und LH7: weder Airways noch nicht-Frankfurt. Ergebnis: US1, BA1, GW4.",
+   "db": "flugbuchung",
+   "zeigen": [
+    "flug"
+   ],
+   "modus": "zeilen",
+   "kandidaten": "SELECT flugnr, fluglinie FROM flug"
+  },
+  {
+   "id": "p-e-zeilen4",
+   "typ": "ergebnis",
+   "lz": [
+    "L11",
+    "L13"
+   ],
+   "thema": "Zeilen angeben: ORDER BY",
+   "stufe": 2,
+   "frage": "Welche Zeilen liefert diese Abfrage? Kreuze alle an.",
+   "abfrage": "SELECT name\nFROM kunde\nWHERE \"alter\" >= 59\nORDER BY name",
+   "hinweise": [
+    "Nur das Alter zählt für den Filter, die Sortierung ändert die Menge nicht."
+   ],
+   "erklaerung": "Alter mindestens 59: Meyer (64) und Tiedemann (59).",
+   "db": "flugbuchung",
+   "zeigen": [
+    "kunde"
+   ],
+   "modus": "zeilen",
+   "kandidaten": "SELECT name FROM kunde"
+  },
+  {
+   "id": "p-t-kreuz-obst",
+   "typ": "tabelle",
+   "lz": [
+    "L23",
+    "L11"
+   ],
+   "thema": "Kreuzprodukt ausschreiben",
+   "stufe": 3,
+   "db": "obst",
+   "frage": [
+    "Gegeben sind `Artikel` (1: Trauben(500g), 2: Kiwi(3Stk.)) und `Tagespreis` (1: 3.5, 2: 4.75).",
+    "",
+    "Trage das Ergebnis von `SELECT * FROM Artikel, Tagespreis` ein. Die ersten zwei Spalten sind schon ausgefüllt."
+   ],
+   "zeigen": [
+    "Artikel",
+    "Tagespreis"
+   ],
+   "tabellenname": "Artikel × Tagespreis",
+   "spalten": [
+    "Artikel.ArtikelNr",
+    "Beschreibung",
+    "Tagespreis.ArtikelNr",
+    "Tagespreis"
+   ],
+   "zeilen": [
+    [
+     "1",
+     "Trauben(500g)",
+     {
+      "loesung": "1"
+     },
+     {
+      "loesung": "3.5"
+     }
+    ],
+    [
+     "1",
+     "Trauben(500g)",
+     {
+      "loesung": "2"
+     },
+     {
+      "loesung": "4.75"
+     }
+    ],
+    [
+     "2",
+     "Kiwi(3Stk.)",
+     {
+      "loesung": "1"
+     },
+     {
+      "loesung": "3.5"
+     }
+    ],
+    [
+     "2",
+     "Kiwi(3Stk.)",
+     {
+      "loesung": "2"
+     },
+     {
+      "loesung": "4.75"
+     }
+    ]
+   ],
+   "hinweise": [
+    "Jede Zeile von Artikel erscheint zweimal: einmal mit jeder Zeile von Tagespreis."
+   ],
+   "erklaerung": "2 · 2 = 4 Zeilen. Nur zwei davon sind sinnvoll (gleiche ArtikelNr): Ohne WHERE entstehen auch falsche Paarungen. Mit `WHERE Artikel.ArtikelNr = Tagespreis.ArtikelNr` bleiben 2 Zeilen."
+  },
+  {
+   "id": "p-kreuz-spalten",
+   "typ": "choice",
+   "lz": [
+    "L23",
+    "L10"
+   ],
+   "thema": "Kreuzprodukt: Zeilen und Spalten",
+   "stufe": 2,
+   "frage": "Tabelle A hat 7 Zeilen und 3 Spalten, Tabelle B hat 5 Zeilen und 2 Spalten. Das Kreuzprodukt `SELECT * FROM A, B` hat …",
+   "optionen": [
+    {
+     "text": "35 Zeilen und 5 Spalten",
+     "warum": "7 · 5 Zeilen, 3 + 2 Spalten.",
+     "richtig": true
+    },
+    {
+     "text": "12 Zeilen und 5 Spalten",
+     "warum": "12 = 7 + 5: Zeilen werden multipliziert, nicht addiert."
+    },
+    {
+     "text": "35 Zeilen und 6 Spalten",
+     "warum": "Spalten werden addiert (3 + 2 = 5), nicht multipliziert."
+    },
+    {
+     "text": "7 Zeilen und 5 Spalten",
+     "warum": "Jede Zeile von A kombiniert sich mit jeder von B."
+    }
+   ],
+   "hinweise": [
+    "Zeilen: mal. Spalten: plus."
+   ],
+   "erklaerung": "Das Kreuzprodukt kombiniert jede Zeile von A mit jeder Zeile von B: 7 · 5 = 35 Zeilen. Die Spalten beider Tabellen stehen nebeneinander: 3 + 2 = 5."
+  },
+  {
+   "id": "p-kreuz-vergessen",
+   "typ": "choice",
+   "lz": [
+    "L23",
+    "L24"
+   ],
+   "thema": "Fehlende Verknüpfung",
+   "stufe": 3,
+   "frage": "Eine Abfrage `SELECT kunde.name, flug.nach FROM kunde, flug` liefert 55 Zeilen. Was ist passiert?",
+   "optionen": [
+    {
+     "text": "Es fehlt die Verknüpfungsbedingung in WHERE, es entsteht ein Kreuzprodukt.",
+     "warum": "Richtig. Zusätzlich sind kunde und flug nur über buchung verbunden.",
+     "richtig": true
+    },
+    {
+     "text": "Die Tabellen haben zu viele Spalten.",
+     "warum": "Spalten ändern die Zeilenzahl nicht."
+    },
+    {
+     "text": "Es fehlt ein DISTINCT.",
+     "warum": "DISTINCT löst das Problem nicht."
+    },
+    {
+     "text": "Es ist alles in Ordnung.",
+     "warum": "55 = 11 · 5 zeigt ein Kreuzprodukt."
+    }
+   ],
+   "hinweise": [
+    "Rechne 11 · 5."
+   ],
+   "erklaerung": "Ohne `WHERE` (Verknüpfungsbedingung) wird jede Zeile mit jeder kombiniert: 11 · 5 = 55. Über die Zwischentabelle `buchung` müssten drei Tabellen verknüpft werden.",
+   "db": "flugbuchung"
+  },
+  {
+   "id": "p-uebersetzen-choice",
+   "typ": "choice",
+   "lz": [
+    "L9",
+    "L15",
+    "L22"
+   ],
+   "thema": "Text in SQL übersetzen",
+   "stufe": 3,
+   "frage": "«Gib alle Kunden aus, die älter als 30 sind **und** deren Name mit M beginnt.» Welche Abfrage stimmt?",
+   "optionen": [
+    {
+     "text": "SELECT * FROM kunde WHERE \"alter\" > 30 AND name LIKE 'M%'",
+     "warum": "Richtig.",
+     "richtig": true
+    },
+    {
+     "text": "SELECT * FROM kunde WHERE \"alter\" > 30 OR name LIKE 'M%'",
+     "warum": "OR liefert alle, die eine der beiden Bedingungen erfüllen."
+    },
+    {
+     "text": "SELECT * FROM kunde WHERE \"alter\" > 30 AND name = M",
+     "warum": "Text braucht Anführungszeichen, und für «beginnt mit» nimmt man LIKE."
+    },
+    {
+     "text": "SELECT * FROM kunde WHERE \"alter\" >= 30 AND name LIKE '%M'",
+     "warum": "«älter als 30» heisst > 30, und '%M' würde Namen mit M am Ende suchen."
+    }
+   ],
+   "hinweise": [
+    "Zwei Fehlerquellen: AND/OR und Anführungszeichen/LIKE."
+   ],
+   "erklaerung": "«und» wird zu `AND`, «beginnt mit M» zu `LIKE 'M%'`, «älter als 30» zu `> 30`.",
+   "db": "flugbuchung"
+  },
+  {
+   "id": "p-prioritaet",
+   "typ": "choice",
+   "lz": [
+    "L22",
+    "L15"
+   ],
+   "thema": "Priorität NOT, AND, OR",
+   "stufe": 3,
+   "frage": "Welche Reihenfolge der Auswertung gilt in SQL (zuerst → zuletzt)?",
+   "optionen": [
+    {
+     "text": "NOT, dann AND, dann OR",
+     "warum": "Richtig. Das Hilfsblatt nennt es anders (Tipp 5 ist falsch).",
+     "richtig": true
+    },
+    {
+     "text": "OR, dann AND, dann NOT",
+     "warum": "Das ist die umgekehrte Reihenfolge."
+    },
+    {
+     "text": "AND, dann OR, dann NOT",
+     "warum": "NOT bindet am stärksten."
+    },
+    {
+     "text": "Alles wird von links nach rechts ausgewertet.",
+     "warum": "Es gibt eine feste Rangfolge. Klammern ändern sie."
+    }
+   ],
+   "hinweise": [
+    "Punkt vor Strich: AND ist wie Mal, OR wie Plus."
+   ],
+   "erklaerung": "NOT bindet am stärksten, dann AND, am schwächsten OR. Im Zweifel setzt du Klammern."
+  },
+  {
+   "id": "p-fehler-sql",
+   "typ": "choice",
+   "lz": [
+    "L9",
+    "L12",
+    "L16"
+   ],
+   "thema": "Fehler finden",
+   "stufe": 3,
+   "frage": "Welche Abfrage ist **syntaktisch und inhaltlich richtig**, wenn alle Flüge gesucht sind, deren Zielort mit «S» beginnt?",
+   "optionen": [
+    {
+     "text": "SELECT * FROM flug WHERE nach LIKE 'S%'",
+     "warum": "Richtig.",
+     "richtig": true
+    },
+    {
+     "text": "SELECT * FROM flug WHERE nach = 'S%'",
+     "warum": "Bei = wird % nicht als Platzhalter verstanden, dafür braucht man LIKE."
+    },
+    {
+     "text": "SELECT * FROM flug WHERE nach LIKE S%",
+     "warum": "Text muss in Anführungszeichen stehen."
+    },
+    {
+     "text": "SELECT * FROM flug, WHERE nach LIKE 'S%'",
+     "warum": "Nach dem Tabellennamen steht kein Komma."
+    }
+   ],
+   "hinweise": [
+    "Lies jede Abfrage Wort für Wort."
+   ],
+   "erklaerung": "Platzhalter funktionieren nur mit `LIKE`, und Text-Muster stehen in `'…'`.",
+   "db": "flugbuchung"
+  },
+  {
+   "id": "p-sort-verlag",
+   "typ": "sql",
+   "lz": [
+    "L21",
+    "L13"
+   ],
+   "thema": "Sortieren kombiniert",
+   "stufe": 3,
+   "frage": "Gib Titel und Jahr aller Bücher des Verlags mit der verlagsid **1** aus: **neueste zuerst**, bei gleichem Jahr alphabetisch nach Titel.",
+   "loesung": "SELECT titel, jahr FROM buch WHERE verlagsid = 1 ORDER BY jahr DESC, titel ASC",
+   "hinweise": [
+    "Zwei Sortierkriterien, durch Komma getrennt.",
+    "Das erste Kriterium ist das Jahr, absteigend."
+   ],
+   "erklaerung": "`ORDER BY jahr DESC, titel ASC`: Zuerst nach Jahr absteigend, nur bei gleichem Jahr entscheidet der Titel.",
+   "db": "bibliothek",
+   "reihenfolge": true
+  },
+  {
+   "id": "p-sort-nummer",
+   "typ": "sql",
+   "lz": [
+    "L21",
+    "L13"
+   ],
+   "thema": "ORDER BY mit Spaltennummer",
+   "stufe": 3,
+   "frage": "Gib Nachname und Vornamen aller Autoren aus, deren Nachname mit **M** beginnt. Sortiere nach Nachname, bei gleichem Nachnamen nach Vornamen (beide aufsteigend). Verwende `ORDER BY` mit Spaltennummern.",
+   "loesung": "SELECT nachname, vornamen FROM autor WHERE nachname LIKE 'M%' ORDER BY 1, 2",
+   "hinweise": [
+    "ORDER BY 1 sortiert nach der ersten Spalte des SELECT."
+   ],
+   "erklaerung": "`ORDER BY 1, 2` sortiert nach der 1. und 2. Spalte der SELECT-Liste. Das steht auf dem Hilfsblatt unter «Nützliche Extras».",
+   "db": "bibliothek",
+   "reihenfolge": true
+  }
+ ]
+}

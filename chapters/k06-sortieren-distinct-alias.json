@@ -1,0 +1,1287 @@
+{
+  "id": "k06",
+  "titel": "Ordnung in der Akte",
+  "untertitel": "Sortieren mit ORDER BY, Duplikate entfernen mit DISTINCT und Spalten umbenennen mit AS.",
+  "db": "bibliothek",
+  "lernziele": [
+    "L13",
+    "L21",
+    "L14",
+    "L20"
+  ],
+  "dauer": 45,
+  "schritte": [
+    {
+      "id": "s-order-by",
+      "typ": "info",
+      "titel": "Sortieren mit ORDER BY",
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Willkommen in der Stadtbibliothek. Meine Listen sind ein Durcheinander. Kannst Du sie mir ordnen? Zum Beispiel die Bücher nach Preis, das billigste zuerst."
+        }
+      ],
+      "text": [
+        "Eine Abfrage gibt die Zeilen in **keiner festgelegten Reihenfolge** zurück. Meistens ist es die Reihenfolge, in der sie gespeichert wurden. Wenn die Reihenfolge wichtig ist, musst du sie mit **ORDER BY** verlangen.",
+        "```sql",
+        "SELECT titel, preis",
+        "FROM buch",
+        "WHERE jahr >= 1999",
+        "ORDER BY preis ASC",
+        "```",
+        "- `ORDER BY` steht **immer ganz am Ende** der Abfrage, nach WHERE.",
+        "- Danach steht die Spalte, nach der sortiert wird.",
+        "- `ASC` (ascending) heisst **aufsteigend**: kleinste Zahl zuerst, von A nach Z, ältestes Datum zuerst.",
+        "- `DESC` (descending) heisst **absteigend**: grösste Zahl zuerst, von Z nach A, neuestes Datum zuerst.",
+        "- Lässt du `ASC` weg, wird trotzdem aufsteigend sortiert. `ASC` ist die Voreinstellung.",
+        "| Abfrage endet mit | erste Zeile ist … |",
+        "|---|---|",
+        "| `ORDER BY preis ASC` | das billigste Buch |",
+        "| `ORDER BY preis DESC` | das teuerste Buch |",
+        "## Sortieren nach Spaltennummer",
+        "Das Hilfsblatt zeigt eine Abkürzung: `ORDER BY 2 DESC` sortiert nach der **zweiten Spalte der SELECT-Liste**. Bei `SELECT titel, preis` ist das `preis`.",
+        "> Merke: ORDER BY kommt zuletzt. ASC = aufsteigend (Voreinstellung), DESC = absteigend.",
+        "Randnotiz: Der Computer sortiert Grossbuchstaben vor Kleinbuchstaben. Ein Name wie `dpunkt` steht darum am Ende der Liste. Auf Papier sortierst du einfach alphabetisch."
+      ]
+    },
+    {
+      "id": "a-order-asc",
+      "typ": "sql",
+      "titel": "Das billigste zuerst",
+      "lz": [
+        "L13",
+        "L9",
+        "L12"
+      ],
+      "thema": "ORDER BY ASC",
+      "stufe": 1,
+      "story": "Herr Ammann möchte die neueren Bücher nach Preis sortiert sehen.",
+      "frage": "Zeige `titel` und `preis` aller Bücher, die **ab 1999** erschienen sind (`jahr >= 1999`). Sortiere **aufsteigend nach `preis`**, das billigste Buch zuerst.",
+      "loesung": "SELECT titel, preis FROM buch WHERE jahr >= 1999 ORDER BY preis ASC",
+      "reihenfolge": true,
+      "muss": [
+        {
+          "muster": "\\bORDER BY\\b",
+          "meldung": "Verwende ORDER BY."
+        }
+      ],
+      "hinweise": [
+        "Baue die Abfrage in der Reihenfolge SELECT, FROM, WHERE, ORDER BY auf.",
+        "ORDER BY kommt ganz am Ende, nach WHERE.",
+        "SELECT titel, preis FROM buch WHERE jahr >= 1999 ORDER BY preis …"
+      ],
+      "erklaerung": "`ORDER BY preis ASC` sortiert aufsteigend, das billigste Buch (Algorithmen kompakt, 12.8) steht oben. Du hättest `ASC` auch weglassen dürfen."
+    },
+    {
+      "id": "a-order-desc",
+      "typ": "sql",
+      "db": "flugbuchung",
+      "titel": "Die Ältesten zuerst",
+      "lz": [
+        "L13",
+        "L12",
+        "L9"
+      ],
+      "thema": "ORDER BY DESC",
+      "stufe": 1,
+      "story": "Auch Tabea will etwas geordnet haben: Wer sind die ältesten Kunden der Fluggesellschaft? (Diese Aufgabe nutzt die Datenbank vom Flughafen.)",
+      "frage": "Zeige `name` und `alter` aller Kunden, **die ältesten zuerst**. Denk an `\"alter\"` in doppelten Anführungszeichen.",
+      "loesung": "SELECT name, \"alter\" FROM kunde ORDER BY \"alter\" DESC",
+      "reihenfolge": true,
+      "muss": [
+        {
+          "muster": "\\bDESC\\b",
+          "meldung": "Absteigend sortierst du mit DESC."
+        }
+      ],
+      "hinweise": [
+        "Die ältesten zuerst: Das ist eine absteigende Reihenfolge der Alterswerte.",
+        "Absteigend schreibst du als DESC hinter die Spalte.",
+        "SELECT name, \"alter\" FROM kunde ORDER BY \"alter\" …"
+      ],
+      "erklaerung": "`ORDER BY \"alter\" DESC` stellt den grössten Wert nach oben: Meyer (64), Tiedemann (59), Kowalski (33), … Ohne WHERE bleiben alle 11 Kunden im Ergebnis, nur die Reihenfolge ändert sich."
+    },
+    {
+      "id": "a-order-erste",
+      "typ": "text",
+      "db": "flugbuchung",
+      "titel": "Wer steht oben?",
+      "lz": [
+        "L13",
+        "L11"
+      ],
+      "thema": "ORDER BY lesen",
+      "stufe": 2,
+      "story": "Das Sortieren musst du auch ohne Computer lesen können.",
+      "frage": "Welche Buchungsnummer (`bnr`) steht in der **ersten Zeile** des Ergebnisses?\n\n```sql\nSELECT bnr, {{sp}}\nFROM buchung\nORDER BY {{sp}} {{dir}}\n```",
+      "zeigen": [
+        "buchung"
+      ],
+      "parameter": [
+        {
+          "sp": "sitz",
+          "dir": "DESC",
+          "bnr": 1004
+        },
+        {
+          "sp": "sitz",
+          "dir": "ASC",
+          "bnr": 1001
+        },
+        {
+          "sp": "datum",
+          "dir": "DESC",
+          "bnr": 1004
+        },
+        {
+          "sp": "bnr",
+          "dir": "DESC",
+          "bnr": 1009
+        }
+      ],
+      "antworten": [
+        "{{bnr}}"
+      ],
+      "eingabeLabel": "Buchungsnummer in der ersten Zeile:",
+      "hinweise": [
+        "Welchen Wert hat die erste Zeile? Bei ASC der kleinste Wert, bei DESC der grösste.",
+        "Suche in der Spalte {{sp}} den {{dir}}-ersten Wert und lies die bnr derselben Zeile ab."
+      ],
+      "erklaerung": "Bei `{{dir}}` steht in der ersten Zeile der {{dir}}-erste Wert der Spalte {{sp}}. Die zugehörige Buchung hat die Nummer **{{bnr}}**."
+    },
+    {
+      "id": "s-mehrere-kriterien",
+      "typ": "info",
+      "titel": "Mehrere Sortierkriterien",
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Manchmal sind mehrere Bücher im selben Jahr erschienen. Dann soll ein zweites Kriterium entscheiden."
+        }
+      ],
+      "text": [
+        "Oft hat die erste Sortierspalte **gleiche Werte** (Gleichstand). Dann entscheidet ein **zweites Kriterium**. Du schreibst mehrere Kriterien durch Komma getrennt:",
+        "```sql",
+        "SELECT verlagsid, titel",
+        "FROM buch",
+        "WHERE jahr = 1980",
+        "ORDER BY verlagsid ASC, titel DESC",
+        "```",
+        "Das heisst: Zuerst nach `verlagsid` aufsteigend. Nur wenn zwei Zeilen dieselbe `verlagsid` haben, wird zwischen ihnen nach `titel` absteigend sortiert.",
+        "| verlagsid | titel | warum hier? |",
+        "|---|---|---|",
+        "| 3 | Grundlagen der Algorithmen | kleinste verlagsid, steht zuerst |",
+        "| 6 | Programmieren in Pascal | verlagsid 6, Titel mit P kommt spät im Alphabet, bei DESC zuerst |",
+        "| 6 | Computer-Algebra | verlagsid 6, Titel mit C kommt früher im Alphabet, bei DESC danach |",
+        "Wichtig:",
+        "- Die **Reihenfolge der Kriterien** zählt. Das erste ist das wichtigste.",
+        "- **Jedes Kriterium** hat sein eigenes ASC oder DESC. `ORDER BY ort, name DESC` sortiert `ort` aufsteigend (ASC wird nicht vererbt) und nur `name` absteigend.",
+        "> Merke: Das zweite Kriterium wird nur bei Gleichstand im ersten angeschaut. Jedes Kriterium hat sein eigenes ASC/DESC."
+      ]
+    },
+    {
+      "id": "a-kriterien-erkennen",
+      "typ": "choice",
+      "titel": "Welche Sortierung ist es?",
+      "lz": [
+        "L21",
+        "L13"
+      ],
+      "thema": "Kriterien erkennen",
+      "stufe": 2,
+      "story": "Herr Ammann zeigt dir ein Ergebnis und fragt, wie es sortiert wurde.",
+      "frage": [
+        "Diese Ausgabe wurde mit einer ORDER BY-Klausel sortiert:",
+        "",
+        "| verlagsid | titel |",
+        "|---|---|",
+        "| 3 | Grundlagen der Algorithmen |",
+        "| 6 | Programmieren in Pascal |",
+        "| 6 | Computer-Algebra |",
+        "",
+        "Welche Klausel war es?"
+      ],
+      "optionen": [
+        {
+          "text": "`ORDER BY verlagsid, titel DESC`",
+          "richtig": true,
+          "warum": "Richtig: verlagsid aufsteigend (3, 6, 6), bei gleicher verlagsid titel absteigend (P vor C)."
+        },
+        {
+          "text": "`ORDER BY verlagsid, titel`",
+          "warum": "Dann müsste bei verlagsid 6 «Computer-Algebra» vor «Programmieren in Pascal» stehen (A bis Z)."
+        },
+        {
+          "text": "`ORDER BY verlagsid DESC, titel`",
+          "warum": "Dann müsste verlagsid 6 vor verlagsid 3 stehen."
+        },
+        {
+          "text": "`ORDER BY titel DESC, verlagsid`",
+          "warum": "Dann wäre nach Titel absteigend sortiert: Programmieren, Grundlagen, Computer. Das ist nicht die Reihenfolge, die du siehst."
+        }
+      ],
+      "hinweise": [
+        "Schau zuerst, welche Spalte durchgehend geordnet ist (3, 6, 6). Ist sie auf- oder absteigend?",
+        "Bei den beiden Zeilen mit verlagsid 6 entscheidet das zweite Kriterium. Steht der Titel A bis Z oder Z bis A?"
+      ],
+      "erklaerung": "Zuerst `verlagsid` aufsteigend. Nur bei Gleichstand (zweimal 6) entscheidet `titel`, hier absteigend: «Programmieren in Pascal» (P) vor «Computer-Algebra» (C)."
+    },
+    {
+      "id": "a-kriterien-sql",
+      "typ": "sql",
+      "titel": "Zwei Kriterien kombinieren",
+      "lz": [
+        "L21",
+        "L13",
+        "L9"
+      ],
+      "thema": "Mehrere Kriterien",
+      "stufe": 2,
+      "story": "Jetzt du: Bücher eines Jahrgangs, zuerst nach Verlag, dann nach Titel.",
+      "frage": "Zeige `titel` und `verlagsid` der Bücher, die im Jahr **{{jahr}}** erschienen sind. Sortiere **aufsteigend nach `verlagsid`**, bei gleicher `verlagsid` **absteigend nach `titel`**.",
+      "parameter": [
+        {
+          "jahr": 1980
+        },
+        {
+          "jahr": 1991
+        },
+        {
+          "jahr": 1995
+        },
+        {
+          "jahr": 1998
+        }
+      ],
+      "loesung": "SELECT titel, verlagsid FROM buch WHERE jahr = {{jahr}} ORDER BY verlagsid ASC, titel DESC",
+      "reihenfolge": true,
+      "muss": [
+        {
+          "muster": "\\bORDER BY\\b.*\\bDESC\\b",
+          "meldung": "Das zweite Kriterium soll absteigend (DESC) sein."
+        }
+      ],
+      "hinweise": [
+        "Zwei Kriterien schreibst du hinter ORDER BY, durch Komma getrennt.",
+        "Das wichtigere Kriterium steht zuerst: erst verlagsid, dann titel.",
+        "ORDER BY verlagsid ASC, titel DESC"
+      ],
+      "erklaerung": "`ORDER BY verlagsid ASC, titel DESC` sortiert zuerst nach Verlag. Bei gleichem Verlag entscheidet der Titel, und zwar absteigend. Jedes Kriterium hat sein eigenes ASC oder DESC."
+    },
+    {
+      "id": "a-kriterien-verlag",
+      "typ": "sql",
+      "titel": "Verlage nach Ort und Nummer",
+      "lz": [
+        "L21",
+        "L13"
+      ],
+      "thema": "Mehrere Kriterien",
+      "stufe": 2,
+      "story": "Ein Beispiel aus dem Tutorial: Alle Verlage, zuerst nach Ort geordnet.",
+      "frage": "Zeige `ort`, `verlagsid` und `name` aller Verlage. Sortiere **aufsteigend nach `ort`**, bei gleichem Ort **absteigend nach `verlagsid`**.",
+      "loesung": "SELECT ort, verlagsid, name FROM verlag ORDER BY ort ASC, verlagsid DESC",
+      "reihenfolge": true,
+      "hinweise": [
+        "Welches Kriterium ist das wichtigere? Das schreibst du zuerst.",
+        "ORDER BY ort …, verlagsid …",
+        "ort aufsteigend (ASC), verlagsid absteigend (DESC)"
+      ],
+      "erklaerung": "`ORDER BY ort ASC, verlagsid DESC`: Orte von A bis Z, bei gleichem Ort die höhere verlagsid zuerst (z. B. Bonn: 18, 16, 1). Verlage ohne Ort (NULL) stehen am Anfang, das lernst du in einem späteren Kapitel genauer kennen."
+    },
+    {
+      "id": "s-distinct",
+      "typ": "info",
+      "titel": "Doppelte Zeilen entfernen mit DISTINCT",
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Hier steht dreimal «Bonn», dort viermal «Berlin». Ich möchte jeden Ort nur einmal sehen."
+        }
+      ],
+      "text": [
+        "Eine Abfrage gibt jede Zeile aus, auch wenn **dieselben Werte mehrmals** vorkommen. Solche Wiederholungen heissen **Duplikate**. Mit **DISTINCT** («verschieden») entfernst du sie.",
+        "Beispiel mit der Tabelle `buchung` der Flughafen-Datenbank (Spalte `flugnr`):",
+        "```sql",
+        "SELECT flugnr",
+        "FROM buchung",
+        "```",
+        "liefert **9 Zeilen**, weil es 9 Buchungen gibt. Der Flug US1 erscheint dreimal. Mit DISTINCT:",
+        "```sql",
+        "SELECT DISTINCT flugnr",
+        "FROM buchung",
+        "```",
+        "liefert nur noch **5 Zeilen**: US1, GW4, LH772, BA1, LH7. Jeder Flug erscheint einmal.",
+        "Wichtige Regeln:",
+        "- `DISTINCT` steht **direkt nach SELECT**.",
+        "- Es gilt für die **ganze Zeile**. Bei `SELECT DISTINCT von, fluglinie` gelten zwei Zeilen nur als gleich, wenn **beide** Werte übereinstimmen.",
+        "- DISTINCT verändert nur, wie viele Zeilen du bekommst. Es ändert nichts an den Daten.",
+        "> Merke: Ohne DISTINCT bleiben Duplikate. Mit DISTINCT erscheint jede Kombination von Werten nur einmal."
+      ]
+    },
+    {
+      "id": "a-distinct-anzahl",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "db": "flugbuchung",
+      "titel": "Wie viele verschiedene?",
+      "lz": [
+        "L14",
+        "L10"
+      ],
+      "thema": "DISTINCT zählen",
+      "stufe": 2,
+      "story": "Zähle ohne Computer. Wie oft erscheint ein Wert, wenn Duplikate entfernt werden?",
+      "frage": "Wie viele Zeilen liefert diese Abfrage?",
+      "abfrage": "SELECT DISTINCT {{sp}}\nFROM {{t}}",
+      "zeigen": [
+        "{{t}}"
+      ],
+      "parameter": [
+        {
+          "sp": "flugnr",
+          "t": "buchung"
+        },
+        {
+          "sp": "knr",
+          "t": "buchung"
+        },
+        {
+          "sp": "von",
+          "t": "flug"
+        },
+        {
+          "sp": "fluglinie",
+          "t": "flug"
+        }
+      ],
+      "hinweise": [
+        "Schreibe dir die Werte der Spalte {{sp}} untereinander auf. Streiche alle Wiederholungen.",
+        "Zähle die Werte, die übrig bleiben."
+      ],
+      "erklaerung": "DISTINCT lässt jeden Wert der Spalte {{sp}} nur einmal im Ergebnis stehen. Du zählst also die **verschiedenen** Werte, nicht die Zeilen der Tabelle."
+    },
+    {
+      "id": "a-distinct-sql",
+      "typ": "sql",
+      "db": "flugbuchung",
+      "titel": "Welche Fluglinien gibt es?",
+      "lz": [
+        "L14",
+        "L9"
+      ],
+      "thema": "DISTINCT",
+      "stufe": 1,
+      "story": "Tabea möchte wissen, welche Fluglinien am Flughafen vertreten sind. Jede soll nur einmal vorkommen.",
+      "frage": "Zeige alle **verschiedenen** Fluglinien (Spalte `fluglinie` der Tabelle `flug`), jede nur einmal.",
+      "loesung": "SELECT DISTINCT fluglinie FROM flug",
+      "muss": [
+        {
+          "muster": "\\bDISTINCT\\b",
+          "meldung": "Verwende DISTINCT, damit jede Fluglinie nur einmal erscheint."
+        }
+      ],
+      "hinweise": [
+        "Lufthansa kommt zweimal in der Tabelle vor. Im Ergebnis soll es nur einmal stehen.",
+        "DISTINCT steht direkt nach SELECT.",
+        "SELECT DISTINCT fluglinie FROM flug"
+      ],
+      "erklaerung": "`SELECT DISTINCT fluglinie FROM flug` liefert 4 Zeilen statt 5, weil Lufthansa nur einmal erscheint."
+    },
+    {
+      "id": "a-distinct-mehrere",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "db": "flugbuchung",
+      "titel": "DISTINCT mit zwei Spalten",
+      "lz": [
+        "L14",
+        "L10"
+      ],
+      "thema": "DISTINCT mehrere Spalten",
+      "stufe": 3,
+      "story": "Kleiner Stolperstein: Was passiert bei zwei Spalten?",
+      "frage": "Wie viele Zeilen liefert diese Abfrage? DISTINCT gilt für die ganze Zeile, also für die Kombination beider Werte.",
+      "abfrage": "SELECT DISTINCT {{a}}, {{b}}\nFROM flug",
+      "zeigen": [
+        "flug"
+      ],
+      "parameter": [
+        {
+          "a": "von",
+          "b": "fluglinie"
+        },
+        {
+          "a": "von",
+          "b": "groesse"
+        },
+        {
+          "a": "fluglinie",
+          "b": "groesse"
+        }
+      ],
+      "hinweise": [
+        "Schreibe die Paare ({{a}}, {{b}}) jeder Zeile auf.",
+        "Zwei Zeilen zählen nur als Duplikat, wenn beide Werte gleich sind."
+      ],
+      "erklaerung": "Entfernt werden nur Zeilen, die in **beiden** Spalten übereinstimmen. Zwei Flüge mit gleichem {{a}} aber unterschiedlichem {{b}} bleiben beide im Ergebnis."
+    },
+    {
+      "id": "s-alias",
+      "typ": "info",
+      "titel": "Spalten umbenennen mit AS",
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Die Überschrift «vornamen» in meiner Liste ist etwas holprig. Kann die Spalte nicht «Vorname» heissen?"
+        }
+      ],
+      "text": [
+        "Mit **AS** gibst du einer Spalte in der **Ausgabe** einen neuen Namen. Dieser neue Name heisst **Alias**.",
+        "```sql",
+        "SELECT name AS Verlagsname, ort AS Sitz",
+        "FROM verlag",
+        "```",
+        "Die Ergebnistabelle hat dann die Spaltenüberschriften `Verlagsname` und `Sitz`. In der Datenbank selbst ändert sich nichts. Es ist nur ein Etikett für die Anzeige.",
+        "Die allgemeine Form: `spalte AS neuer_name`.",
+        "- Ein Alias darf kein Leerzeichen enthalten. Nimm Unterstriche (`Anzahl_Berliner_Verlage`) oder setze den Namen in doppelte Anführungszeichen (`AS \"Preis in CHF\"`).",
+        "- Der Alias gilt in der Ausgabe, nicht für die Tabelle.",
+        "## Alias für eine Tabelle",
+        "Auch eine Tabelle kannst du in FROM mit AS umbenennen. Das ist kürzer, wenn du später `tabelle.spalte` schreiben musst:",
+        "```sql",
+        "SELECT b.titel, b.jahr",
+        "FROM buch AS b",
+        "WHERE b.jahr = 1998",
+        "```",
+        "Hier steht `b` für `buch`. Die Abfrage liefert dasselbe wie ohne Alias. (Bei mehreren Tabellen wird das später wichtig.)",
+        "> Merke: AS vergibt einen neuen Namen, bei Spalten für die Überschrift, bei Tabellen als Kurzname in der Abfrage."
+      ]
+    },
+    {
+      "id": "a-alias-sql",
+      "typ": "sql",
+      "titel": "Verlage mit neuen Überschriften",
+      "lz": [
+        "L20",
+        "L12"
+      ],
+      "thema": "Alias Spalte",
+      "stufe": 1,
+      "story": "Probier es aus. Die Überschriften müssen genau stimmen.",
+      "frage": "Zeige von allen Verlagen `name` und `ort`. Die Spalte `name` soll in der Ausgabe **Verlagsname** heissen, die Spalte `ort` soll **Sitz** heissen.",
+      "loesung": "SELECT name AS Verlagsname, ort AS Sitz FROM verlag",
+      "spaltennamen": true,
+      "hinweise": [
+        "Hinter jede Spalte schreibst du AS und den neuen Namen.",
+        "SELECT name AS …, ort AS … FROM verlag",
+        "SELECT name AS Verlagsname, ort AS Sitz FROM verlag"
+      ],
+      "erklaerung": "`name AS Verlagsname` benennt die Spalte nur in der Ausgabe um. Die Zeilen sind dieselben wie bei `SELECT name, ort FROM verlag`."
+    },
+    {
+      "id": "a-alias-choice",
+      "typ": "choice",
+      "titel": "Was macht AS?",
+      "lz": [
+        "L20"
+      ],
+      "thema": "Alias verstehen",
+      "stufe": 1,
+      "story": "Eine Verständnisfrage.",
+      "frage": "Was bewirkt diese Abfrage?\n\n```sql\nSELECT preis AS kosten\nFROM buch\n```",
+      "optionen": [
+        {
+          "text": "Die Ausgabespalte heisst `kosten`. Die Spalte `preis` in der Tabelle bleibt unverändert.",
+          "richtig": true,
+          "warum": "Richtig: Ein Alias ändert nur die Überschrift in der Ausgabe."
+        },
+        {
+          "text": "Die Spalte `preis` wird in der Tabelle `buch` dauerhaft in `kosten` umbenannt.",
+          "warum": "Ein Alias verändert die Tabelle nicht. Er gilt nur für diese Abfrage."
+        },
+        {
+          "text": "Es wird eine neue Spalte `kosten` in die Tabelle eingefügt.",
+          "warum": "AS fügt nichts in die Tabelle ein."
+        },
+        {
+          "text": "Es werden nur Bücher ausgegeben, deren `preis` gleich `kosten` ist.",
+          "warum": "AS ist keine Bedingung. Bedingungen stehen im WHERE."
+        }
+      ],
+      "hinweise": [
+        "Denk an die Tabelle als Aktenschrank: Ein Alias klebt nur ein anderes Etikett auf die Ausgabe."
+      ],
+      "erklaerung": "Ein Alias ist ein neuer Name **für die Ausgabe**. Die Daten und die Tabelle bleiben, wie sie sind."
+    },
+    {
+      "id": "a-alias-tabelle",
+      "typ": "sql",
+      "titel": "Ein Kurzname für die Tabelle",
+      "lz": [
+        "L20",
+        "L12"
+      ],
+      "thema": "Alias Tabelle",
+      "stufe": 2,
+      "story": "Bei langen Abfragen sparst du Tipparbeit.",
+      "frage": "Zeige `titel` und `jahr` der Bücher, die 1998 erschienen sind. Gib der Tabelle `buch` den Alias **b** und schreibe die Spalten mit dem Alias (`b.titel`, `b.jahr`).",
+      "loesung": "SELECT b.titel, b.jahr FROM buch AS b WHERE b.jahr = 1998",
+      "muss": [
+        {
+          "muster": "\\bBUCH\\s+(AS\\s+)?B\\b",
+          "meldung": "Vergib der Tabelle den Alias b: FROM buch AS b."
+        },
+        {
+          "muster": "\\bB\\.TITEL\\b",
+          "meldung": "Schreibe die Spalten mit dem Alias, z. B. b.titel."
+        }
+      ],
+      "hinweise": [
+        "Den Alias vergibst du im FROM: FROM buch AS b",
+        "Danach schreibst du überall b. vor den Spaltennamen, auch im WHERE.",
+        "SELECT b.titel, b.jahr FROM buch AS b WHERE b.jahr = 1998"
+      ],
+      "erklaerung": "`FROM buch AS b` gibt der Tabelle den Kurznamen `b`. Mit `b.titel` ist klar: Die Spalte `titel` stammt aus `buch`."
+    },
+    {
+      "id": "a-alias-ueberschrift",
+      "typ": "text",
+      "titel": "Welche Überschrift?",
+      "lz": [
+        "L20",
+        "L11"
+      ],
+      "thema": "Alias lesen",
+      "stufe": 1,
+      "story": "Zum Schluss: Aliase lesen.",
+      "frage": "Wie heisst die **{{wo}}** Spalte der Ergebnistabelle?\n\n```sql\nSELECT titel AS {{a1}}, jahr AS {{a2}}\nFROM buch\n```",
+      "parameter": [
+        {
+          "wo": "zweite",
+          "a1": "Buchtitel",
+          "a2": "erschienen",
+          "antwort": "erschienen"
+        },
+        {
+          "wo": "erste",
+          "a1": "Buchtitel",
+          "a2": "erschienen",
+          "antwort": "Buchtitel"
+        },
+        {
+          "wo": "zweite",
+          "a1": "Name",
+          "a2": "Jahrgang",
+          "antwort": "Jahrgang"
+        },
+        {
+          "wo": "erste",
+          "a1": "Name",
+          "a2": "Jahrgang",
+          "antwort": "Name"
+        }
+      ],
+      "antworten": [
+        "{{antwort}}"
+      ],
+      "eingabeLabel": "Spaltenüberschrift:",
+      "hinweise": [
+        "Der Alias steht hinter AS.",
+        "Zähle die Spalten in der SELECT-Liste von links."
+      ],
+      "erklaerung": "Die Überschrift der Ergebnistabelle ist der Alias: **{{antwort}}**. Der ursprüngliche Spaltenname erscheint nicht mehr."
+    },
+    {
+      "id": "a-gemischt",
+      "typ": "sql",
+      "titel": "Alles zusammen",
+      "lz": [
+        "L14",
+        "L20",
+        "L13"
+      ],
+      "thema": "DISTINCT, Alias, ORDER BY",
+      "stufe": 3,
+      "story": "Zum Abschluss ein Auftrag mit allem, was du in diesem Kapitel gelernt hast.",
+      "frage": "Zeige alle **verschiedenen** Orte der Verlage (Spalte `ort` der Tabelle `verlag`), jeden nur einmal. Die Spalte soll **Verlagsort** heissen. Sortiere **absteigend** nach Ort.",
+      "loesung": "SELECT DISTINCT ort AS Verlagsort FROM verlag ORDER BY ort DESC",
+      "reihenfolge": true,
+      "spaltennamen": true,
+      "muss": [
+        {
+          "muster": "\\bDISTINCT\\b",
+          "meldung": "Verwende DISTINCT."
+        },
+        {
+          "muster": "\\bDESC\\b",
+          "meldung": "Absteigend sortierst du mit DESC."
+        }
+      ],
+      "hinweise": [
+        "Baue die Abfrage Schritt für Schritt: erst DISTINCT ort, dann AS, dann ORDER BY.",
+        "DISTINCT steht direkt nach SELECT, der Alias direkt hinter der Spalte.",
+        "SELECT DISTINCT ort AS Verlagsort FROM verlag ORDER BY ort DESC"
+      ],
+      "erklaerung": "`SELECT DISTINCT ort AS Verlagsort FROM verlag ORDER BY ort DESC`: DISTINCT entfernt doppelte Orte, AS benennt die Spalte um, ORDER BY steht ganz am Ende."
+    }
+  ],
+  "pool": [
+    {
+      "id": "p-order-preis",
+      "typ": "sql",
+      "lz": [
+        "L13",
+        "L12",
+        "L9"
+      ],
+      "thema": "ORDER BY ASC/DESC",
+      "stufe": 1,
+      "frage": "Zeige `titel` und `preis` aller Bücher ab Erscheinungsjahr 1999 (`jahr >= 1999`), {{wie}}.",
+      "parameter": [
+        {
+          "wie": "das teuerste Buch zuerst",
+          "dir": "DESC"
+        },
+        {
+          "wie": "das billigste Buch zuerst",
+          "dir": "ASC"
+        },
+        {
+          "wie": "aufsteigend nach preis",
+          "dir": "ASC"
+        },
+        {
+          "wie": "absteigend nach preis",
+          "dir": "DESC"
+        }
+      ],
+      "loesung": "SELECT titel, preis FROM buch WHERE jahr >= 1999 ORDER BY preis {{dir}}",
+      "reihenfolge": true,
+      "hinweise": [
+        "Welche Richtung ist gemeint? Das grösste zuerst ist DESC, das kleinste zuerst ist ASC.",
+        "… ORDER BY preis {{dir}}"
+      ],
+      "erklaerung": "`ORDER BY preis {{dir}}` steht am Ende der Abfrage."
+    },
+    {
+      "id": "p-order-alter",
+      "typ": "sql",
+      "db": "flugbuchung",
+      "lz": [
+        "L13",
+        "L12"
+      ],
+      "thema": "ORDER BY ASC/DESC",
+      "stufe": 1,
+      "frage": "Zeige `name` und `alter` aller Kunden, {{wie}}.",
+      "parameter": [
+        {
+          "wie": "den jüngsten zuerst",
+          "dir": "ASC"
+        },
+        {
+          "wie": "den ältesten zuerst",
+          "dir": "DESC"
+        }
+      ],
+      "loesung": "SELECT name, \"alter\" FROM kunde ORDER BY \"alter\" {{dir}}",
+      "reihenfolge": true,
+      "hinweise": [
+        "Jüngste zuerst heisst: kleinste Zahl zuerst.",
+        "ORDER BY \"alter\" …"
+      ],
+      "erklaerung": "`ORDER BY \"alter\" {{dir}}`. «Jüngste zuerst» ist aufsteigend (ASC), «älteste zuerst» ist absteigend (DESC)."
+    },
+    {
+      "id": "p-order-sitz",
+      "typ": "sql",
+      "db": "flugbuchung",
+      "lz": [
+        "L13",
+        "L9"
+      ],
+      "thema": "ORDER BY",
+      "stufe": 2,
+      "frage": "Zeige `bnr` und `sitz` aller Buchungen mit einer Sitznummer **unter 80** (`sitz < 80`). Die grösste Sitznummer soll zuoberst stehen.",
+      "loesung": "SELECT bnr, sitz FROM buchung WHERE sitz < 80 ORDER BY sitz DESC",
+      "reihenfolge": true,
+      "hinweise": [
+        "Zuerst WHERE, dann ORDER BY.",
+        "ORDER BY sitz DESC"
+      ],
+      "erklaerung": "WHERE filtert zuerst die Zeilen, ORDER BY ordnet die übrigen. Die Reihenfolge der Teile ist immer SELECT, FROM, WHERE, ORDER BY."
+    },
+    {
+      "id": "p-order-flugnr",
+      "typ": "sql",
+      "db": "flugbuchung",
+      "lz": [
+        "L13",
+        "L12"
+      ],
+      "thema": "ORDER BY Text",
+      "stufe": 1,
+      "frage": "Zeige `flugnr` und `nach` aller Flüge, {{wie}} nach `flugnr` sortiert.",
+      "parameter": [
+        {
+          "wie": "alphabetisch aufsteigend",
+          "dir": "ASC"
+        },
+        {
+          "wie": "alphabetisch absteigend",
+          "dir": "DESC"
+        }
+      ],
+      "loesung": "SELECT flugnr, nach FROM flug ORDER BY flugnr {{dir}}",
+      "reihenfolge": true,
+      "hinweise": [
+        "Auch Text lässt sich sortieren: ASC von A nach Z, DESC von Z nach A."
+      ],
+      "erklaerung": "Text wird alphabetisch sortiert. `ORDER BY flugnr {{dir}}` ordnet die Flugnummern."
+    },
+    {
+      "id": "p-order-zuordnen",
+      "typ": "zuordnen",
+      "lz": [
+        "L13"
+      ],
+      "thema": "ASC oder DESC",
+      "stufe": 1,
+      "frage": "Ordne zu: Welche Sortierrichtung gehört zu welcher Beschreibung?",
+      "kategorien": [
+        "ASC",
+        "DESC"
+      ],
+      "elemente": [
+        {
+          "text": "kleinste Zahl zuerst",
+          "antwort": "ASC",
+          "warum": "Aufsteigend beginnt bei der kleinsten Zahl."
+        },
+        {
+          "text": "neuestes Datum zuerst",
+          "antwort": "DESC",
+          "warum": "Absteigend beginnt beim grössten (= spätesten) Datum."
+        },
+        {
+          "text": "alphabetisch von A nach Z",
+          "antwort": "ASC",
+          "warum": "A bis Z ist aufsteigend."
+        },
+        {
+          "text": "Voreinstellung, wenn nichts angegeben ist",
+          "antwort": "ASC",
+          "warum": "Ohne Angabe wird aufsteigend sortiert."
+        },
+        {
+          "text": "teuerstes Buch zuerst",
+          "antwort": "DESC",
+          "warum": "Der grösste Preis zuerst ist absteigend."
+        },
+        {
+          "text": "von Z nach A",
+          "antwort": "DESC",
+          "warum": "Z bis A ist absteigend."
+        }
+      ],
+      "hinweise": [
+        "ASC steigt an (klein bis gross), DESC fällt ab (gross bis klein).",
+        "Bei Datum: früher ist kleiner, später ist grösser."
+      ],
+      "erklaerung": "ASC = aufsteigend (klein nach gross, A nach Z, alt nach neu). DESC = absteigend. Ohne Angabe gilt ASC."
+    },
+    {
+      "id": "p-order-nummer",
+      "typ": "choice",
+      "lz": [
+        "L13"
+      ],
+      "thema": "ORDER BY Spaltennummer",
+      "stufe": 2,
+      "frage": "Was bedeutet diese Klausel?\n\n```sql\nSELECT titel, preis, jahr\nFROM buch\nORDER BY 3 DESC\n```",
+      "optionen": [
+        {
+          "text": "Sortiert nach der dritten Spalte der SELECT-Liste (`jahr`), absteigend",
+          "richtig": true,
+          "warum": "Richtig: Die Zahl zählt die Spalten in der SELECT-Liste."
+        },
+        {
+          "text": "Sortiert nach `preis`, absteigend",
+          "warum": "preis ist die zweite Spalte der SELECT-Liste."
+        },
+        {
+          "text": "Gibt nur die ersten 3 Zeilen aus",
+          "warum": "Die Zahl ist keine Zeilenanzahl, sondern eine Spaltenposition."
+        },
+        {
+          "text": "Sortiert nach `titel`, absteigend",
+          "warum": "titel ist die erste Spalte der SELECT-Liste."
+        }
+      ],
+      "hinweise": [
+        "Zähle die Spalten der SELECT-Liste von links: 1, 2, 3."
+      ],
+      "erklaerung": "`ORDER BY 3` meint die dritte Spalte der SELECT-Liste. Das ist `jahr`."
+    },
+    {
+      "id": "p-krit-flug",
+      "typ": "sql",
+      "db": "flugbuchung",
+      "lz": [
+        "L21",
+        "L13"
+      ],
+      "thema": "Mehrere Kriterien",
+      "stufe": 2,
+      "frage": "Zeige `flugnr`, `von`, `nach` und `groesse` aller Flüge. Sortiere nach `{{s1}}` {{w1}}, bei Gleichstand nach `{{s2}}` {{w2}}.",
+      "parameter": [
+        {
+          "s1": "groesse",
+          "w1": "absteigend",
+          "d1": "DESC",
+          "s2": "flugnr",
+          "w2": "aufsteigend",
+          "d2": "ASC"
+        },
+        {
+          "s1": "fluglinie",
+          "w1": "aufsteigend",
+          "d1": "ASC",
+          "s2": "flugnr",
+          "w2": "absteigend",
+          "d2": "DESC"
+        },
+        {
+          "s1": "groesse",
+          "w1": "aufsteigend",
+          "d1": "ASC",
+          "s2": "flugnr",
+          "w2": "absteigend",
+          "d2": "DESC"
+        },
+        {
+          "s1": "von",
+          "w1": "absteigend",
+          "d1": "DESC",
+          "s2": "nach",
+          "w2": "aufsteigend",
+          "d2": "ASC"
+        }
+      ],
+      "loesung": "SELECT flugnr, von, nach, groesse FROM flug ORDER BY {{s1}} {{d1}}, {{s2}} {{d2}}",
+      "reihenfolge": true,
+      "hinweise": [
+        "Zwei Kriterien, durch Komma getrennt. Jedes bekommt sein eigenes ASC oder DESC.",
+        "ORDER BY {{s1}} …, {{s2}} …"
+      ],
+      "erklaerung": "`ORDER BY {{s1}} {{d1}}, {{s2}} {{d2}}`: Zuerst zählt {{s1}}, nur bei gleichem Wert entscheidet {{s2}}."
+    },
+    {
+      "id": "p-krit-buchung",
+      "typ": "sql",
+      "db": "flugbuchung",
+      "lz": [
+        "L21",
+        "L13",
+        "L9"
+      ],
+      "thema": "Mehrere Kriterien",
+      "stufe": 2,
+      "frage": "Zeige `datum`, `sitz` und `bnr` aller Buchungen. Das **neueste Datum** soll zuerst stehen. Bei gleichem Datum soll die **kleinere Sitznummer** zuerst stehen.",
+      "loesung": "SELECT datum, sitz, bnr FROM buchung ORDER BY datum DESC, sitz ASC",
+      "reihenfolge": true,
+      "hinweise": [
+        "Neuestes Datum zuerst: Ist das ASC oder DESC?",
+        "ORDER BY datum …, sitz …"
+      ],
+      "erklaerung": "`ORDER BY datum DESC, sitz ASC`: Erst nach Datum (neueste zuerst), nur bei gleichem Datum nach sitz aufsteigend."
+    },
+    {
+      "id": "p-krit-buch",
+      "typ": "sql",
+      "lz": [
+        "L21",
+        "L13",
+        "L12"
+      ],
+      "thema": "Mehrere Kriterien",
+      "stufe": 3,
+      "frage": "Zeige `jahr`, `titel` und `preis` der Bücher des Verlags mit `verlagsid = 4`. Sortiere **absteigend nach `jahr`**, bei gleichem Jahr **aufsteigend nach `titel`**.",
+      "loesung": "SELECT jahr, titel, preis FROM buch WHERE verlagsid = 4 ORDER BY jahr DESC, titel ASC",
+      "reihenfolge": true,
+      "hinweise": [
+        "Zuerst WHERE verlagsid = 4, dann ORDER BY mit zwei Kriterien.",
+        "ORDER BY jahr DESC, titel ASC"
+      ],
+      "erklaerung": "WHERE filtert die Bücher des Verlags 4. ORDER BY ordnet sie zuerst nach Jahr (neueste zuerst), dann nach Titel."
+    },
+    {
+      "id": "p-krit-choice",
+      "typ": "choice",
+      "lz": [
+        "L21",
+        "L13"
+      ],
+      "thema": "Kriterien kombinieren",
+      "stufe": 2,
+      "frage": "Die Verlage sollen zuerst nach `ort` **aufsteigend** sortiert werden, bei gleichem Ort nach `name` **absteigend**. Welche Klausel stimmt?",
+      "optionen": [
+        {
+          "text": "`ORDER BY ort, name DESC`",
+          "richtig": true,
+          "warum": "Richtig: ort ohne Angabe ist aufsteigend, name DESC ist absteigend."
+        },
+        {
+          "text": "`ORDER BY ort DESC, name`",
+          "warum": "Hier wäre ort absteigend und name aufsteigend, also genau umgekehrt."
+        },
+        {
+          "text": "`ORDER BY name DESC, ort`",
+          "warum": "Hier ist name das wichtigste Kriterium. Verlangt ist aber zuerst ort."
+        },
+        {
+          "text": "`ORDER BY ort, name`",
+          "warum": "Hier ist name aufsteigend, verlangt war absteigend."
+        }
+      ],
+      "hinweise": [
+        "Das wichtigste Kriterium steht zuerst. Jedes hat sein eigenes ASC/DESC."
+      ],
+      "erklaerung": "`ORDER BY ort, name DESC` bedeutet: `ort ASC` (Voreinstellung), bei Gleichstand `name DESC`. Das DESC bezieht sich nur auf name."
+    },
+    {
+      "id": "p-distinct-anzahl",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "db": "flugbuchung",
+      "lz": [
+        "L14",
+        "L10"
+      ],
+      "thema": "DISTINCT zählen",
+      "stufe": 2,
+      "frage": "Wie viele Zeilen liefert diese Abfrage?",
+      "abfrage": "SELECT DISTINCT {{sp}}\nFROM flug",
+      "zeigen": [
+        "flug"
+      ],
+      "parameter": [
+        {
+          "sp": "groesse"
+        },
+        {
+          "sp": "nach"
+        },
+        {
+          "sp": "von"
+        }
+      ],
+      "hinweise": [
+        "Notiere die Werte der Spalte {{sp}} und streiche Wiederholungen."
+      ],
+      "erklaerung": "DISTINCT {{sp}} liefert jeden Wert der Spalte nur einmal."
+    },
+    {
+      "id": "p-distinct-flugnr",
+      "typ": "sql",
+      "db": "flugbuchung",
+      "lz": [
+        "L14",
+        "L9"
+      ],
+      "thema": "DISTINCT",
+      "stufe": 1,
+      "frage": "Welche Flüge wurden mindestens einmal gebucht? Zeige jede `flugnr` aus der Tabelle `buchung` nur einmal.",
+      "loesung": "SELECT DISTINCT flugnr FROM buchung",
+      "muss": [
+        {
+          "muster": "\\bDISTINCT\\b",
+          "meldung": "Verwende DISTINCT."
+        }
+      ],
+      "hinweise": [
+        "Ohne DISTINCT erscheint ein Flug so oft, wie er gebucht wurde.",
+        "SELECT DISTINCT flugnr FROM …"
+      ],
+      "erklaerung": "`SELECT DISTINCT flugnr FROM buchung` liefert 5 Zeilen statt 9."
+    },
+    {
+      "id": "p-distinct-bib",
+      "typ": "sql",
+      "lz": [
+        "L14",
+        "L9"
+      ],
+      "thema": "DISTINCT",
+      "stufe": 1,
+      "frage": "Zeige {{was}}, jeden Wert nur einmal (Spalte `{{sp}}` der Tabelle `{{t}}`).",
+      "parameter": [
+        {
+          "was": "alle Orte, an denen Verlage ihren Sitz haben",
+          "sp": "ort",
+          "t": "verlag"
+        },
+        {
+          "was": "alle Währungen, in denen Buchpreise angegeben sind",
+          "sp": "waehrung",
+          "t": "buch"
+        },
+        {
+          "was": "alle Rollen, die Autoren bei Büchern haben",
+          "sp": "rolle",
+          "t": "buch_aut"
+        }
+      ],
+      "loesung": "SELECT DISTINCT {{sp}} FROM {{t}}",
+      "muss": [
+        {
+          "muster": "\\bDISTINCT\\b",
+          "meldung": "Verwende DISTINCT."
+        }
+      ],
+      "hinweise": [
+        "DISTINCT steht direkt nach SELECT.",
+        "SELECT DISTINCT {{sp}} FROM {{t}}"
+      ],
+      "erklaerung": "`SELECT DISTINCT {{sp}} FROM {{t}}` zeigt jeden vorkommenden Wert genau einmal."
+    },
+    {
+      "id": "p-distinct-sortiert",
+      "typ": "sql",
+      "lz": [
+        "L14",
+        "L13"
+      ],
+      "thema": "DISTINCT und ORDER BY",
+      "stufe": 2,
+      "frage": "Zeige alle **verschiedenen** Erscheinungsjahre (`jahr`) der Bücher ab 1998 (`jahr >= 1998`), das neueste zuerst.",
+      "loesung": "SELECT DISTINCT jahr FROM buch WHERE jahr >= 1998 ORDER BY jahr DESC",
+      "reihenfolge": true,
+      "muss": [
+        {
+          "muster": "\\bDISTINCT\\b",
+          "meldung": "Verwende DISTINCT."
+        }
+      ],
+      "hinweise": [
+        "Reihenfolge der Teile: SELECT DISTINCT, FROM, WHERE, ORDER BY.",
+        "ORDER BY jahr DESC"
+      ],
+      "erklaerung": "DISTINCT entfernt Wiederholungen, WHERE filtert, ORDER BY sortiert: 2002, 2001, 2000, 1999, 1998."
+    },
+    {
+      "id": "p-distinct-choice",
+      "typ": "choice",
+      "lz": [
+        "L14"
+      ],
+      "thema": "DISTINCT verstehen",
+      "stufe": 1,
+      "frage": "Die Tabelle `buchung` hat 9 Zeilen, in der Spalte `flugnr` kommt der Wert US1 dreimal vor. Was liefert `SELECT flugnr FROM buchung` (ohne DISTINCT)?",
+      "optionen": [
+        {
+          "text": "9 Zeilen, US1 erscheint dreimal",
+          "richtig": true,
+          "warum": "Richtig: Ohne DISTINCT bleiben Duplikate erhalten."
+        },
+        {
+          "text": "5 Zeilen, jeder Flug einmal",
+          "warum": "Das wäre mit DISTINCT. Ohne DISTINCT werden Wiederholungen nicht entfernt."
+        },
+        {
+          "text": "3 Zeilen, nur US1",
+          "warum": "Ohne WHERE werden keine Zeilen ausgewählt oder weggelassen."
+        },
+        {
+          "text": "Einen Fehler, weil der Wert doppelt vorkommt",
+          "warum": "Doppelte Werte sind in einer Ausgabe erlaubt."
+        }
+      ],
+      "hinweise": [
+        "Was macht SELECT, wenn du kein WHERE und kein DISTINCT angibst?"
+      ],
+      "erklaerung": "Ohne WHERE und ohne DISTINCT erscheint jede Zeile der Tabelle, in der Spalte also auch alle Wiederholungen."
+    },
+    {
+      "id": "p-alias-spalten",
+      "typ": "sql",
+      "lz": [
+        "L20",
+        "L12"
+      ],
+      "thema": "Alias Spalte",
+      "stufe": 1,
+      "frage": "Zeige von der Tabelle `{{t}}` die Spalten `{{a}}` und `{{b}}`. Nenne `{{a}}` in der Ausgabe **{{an}}** und `{{b}}` **{{bn}}**.",
+      "parameter": [
+        {
+          "t": "verlag",
+          "a": "name",
+          "b": "ort",
+          "an": "Verlagsname",
+          "bn": "Sitz"
+        },
+        {
+          "t": "buch",
+          "a": "titel",
+          "b": "jahr",
+          "an": "Buchtitel",
+          "bn": "Erscheinungsjahr"
+        },
+        {
+          "t": "autor",
+          "a": "nachname",
+          "b": "vornamen",
+          "an": "Familienname",
+          "bn": "Rufname"
+        }
+      ],
+      "loesung": "SELECT {{a}} AS {{an}}, {{b}} AS {{bn}} FROM {{t}}",
+      "spaltennamen": true,
+      "hinweise": [
+        "Nach jeder Spalte kommt AS und der neue Name.",
+        "SELECT {{a}} AS {{an}}, {{b}} AS … FROM {{t}}"
+      ],
+      "erklaerung": "`{{a}} AS {{an}}` und `{{b}} AS {{bn}}` ändern nur die Überschriften der Ausgabe."
+    },
+    {
+      "id": "p-alias-flug",
+      "typ": "sql",
+      "db": "flugbuchung",
+      "lz": [
+        "L20",
+        "L12",
+        "L9"
+      ],
+      "thema": "Alias Spalte",
+      "stufe": 2,
+      "frage": "Zeige `flugnr`, `von` und `nach` aller Flüge ab Frankfurt (`von = 'Frankfurt'`). Nenne `flugnr` **Nummer** und `nach` **Ziel**. `von` behält seinen Namen.",
+      "loesung": "SELECT flugnr AS Nummer, von, nach AS Ziel FROM flug WHERE von = 'Frankfurt'",
+      "spaltennamen": true,
+      "hinweise": [
+        "Nicht jede Spalte braucht einen Alias.",
+        "SELECT flugnr AS Nummer, von, nach AS … FROM flug WHERE …"
+      ],
+      "erklaerung": "Aliase bekommen nur die Spalten, die du umbenennen willst. AS gehört in die SELECT-Liste, WHERE steht danach."
+    },
+    {
+      "id": "p-alias-tabelle",
+      "typ": "sql",
+      "db": "flugbuchung",
+      "lz": [
+        "L20",
+        "L12"
+      ],
+      "thema": "Alias Tabelle",
+      "stufe": 2,
+      "frage": "Zeige `flugnr` und `nach` aller Flüge ab Frankfurt. Gib der Tabelle `flug` den Alias **f** und schreibe alle Spalten mit `f.`.",
+      "loesung": "SELECT f.flugnr, f.nach FROM flug AS f WHERE f.von = 'Frankfurt'",
+      "muss": [
+        {
+          "muster": "\\bFLUG\\s+(AS\\s+)?F\\b",
+          "meldung": "Vergib der Tabelle den Alias f: FROM flug AS f."
+        },
+        {
+          "muster": "\\bF\\.FLUGNR\\b",
+          "meldung": "Schreibe die Spalten mit dem Alias, z. B. f.flugnr."
+        }
+      ],
+      "hinweise": [
+        "Alias im FROM vergeben: FROM flug AS f",
+        "Danach f.flugnr, f.nach und f.von verwenden."
+      ],
+      "erklaerung": "Der Alias `f` ist ein Kurzname für `flug`. Er gilt überall in dieser Abfrage."
+    },
+    {
+      "id": "p-alias-zuordnen",
+      "typ": "zuordnen",
+      "lz": [
+        "L20"
+      ],
+      "thema": "Alias lesen",
+      "stufe": 2,
+      "frage": "Die Abfrage lautet:\n\n```sql\nSELECT name AS Verlagsname, ort AS Sitz\nFROM verlag AS v\n```\n\nOrdne zu: Was ist was?",
+      "kategorien": [
+        "Spaltenname in der Tabelle",
+        "Alias für eine Spalte",
+        "Alias für die Tabelle"
+      ],
+      "elemente": [
+        {
+          "text": "name",
+          "antwort": "Spaltenname in der Tabelle",
+          "warum": "name steht vor AS und ist der echte Spaltenname."
+        },
+        {
+          "text": "Verlagsname",
+          "antwort": "Alias für eine Spalte",
+          "warum": "Das ist der neue Name für die Ausgabe."
+        },
+        {
+          "text": "v",
+          "antwort": "Alias für die Tabelle",
+          "warum": "v steht hinter FROM verlag AS und ist der Kurzname der Tabelle."
+        },
+        {
+          "text": "ort",
+          "antwort": "Spaltenname in der Tabelle",
+          "warum": "ort steht vor AS und ist der echte Spaltenname."
+        },
+        {
+          "text": "Sitz",
+          "antwort": "Alias für eine Spalte",
+          "warum": "Das ist der neue Name für die Ausgabe."
+        }
+      ],
+      "hinweise": [
+        "Was vor AS steht, existiert schon. Was nach AS steht, ist der neue Name.",
+        "Steht AS in der SELECT-Liste oder hinter FROM?"
+      ],
+      "erklaerung": "Vor AS steht immer der bestehende Name, nach AS der Alias. In SELECT sind es Spalten-Aliase, in FROM der Tabellen-Alias."
+    },
+    {
+      "id": "p-anzahl-sortiert",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "lz": [
+        "L10",
+        "L13",
+        "L14"
+      ],
+      "thema": "Zeilen zählen",
+      "stufe": 2,
+      "db": "flugbuchung",
+      "frage": "Wie viele Zeilen liefert diese Abfrage? Beachte: ORDER BY ändert nichts an der Anzahl.",
+      "abfrage": "SELECT DISTINCT von\nFROM flug\nORDER BY von DESC",
+      "zeigen": [
+        "flug"
+      ],
+      "hinweise": [
+        "ORDER BY ändert nur die Reihenfolge. Wie viele verschiedene Startorte gibt es?"
+      ],
+      "erklaerung": "Es gibt 3 verschiedene Startorte (Frankfurt, London, LondonStansted). ORDER BY ordnet sie nur."
+    },
+    {
+      "id": "p-zeilen-distinct",
+      "typ": "ergebnis",
+      "modus": "zeilen",
+      "db": "flugbuchung",
+      "lz": [
+        "L11",
+        "L14",
+        "L12"
+      ],
+      "thema": "Ergebniszeilen angeben",
+      "stufe": 3,
+      "frage": "Welche Zeilen liefert diese Abfrage?",
+      "abfrage": "SELECT DISTINCT fluglinie\nFROM flug\nWHERE groesse >= 380",
+      "kandidaten": "SELECT DISTINCT fluglinie FROM flug",
+      "zeigen": [
+        "flug"
+      ],
+      "hinweise": [
+        "Zuerst WHERE anwenden (groesse mindestens 380), dann Duplikate streichen."
+      ],
+      "erklaerung": "Flüge mit mindestens 380 Plätzen: US1 (USAirways), LH772 und LH7 (beide Lufthansa). Nach DISTINCT bleiben USAirways und Lufthansa."
+    }
+  ]
+}

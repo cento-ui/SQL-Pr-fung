@@ -1,0 +1,766 @@
+{
+  "id": "k10",
+  "titel": "Alles mit allem: das Kreuzprodukt",
+  "untertitel": "Was passiert, wenn du zwei Tabellen in FROM nennst – und wie du die Ergebniszeilen ohne Computer bestimmst.",
+  "db": "flugbuchung",
+  "lernziele": ["L23", "L10", "L11"],
+  "dauer": 45,
+  "schritte": [
+    {
+      "id": "s-kreuzprodukt",
+      "typ": "info",
+      "titel": "Jede Zeile mit jeder Zeile",
+      "story": [
+        {"sprecher": "marktfrau", "text": "Ich bin Frau Kiwi und verkaufe Obst am Markt. Seit gestern hat mein Preisdrucker einen Fehler: Jede Frucht hat plötzlich zwei Preise. Und irgendwo hier lief ein Kater mit einem Preisschild im Maul herum."},
+        {"sprecher": "tabea", "text": "Das war NULL! Schauen wir, wie das Chaos in der Datenbank entsteht."}
+      ],
+      "text": [
+        "Bisher hast du immer **eine** Tabelle nach FROM geschrieben. Man kann auch zwei Tabellen angeben, mit einem **Komma** dazwischen:",
+        "```sql",
+        "SELECT *",
+        "FROM Artikel, Tagespreis",
+        "```",
+        "Was passiert dann? Erst ein Alltagsbeispiel: Du hast 2 T-Shirts und 3 Hosen. Wenn du **jedes** T-Shirt mit **jeder** Hose kombinierst, gibt es 2 · 3 = 6 verschiedene Outfits.",
+        "Genau das macht SQL mit zwei Tabellen. Frau Kiwis Datenbank *obst* hat zwei kleine Tabellen:",
+        "| ArtikelNr | Beschreibung |",
+        "|---|---|",
+        "| 1 | Trauben(500g) |",
+        "| 2 | Kiwi(3Stk.) |",
+        "",
+        "| ArtikelNr | Tagespreis |",
+        "|---|---|",
+        "| 1 | 3.5 |",
+        "| 2 | 4.75 |",
+        "Das Ergebnis von `SELECT * FROM Artikel, Tagespreis` kombiniert **jede Zeile der ersten Tabelle mit jeder Zeile der zweiten**:",
+        "| ArtikelNr | Beschreibung | ArtikelNr | Tagespreis |",
+        "|---|---|---|---|",
+        "| 1 | Trauben(500g) | 1 | 3.5 |",
+        "| 1 | Trauben(500g) | 2 | 4.75 |",
+        "| 2 | Kiwi(3Stk.) | 1 | 3.5 |",
+        "| 2 | Kiwi(3Stk.) | 2 | 4.75 |",
+        "Diese Kombination heisst **Kreuzprodukt**.",
+        "- Die Ergebnistabelle hat die Spalten **beider** Tabellen nebeneinander (erst die der ersten Tabelle, dann die der zweiten).",
+        "- Jede Zeile ist eine **Kombination** aus einer Zeile der ersten und einer Zeile der zweiten Tabelle.",
+        "- Das Ergebnis enthält auch Unsinn: Die Kombination «Trauben mit 4.75» ist keine Preisangabe, die stimmt.",
+        "> Merke (Hilfsblatt): Ohne WHERE entsteht ein Kreuzprodukt: jede Zeile aus T1 mit jeder Zeile aus T2.",
+        "Die Reihenfolge der Zeilen ist bei einem Kreuzprodukt nicht festgelegt. Es kommt auf die **Menge** der Kombinationen an."
+      ]
+    },
+    {
+      "id": "a-kp-tabelle",
+      "typ": "tabelle",
+      "db": "obst",
+      "titel": "Das Kreuzprodukt selbst aufschreiben",
+      "lz": ["L23", "L11"],
+      "thema": "Kreuzprodukt aufschreiben",
+      "stufe": 1,
+      "story": [{"sprecher": "marktfrau", "text": "Probier es selbst. Ich hab dir die erste Zeile schon hingeschrieben."}],
+      "frage": [
+        "Schreibe das Ergebnis von `SELECT * FROM Artikel, Tagespreis` auf. Die Tabellen siehst du unten.",
+        "Reihenfolge der Zeilen hier: zuerst Trauben mit beiden Preisen, dann Kiwi mit beiden Preisen."
+      ],
+      "zeigen": ["Artikel", "Tagespreis"],
+      "tabellenname": "Ergebnis",
+      "spalten": ["ArtikelNr", "Beschreibung", "ArtikelNr", "Tagespreis"],
+      "zeilen": [
+        ["1", "Trauben(500g)", "1", "3.5"],
+        ["1", "Trauben(500g)", {"loesung": "2"}, {"loesung": ["4.75", "4,75"]}],
+        [{"loesung": "2"}, {"loesung": ["Kiwi(3Stk.)", "Kiwi"]}, {"loesung": "1"}, {"loesung": ["3.5", "3,5"]}],
+        [{"loesung": "2"}, {"loesung": ["Kiwi(3Stk.)", "Kiwi"]}, {"loesung": "2"}, {"loesung": ["4.75", "4,75"]}]
+      ],
+      "hinweise": [
+        "Nimm die erste Zeile von Artikel (Trauben) und kombiniere sie nacheinander mit jeder Zeile von Tagespreis.",
+        "Danach kommt die zweite Zeile von Artikel (Kiwi), wieder mit jeder Zeile von Tagespreis."
+      ],
+      "erklaerung": "Jede der 2 Zeilen aus Artikel wird mit jeder der 2 Zeilen aus Tagespreis kombiniert: 2 · 2 = **4 Zeilen**. Die linken zwei Spalten stammen aus Artikel, die rechten zwei aus Tagespreis."
+    },
+    {
+      "id": "a-kp-anzahl",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "db": "obst",
+      "titel": "Wie viele Kombinationen?",
+      "lz": ["L10", "L23"],
+      "thema": "Zeilen zählen",
+      "stufe": 1,
+      "frage": "Wie viele Zeilen liefert diese Abfrage?",
+      "abfrage": "SELECT *\nFROM Artikel, Tagespreis",
+      "zeigen": ["Artikel", "Tagespreis"],
+      "hinweise": [
+        "Wie viele Zeilen hat Artikel, wie viele Tagespreis?",
+        "Jede Zeile der einen Tabelle wird mit jeder der anderen kombiniert: multipliziere."
+      ],
+      "erklaerung": "Artikel hat 2 Zeilen, Tagespreis hat 2 Zeilen. Das Kreuzprodukt hat 2 · 2 = **4 Zeilen**."
+    },
+    {
+      "id": "s-zeilen-zaehlen",
+      "typ": "info",
+      "titel": "Zeilen zählen ohne Computer: multiplizieren",
+      "story": [
+        {"sprecher": "pilotin", "text": "Ich bin Rita Riff, Pilotin. Zurück zum Flughafen! In der Prüfung darfst du die Abfragen nicht ausführen. Du musst die Zahl der Zeilen im Kopf bestimmen können."}
+      ],
+      "text": [
+        "Die Flughafen-Datenbank *flugbuchung* hat diese Grössen:",
+        "| Tabelle | Zeilen | Spalten |",
+        "|---|---|---|",
+        "| `kunde` | 11 | 4 |",
+        "| `flug` | 5 | 7 |",
+        "| `buchung` | 9 | 5 |",
+        "**Regel 1:** Das Kreuzprodukt hat **Zeilen(T1) · Zeilen(T2)** Zeilen und **Spalten(T1) + Spalten(T2)** Spalten.",
+        "```sql",
+        "SELECT * FROM kunde, flug",
+        "```",
+        "→ 11 · 5 = **55 Zeilen**, 4 + 7 = 11 Spalten.",
+        "Bei **drei** Tabellen multiplizierst du alle drei: `FROM kunde, flug, buchung` → 11 · 5 · 9 = **495 Zeilen**.",
+        "**Regel 2:** Ein WHERE filtert **nachher**. Du zählst also in zwei Schritten:",
+        "1. Kreuzprodukt: alle Zeilen multiplizieren.",
+        "2. WHERE: nur die Kombinationen behalten, die die Bedingung erfüllen.",
+        "Wenn die Bedingung nur **eine** Tabelle betrifft, rechnest du so: Zähle in dieser Tabelle die Zeilen, die passen, und multipliziere mit den Zeilen der anderen Tabellen.",
+        "```sql",
+        "SELECT * FROM kunde, flug",
+        "WHERE flug.nach = 'Sydney'",
+        "```",
+        "Nur 1 Flug fliegt nach Sydney. Also: 11 Kunden · 1 passender Flug = **11 Zeilen**.",
+        "**Regel 3:** Welche Spalten du auswählst, ändert die Zeilenzahl **nicht**. `SELECT name FROM kunde, flug` hat so viele Zeilen wie `SELECT *`.",
+        "> Merke: Erst alle Tabellen multiplizieren, dann die Zeilen zählen, die WHERE durchlässt. Bedingungen, die zwei Tabellen vergleichen (z. B. `kunde.knr = buchung.knr`), schauen wir uns im nächsten Schritt an."
+      ]
+    },
+    {
+      "id": "a-kp-flug",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "titel": "Kreuzprodukt zweier Tabellen",
+      "lz": ["L10", "L23"],
+      "thema": "Zeilen zählen",
+      "stufe": 1,
+      "story": [{"sprecher": "pilotin", "text": "Wie gross wird die Liste, wenn jeder mit jedem kombiniert wird?"}],
+      "frage": "Wie viele Zeilen liefert diese Abfrage? Die Tabellen siehst du unten.",
+      "abfrage": "SELECT *\nFROM {{t1}}, {{t2}}",
+      "parameter": [
+        {"t1": "kunde", "t2": "flug", "r": "11 · 5 = 55"},
+        {"t1": "kunde", "t2": "buchung", "r": "11 · 9 = 99"},
+        {"t1": "flug", "t2": "buchung", "r": "5 · 9 = 45"}
+      ],
+      "zeigen": ["kunde", "flug", "buchung"],
+      "hinweise": [
+        "Zähle die Zeilen der beiden Tabellen {{t1}} und {{t2}}.",
+        "Multipliziere die beiden Zahlen."
+      ],
+      "erklaerung": "Ohne WHERE entsteht das volle Kreuzprodukt: {{r}} Zeilen."
+    },
+    {
+      "id": "a-kp-where",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "titel": "Kreuzprodukt mit Filter",
+      "lz": ["L10", "L23"],
+      "thema": "Zeilen zählen mit WHERE",
+      "stufe": 2,
+      "frage": [
+        "Wie viele Zeilen liefert diese Abfrage? In `buchung` hat der Flug GW4 genau 2 Buchungen.",
+        "Tipp: Rechne in zwei Schritten (Kreuzprodukt, dann WHERE)."
+      ],
+      "abfrage": "SELECT *\nFROM kunde, buchung\nWHERE flugnr = 'GW4'",
+      "zeigen": ["kunde", "buchung"],
+      "hinweise": [
+        "Wie viele Zeilen hat das Kreuzprodukt kunde × buchung?",
+        "WHERE betrifft nur die Tabelle buchung. Wie viele Buchungen haben flugnr = 'GW4'? Diese Zahl multiplizierst du mit den 11 Kunden."
+      ],
+      "erklaerung": "Das Kreuzprodukt hat 11 · 9 = 99 Zeilen. WHERE lässt nur die Kombinationen mit den 2 GW4-Buchungen durch: 11 · 2 = **22 Zeilen**. (Jeder der 11 Kunden wird mit jeder dieser 2 Buchungen kombiniert, auch wenn die Buchung gar nicht von ihm stammt.)"
+    },
+    {
+      "id": "s-ergebnis-angeben",
+      "typ": "info",
+      "titel": "Die Ergebniszeilen selbst aufschreiben",
+      "story": [
+        {"sprecher": "tabea", "text": "In der Prüfung sollst du manchmal nicht nur zählen, sondern die Zeilen hinschreiben. Dafür gibt es eine feste Methode."}
+      ],
+      "text": [
+        "So bestimmst du das Ergebnis einer Abfrage mit mehreren Tabellen. Es sind **drei Schritte**:",
+        "1. **FROM**: Bilde das Kreuzprodukt (gedanklich, du schreibst nicht alle Zeilen auf).",
+        "2. **WHERE**: Behalte nur die Zeilen, die die Bedingung erfüllen.",
+        "3. **SELECT**: Schreibe nur die gewünschten Spalten auf, in der Reihenfolge des SELECT.",
+        "Bei einem `*` stehen die Spalten der ersten Tabelle links, dann die der zweiten.",
+        "**Wichtig: Zusammengehörende Zeilen.** In `buchung` steht bei jeder Buchung die Kundennummer `knr`. Zu einer Buchung gehört der Kunde mit der gleichen `knr`. Diese Zusammengehörigkeit prüfst du in WHERE mit einer Bedingung, die **zwei Tabellen vergleicht**:",
+        "```sql",
+        "SELECT name, vorname, flugnr, sitz",
+        "FROM kunde, buchung",
+        "WHERE kunde.knr = buchung.knr",
+        "AND flugnr = 'GW4'",
+        "```",
+        "- Schritt 1: Kreuzprodukt kunde × buchung (99 Kombinationen).",
+        "- Schritt 2a: `kunde.knr = buchung.knr` behält nur die Kombinationen, in denen Kunde und Buchung zusammengehören. Das sind 9 Zeilen, eine pro Buchung.",
+        "- Schritt 2b: `flugnr = 'GW4'` behält davon die Buchungen auf den Flug GW4. Das sind 2 Zeilen.",
+        "- Schritt 3: Nur die Spalten name, vorname, flugnr, sitz anzeigen.",
+        "Ergebnis:",
+        "| name | vorname | flugnr | sitz |",
+        "|---|---|---|---|",
+        "| Paetzold | Claudia | GW4 | 54 |",
+        "| Beyenburg | Dirk | GW4 | 55 |",
+        "Weil `knr` in beiden Tabellen vorkommt, schreibt man `kunde.knr` und `buchung.knr` (`tabelle.spalte`), sonst weiss SQL nicht, welche gemeint ist. Das lernst du im [nächsten Kapitel](#/kapitel/k11/s-verknuepfen) genauer.",
+        "> Merke: Ohne Bedingung, die die Tabellen verbindet, entsteht beim Kreuzprodukt Unsinn (zu viele Zeilen). Mit der Bedingung `T1.schluessel = T2.schluessel` bleiben nur die zusammengehörenden Zeilen."
+      ]
+    },
+    {
+      "id": "a-obst-zeilen",
+      "typ": "ergebnis",
+      "modus": "zeilen",
+      "db": "obst",
+      "titel": "Frau Kiwis Preisschild",
+      "lz": ["L11", "L23"],
+      "thema": "Ergebniszeilen angeben",
+      "stufe": 2,
+      "story": [{"sprecher": "marktfrau", "text": "Ich wollte nur den Preis der Kiwis wissen. Aber was kommt bei dieser Abfrage heraus?"}],
+      "frage": "Kreuze die Zeilen an, die diese Abfrage im Ergebnis ausgibt. (Zur Erinnerung die Tabellen Artikel und Tagespreis unten. Das Kreuzprodukt ist schon als Auswahl aufgeführt.)",
+      "abfrage": "SELECT Beschreibung, Tagespreis\nFROM Artikel, Tagespreis\nWHERE Beschreibung LIKE 'Kiwi%'",
+      "kandidaten": "SELECT Beschreibung, Tagespreis FROM Artikel, Tagespreis",
+      "zeigen": ["Artikel", "Tagespreis"],
+      "hinweise": [
+        "Schritt 1: Es gibt 4 Kombinationen. Schritt 2: Welche davon erfüllen Beschreibung LIKE 'Kiwi%'?",
+        "Es gibt keine Bedingung zwischen den Tabellen. Beide Preise bleiben darum zu Kiwi übrig."
+      ],
+      "erklaerung": "Das Kreuzprodukt hat 4 Zeilen. WHERE behält die 2 Zeilen mit Beschreibung «Kiwi(3Stk.)», in **beiden** Preisvarianten: 3.5 **und** 4.75. Das ist das Preisschild-Chaos: Es fehlt die Bedingung `Artikel.ArtikelNr = Tagespreis.ArtikelNr`, die jede Frucht mit ihrem eigenen Preis verbindet."
+    },
+    {
+      "id": "a-kp-zeilen",
+      "typ": "ergebnis",
+      "modus": "zeilen",
+      "titel": "Kunden und ihre Buchungen",
+      "lz": ["L11", "L23"],
+      "thema": "Ergebniszeilen angeben",
+      "stufe": 2,
+      "story": [{"sprecher": "pilotin", "text": "Wer sitzt im Flug GW4? Das ist der, mit dem der Kater vielleicht in der Kiste mitgeflogen ist."}],
+      "frage": "Kreuze die Zeilen an, die diese Abfrage ausgibt. Die Auswahl zeigt alle Kunden-Buchungs-Paare, die zusammengehören.",
+      "abfrage": "SELECT name, vorname, flugnr, sitz\nFROM kunde, buchung\nWHERE kunde.knr = buchung.knr\nAND flugnr = 'GW4'",
+      "kandidaten": "SELECT name, vorname, flugnr, sitz FROM kunde, buchung WHERE kunde.knr = buchung.knr",
+      "zeigen": ["kunde", "buchung"],
+      "hinweise": [
+        "Die Bedingung kunde.knr = buchung.knr ist bei den Kandidaten schon berücksichtigt. Es fehlt noch der Flug.",
+        "Behalte nur die Zeilen mit flugnr GW4."
+      ],
+      "erklaerung": "Aus den 9 zusammengehörenden Paaren behält `flugnr = 'GW4'` nur die zwei Buchungen auf GW4: Paetzold (Sitz 54) und Beyenburg (Sitz 55)."
+    },
+    {
+      "id": "a-tabelle-klein",
+      "typ": "tabelle",
+      "titel": "Ein kleines Kreuzprodukt",
+      "lz": ["L11", "L23"],
+      "thema": "Ergebniszeilen angeben",
+      "stufe": 2,
+      "frage": [
+        "Schreibe das Ergebnis dieser Abfrage auf. Weil sie ein ORDER BY hat, ist die Reihenfolge der Zeilen eindeutig.",
+        "```sql",
+        "SELECT name, flug.flugnr, nach",
+        "FROM kunde, flug",
+        "WHERE kunde.knr < 3",
+        "AND flug.groesse = 220",
+        "ORDER BY name, flug.flugnr",
+        "```"
+      ],
+      "zeigen": ["kunde", "flug"],
+      "tabellenname": "Ergebnis",
+      "spalten": ["name", "flugnr", "nach"],
+      "zeilen": [
+        ["Adlon", "BA1", "Berlin"],
+        [{"loesung": "Adlon"}, {"loesung": "GW4"}, {"loesung": ["Köln/Bonn", "Koeln/Bonn"]}],
+        [{"loesung": "Schmitz"}, {"loesung": "BA1"}, {"loesung": "Berlin"}],
+        [{"loesung": "Schmitz"}, {"loesung": "GW4"}, {"loesung": ["Köln/Bonn", "Koeln/Bonn"]}]
+      ],
+      "hinweise": [
+        "Welche Kunden haben knr < 3? Welche Flüge haben groesse = 220? Jeder dieser Kunden wird mit jedem dieser Flüge kombiniert.",
+        "2 Kunden (Adlon, Schmitz) · 2 Flüge (BA1, GW4) = 4 Zeilen. Sortiert nach name, dann nach flugnr."
+      ],
+      "erklaerung": "Kunden mit knr < 3: Adlon (1), Schmitz (2). Flüge mit groesse 220: BA1 (Berlin), GW4 (Köln/Bonn). Kreuzprodukt dieser Auswahl: 2 · 2 = **4 Zeilen**, nach name und flugnr sortiert."
+    },
+    {
+      "id": "a-obst-sql",
+      "typ": "sql",
+      "db": "obst",
+      "titel": "Den richtigen Preis finden",
+      "lz": ["L23", "L9"],
+      "thema": "Kreuzprodukt filtern",
+      "stufe": 2,
+      "story": [{"sprecher": "marktfrau", "text": "Jetzt will ich es richtig machen: Welchen Tagespreis haben die Kiwis?"}],
+      "frage": [
+        "Zeige Beschreibung und Tagespreis der Kiwis (Beschreibung beginnt mit «Kiwi»).",
+        "Tipp: Verbinde die zusammengehörenden Zeilen über die Artikelnummer. Beide Tabellen haben eine Spalte `ArtikelNr`, schreibe darum `Artikel.ArtikelNr` und `Tagespreis.ArtikelNr`."
+      ],
+      "loesung": "SELECT Beschreibung, Tagespreis FROM Artikel, Tagespreis WHERE Artikel.ArtikelNr = Tagespreis.ArtikelNr AND Beschreibung LIKE 'Kiwi%'",
+      "muss": [
+        {"muster": "ARTIKEL\\.ARTIKELNR\\s*=\\s*TAGESPREIS\\.ARTIKELNR|TAGESPREIS\\.ARTIKELNR\\s*=\\s*ARTIKEL\\.ARTIKELNR", "meldung": "Verbinde die Tabellen mit Artikel.ArtikelNr = Tagespreis.ArtikelNr."}
+      ],
+      "zeigen": ["Artikel", "Tagespreis"],
+      "hinweise": [
+        "Beide Tabellen in FROM, mit Komma. Zwei Bedingungen in WHERE, mit AND verbunden.",
+        "Eine Bedingung verbindet die Tabellen (gleiche ArtikelNr), die andere wählt die Kiwis aus.",
+        "SELECT Beschreibung, Tagespreis FROM Artikel, Tagespreis WHERE Artikel.ArtikelNr = Tagespreis.ArtikelNr AND Beschreibung LIKE 'Kiwi%'"
+      ],
+      "erklaerung": "Die Bedingung `Artikel.ArtikelNr = Tagespreis.ArtikelNr` lässt aus dem Kreuzprodukt nur die zusammengehörenden Zeilen (Trauben/3.5, Kiwi/4.75) übrig. `Beschreibung LIKE 'Kiwi%'` wählt davon die Kiwis aus. Ergebnis: **eine** Zeile, Kiwi mit 4.75."
+    },
+    {
+      "id": "a-anzahl-pae",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "titel": "Drei Tabellen und ein Name",
+      "lz": ["L10", "L23"],
+      "thema": "Zeilen zählen mit WHERE",
+      "stufe": 3,
+      "story": [{"sprecher": "pilotin", "text": "Eine Zeugin heisst Paetzold. Aber Vorsicht: Diese Abfrage fragt gar nicht, welche Flüge sie gebucht hat."}],
+      "frage": "Wie viele Zeilen liefert diese Abfrage? (Es gibt genau einen Kunden namens Paetzold.)",
+      "abfrage": "SELECT flug.flugnr, flug.fluglinie, flug.von, flug.nach, sitz\nFROM kunde, flug, buchung\nWHERE name = 'Paetzold'",
+      "zeigen": ["kunde", "flug", "buchung"],
+      "hinweise": [
+        "Bestimme die Zeilenzahl des Kreuzprodukts mit allen drei Tabellen: 11 · 5 · 9.",
+        "WHERE betrifft nur kunde. Wie viele Kunden heissen Paetzold? Ersetze die 11 durch diese Zahl."
+      ],
+      "erklaerung": "Das Kreuzprodukt hat 11 · 5 · 9 = 495 Zeilen. WHERE lässt nur die Kombinationen mit dem einen Kunden Paetzold durch: 1 · 5 · 9 = **45 Zeilen**. Es fehlt jede Bedingung, die buchung, flug und kunde verbindet, darum sind es so viele."
+    }
+  ],
+  "pool": [
+    {
+      "id": "p-anzahl-where",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "lz": ["L10", "L23"],
+      "thema": "Zeilen zählen mit WHERE",
+      "stufe": 2,
+      "frage": "Wie viele Zeilen liefert diese Abfrage?",
+      "abfrage": "SELECT *\nFROM {{t1}}, {{t2}}\nWHERE {{b}}",
+      "parameter": [
+        {"t1": "kunde", "t2": "flug", "b": "flug.von = 'Frankfurt'", "e": "3 Flüge ab Frankfurt · 11 Kunden = 33"},
+        {"t1": "kunde", "t2": "buchung", "b": "buchung.flugnr = 'LH772'", "e": "2 Buchungen auf LH772 · 11 Kunden = 22"},
+        {"t1": "flug", "t2": "buchung", "b": "buchung.sitz > 100", "e": "3 Buchungen mit Sitz über 100 · 5 Flüge = 15"}
+      ],
+      "zeigen": ["kunde", "flug", "buchung"],
+      "hinweise": [
+        "Zähle zuerst, wie viele Zeilen der Tabelle mit der Bedingung passen.",
+        "Multipliziere diese Zahl mit der Zeilenzahl der anderen Tabelle."
+      ],
+      "erklaerung": "WHERE betrifft nur eine der beiden Tabellen. Also: {{e}} Zeilen."
+    },
+    {
+      "id": "p-anzahl-drei",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "lz": ["L10", "L23"],
+      "thema": "Zeilen zählen",
+      "stufe": 2,
+      "frage": "Wie viele Zeilen liefert diese Abfrage?",
+      "abfrage": "SELECT *\nFROM kunde, flug, buchung",
+      "zeigen": ["kunde", "flug", "buchung"],
+      "hinweise": [
+        "Bei drei Tabellen multiplizierst du alle drei Zeilenzahlen.",
+        "11 · 5 · 9"
+      ],
+      "erklaerung": "11 Kunden · 5 Flüge · 9 Buchungen = **495 Zeilen**."
+    },
+    {
+      "id": "p-anzahl-drei-where",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "lz": ["L10", "L23"],
+      "thema": "Zeilen zählen mit WHERE",
+      "stufe": 3,
+      "frage": "Wie viele Zeilen liefert diese Abfrage?",
+      "abfrage": "SELECT kunde.name, flug.nach, buchung.sitz\nFROM kunde, flug, buchung\nWHERE flug.nach = 'Sydney'",
+      "zeigen": ["kunde", "flug", "buchung"],
+      "hinweise": [
+        "Wie viele Flüge gehen nach Sydney?",
+        "Multipliziere: Kunden · passende Flüge · Buchungen."
+      ],
+      "erklaerung": "Nur 1 Flug fliegt nach Sydney. Also 11 · 1 · 9 = **99 Zeilen**. Die Auswahl weniger Spalten ändert nichts an der Zeilenzahl."
+    },
+    {
+      "id": "p-anzahl-alter",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "lz": ["L10", "L23", "L15"],
+      "thema": "Zeilen zählen mit WHERE",
+      "stufe": 2,
+      "frage": "Wie viele Zeilen liefert diese Abfrage? (Das Alter steht in der Spalte `alter`; in SQL schreibt man `\"alter\"`.)",
+      "abfrage": "SELECT name, nach\nFROM kunde, flug\nWHERE \"alter\" > 30",
+      "zeigen": ["kunde", "flug"],
+      "hinweise": [
+        "Wie viele Kunden sind älter als 30?",
+        "Jeder dieser Kunden wird mit allen 5 Flügen kombiniert."
+      ],
+      "erklaerung": "Älter als 30 sind 4 Kunden (Meier 32, Meyer 64, Tiedemann 59, Kowalski 33). Jeder wird mit 5 Flügen kombiniert: 4 · 5 = **20 Zeilen**."
+    },
+    {
+      "id": "p-anzahl-verkn",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "lz": ["L10", "L23"],
+      "thema": "Zeilen zählen mit Verknüpfung",
+      "stufe": 3,
+      "frage": [
+        "Wie viele Zeilen liefert diese Abfrage?",
+        "Tipp: Zu jeder Buchung gehört genau ein Kunde (der mit der gleichen knr)."
+      ],
+      "abfrage": "SELECT *\nFROM kunde, buchung\nWHERE kunde.knr = buchung.knr",
+      "zeigen": ["kunde", "buchung"],
+      "hinweise": [
+        "Das Kreuzprodukt hat 99 Zeilen. Die Bedingung lässt nur die Paare durch, in denen die knr gleich ist.",
+        "Wie viele Kunden passen zu einer einzelnen Buchung?"
+      ],
+      "erklaerung": "Jede der 9 Buchungen gehört zu genau einem Kunden. Von den 99 Kombinationen bleiben darum **9** übrig."
+    },
+    {
+      "id": "p-anzahl-verkn3",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "lz": ["L10", "L23"],
+      "thema": "Zeilen zählen mit Verknüpfung",
+      "stufe": 3,
+      "frage": "Wie viele Zeilen liefert diese Abfrage?",
+      "abfrage": "SELECT kunde.name, flug.nach\nFROM kunde, flug, buchung\nWHERE buchung.knr = kunde.knr\nAND buchung.flugnr = flug.flugnr",
+      "zeigen": ["kunde", "flug", "buchung"],
+      "hinweise": [
+        "Das Kreuzprodukt hat 495 Zeilen. Die zwei Bedingungen verbinden jede Buchung mit ihrem Kunden und mit ihrem Flug.",
+        "Wie viele Buchungen gibt es? Jede ergibt genau eine Zeile."
+      ],
+      "erklaerung": "Jede Buchung gehört zu genau einem Kunden und genau einem Flug. Aus 495 Kombinationen bleibt pro Buchung eine Zeile: **9 Zeilen**."
+    },
+    {
+      "id": "p-anzahl-obst-join",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "db": "obst",
+      "lz": ["L10", "L23"],
+      "thema": "Zeilen zählen mit Verknüpfung",
+      "stufe": 2,
+      "frage": "Wie viele Zeilen liefert diese Abfrage?",
+      "abfrage": "SELECT *\nFROM Artikel, Tagespreis\nWHERE Artikel.ArtikelNr = Tagespreis.ArtikelNr",
+      "zeigen": ["Artikel", "Tagespreis"],
+      "hinweise": [
+        "Das Kreuzprodukt hat 4 Zeilen. Prüfe bei jeder, ob die ArtikelNr gleich ist.",
+        "Die Zeilen (1, 1) und (2, 2) passen."
+      ],
+      "erklaerung": "Von den 4 Kombinationen haben nur zwei auf beiden Seiten die gleiche ArtikelNr (1/1 und 2/2): **2 Zeilen**."
+    },
+    {
+      "id": "p-rechnen",
+      "typ": "text",
+      "lz": ["L10", "L23"],
+      "thema": "Zeilen zählen",
+      "stufe": 1,
+      "frage": "Die Tabelle A hat {{a}} Zeilen, die Tabelle B hat {{b}} Zeilen. Wie viele Zeilen hat das Ergebnis von `SELECT * FROM A, B`?",
+      "parameter": [
+        {"a": 3, "b": 4, "p": "12"},
+        {"a": 7, "b": 6, "p": "42"},
+        {"a": 10, "b": 10, "p": "100"},
+        {"a": 8, "b": 5, "p": "40"}
+      ],
+      "antworten": ["{{p}}"],
+      "eingabeLabel": "Anzahl Zeilen",
+      "hinweise": [
+        "Jede Zeile von A wird mit jeder Zeile von B kombiniert.",
+        "Multipliziere {{a}} mit {{b}}."
+      ],
+      "erklaerung": "{{a}} · {{b}} = **{{p}}** Zeilen."
+    },
+    {
+      "id": "p-rechnen-drei",
+      "typ": "text",
+      "lz": ["L10", "L23"],
+      "thema": "Zeilen zählen",
+      "stufe": 2,
+      "frage": "Die Tabellen A, B und C haben 4, 3 und 5 Zeilen. Wie viele Zeilen hat das Ergebnis von `SELECT * FROM A, B, C`?",
+      "antworten": ["60"],
+      "eingabeLabel": "Anzahl Zeilen",
+      "hinweise": [
+        "Bei drei Tabellen multiplizierst du alle drei Zahlen."
+      ],
+      "erklaerung": "4 · 3 · 5 = **60** Zeilen."
+    },
+    {
+      "id": "p-spalten",
+      "typ": "text",
+      "lz": ["L23", "L10"],
+      "thema": "Spalten des Kreuzprodukts",
+      "stufe": 2,
+      "frage": "Wie viele **Spalten** hat das Ergebnis von `SELECT * FROM {{t1}}, {{t2}}`? Tipp: Die Tabellen siehst du unten.",
+      "parameter": [
+        {"t1": "kunde", "t2": "flug", "s": "11"},
+        {"t1": "kunde", "t2": "buchung", "s": "9"},
+        {"t1": "flug", "t2": "buchung", "s": "12"}
+      ],
+      "zeigen": ["{{t1}}", "{{t2}}"],
+      "antworten": ["{{s}}"],
+      "eingabeLabel": "Anzahl Spalten",
+      "hinweise": [
+        "Beim Kreuzprodukt stehen die Spalten beider Tabellen nebeneinander.",
+        "Zähle die Spalten jeder Tabelle und addiere."
+      ],
+      "erklaerung": "Die Spalten werden **addiert** (nicht multipliziert): Spalten von {{t1}} + Spalten von {{t2}} = **{{s}}**. Die Zeilen dagegen werden multipliziert."
+    },
+    {
+      "id": "p-konzept",
+      "typ": "choice",
+      "lz": ["L23"],
+      "thema": "Kreuzprodukt verstehen",
+      "stufe": 1,
+      "frage": "Was liefert `SELECT * FROM kunde, flug` (ohne WHERE)?",
+      "optionen": [
+        {"text": "Jede Zeile von kunde kombiniert mit jeder Zeile von flug.", "richtig": true, "warum": "Das ist das Kreuzprodukt."},
+        {"text": "Nur die Kunden, die einen Flug gebucht haben.", "warum": "Dafür bräuchtest du eine Bedingung, die die Tabellen verbindet. Ohne WHERE wird alles mit allem kombiniert."},
+        {"text": "Erst alle Kunden, dann alle Flüge untereinander.", "warum": "Die Zeilen werden nicht untereinander gehängt, sondern kombiniert (Spalten nebeneinander)."},
+        {"text": "Einen Fehler, weil zwei Tabellen genannt werden.", "warum": "Mehrere Tabellen in FROM sind erlaubt."}
+      ],
+      "hinweise": [
+        "Hilfsblatt: «Ohne WHERE entsteht ein Kreuzprodukt.»",
+        "Jede mit jeder."
+      ],
+      "erklaerung": "Ohne WHERE entsteht das Kreuzprodukt: jede der 11 Kunden-Zeilen mit jeder der 5 Flug-Zeilen, also 55 Zeilen."
+    },
+    {
+      "id": "p-fehler",
+      "typ": "choice",
+      "db": "obst",
+      "lz": ["L23", "L24"],
+      "thema": "Kreuzprodukt vs. Verknüpfung",
+      "stufe": 2,
+      "frage": [
+        "Frau Kiwi bekommt für ihre Kiwis zwei Preise statt einem:",
+        "```sql",
+        "SELECT Beschreibung, Tagespreis",
+        "FROM Artikel, Tagespreis",
+        "WHERE Beschreibung LIKE 'Kiwi%'",
+        "```",
+        "Was fehlt in der Abfrage?"
+      ],
+      "optionen": [
+        {"text": "Eine Bedingung, die zusammengehörende Zeilen verbindet: Artikel.ArtikelNr = Tagespreis.ArtikelNr.", "richtig": true, "warum": "Sie lässt aus dem Kreuzprodukt nur die passenden Paare übrig."},
+        {"text": "Das Schlüsselwort DISTINCT.", "warum": "DISTINCT entfernt nur gleiche Zeilen. Die zwei Zeilen unterscheiden sich im Preis."},
+        {"text": "Ein ORDER BY.", "warum": "Sortieren ändert nicht, welche Zeilen im Ergebnis stehen."},
+        {"text": "Die Spalte ArtikelNr im SELECT.", "warum": "Mit zusätzlichen Spalten bleiben es immer noch zu viele Zeilen."}
+      ],
+      "hinweise": [
+        "Das Problem sind die zwei Preise zu einer Frucht. Wie kommt es dazu?",
+        "Die Tabellen sind nicht miteinander verbunden."
+      ],
+      "erklaerung": "Ohne Verbindungsbedingung wird jede Frucht mit jedem Preis kombiniert. `Artikel.ArtikelNr = Tagespreis.ArtikelNr` fügt nur die zusammengehörenden Zeilen zusammen."
+    },
+    {
+      "id": "p-zuordnen-anzahl",
+      "typ": "zuordnen",
+      "lz": ["L10", "L23"],
+      "thema": "Zeilen zählen",
+      "stufe": 2,
+      "frage": "Wie viele Zeilen liefert die Abfrage? Ordne zu. (kunde 11 Zeilen, flug 5, buchung 9. In `buchung` hat bnr = 1001 genau eine Buchung, von Frankfurt starten 3 Flüge.)",
+      "kategorien": ["11", "33", "55", "99"],
+      "elemente": [
+        {"text": "SELECT * FROM kunde, flug", "antwort": "55", "warum": "11 · 5 = 55"},
+        {"text": "SELECT * FROM kunde, buchung", "antwort": "99", "warum": "11 · 9 = 99"},
+        {"text": "SELECT * FROM kunde, flug WHERE von = 'Frankfurt'", "antwort": "33", "warum": "11 Kunden · 3 passende Flüge = 33"},
+        {"text": "SELECT * FROM kunde, buchung WHERE bnr = 1001", "antwort": "11", "warum": "11 Kunden · 1 passende Buchung = 11"}
+      ],
+      "hinweise": [
+        "Zuerst das volle Kreuzprodukt rechnen, dann WHERE berücksichtigen.",
+        "Bei WHERE: Zeilen der betroffenen Tabelle zählen, die passen, und mit der anderen Tabelle multiplizieren."
+      ],
+      "erklaerung": "Ohne WHERE: Zeilen multiplizieren (55, 99). Mit WHERE auf eine Tabelle: erst deren passende Zeilen zählen (3 bzw. 1), dann mit den 11 Kunden multiplizieren (33, 11)."
+    },
+    {
+      "id": "p-sql-kombi",
+      "typ": "sql",
+      "lz": ["L23", "L9"],
+      "thema": "Kreuzprodukt schreiben",
+      "stufe": 1,
+      "frage": "Zeige jeden Kundennamen (`name`) zusammen mit jeder Flugnummer (`flugnr`) aus der Tabelle `flug`, also alle denkbaren Kombinationen.",
+      "loesung": "SELECT name, flugnr FROM kunde, flug",
+      "muss": [{"muster": "\\bFROM\\s+\\w+\\s*,\\s*\\w+", "meldung": "Nenne beide Tabellen nach FROM, getrennt durch ein Komma."}],
+      "verboten": [{"muster": "\\bWHERE\\b", "meldung": "Hier brauchst du keine Bedingung: alles soll mit allem kombiniert werden."}],
+      "zeigen": ["kunde", "flug"],
+      "hinweise": [
+        "Zwei Tabellen in FROM, mit Komma getrennt. Keine WHERE-Bedingung.",
+        "SELECT name, flugnr FROM kunde, flug"
+      ],
+      "erklaerung": "Ohne WHERE entsteht das Kreuzprodukt mit 55 Zeilen. Von diesen zeigst du nur die Spalten name und flugnr."
+    },
+    {
+      "id": "p-sql-kombi-filter",
+      "typ": "sql",
+      "lz": ["L23", "L9", "L15"],
+      "thema": "Kreuzprodukt filtern",
+      "stufe": 2,
+      "frage": "Zeige den Namen (`name`) und die Fluglinie (`fluglinie`) für alle Kombinationen aus Kunden mit `knr` kleiner oder gleich 2 und Flügen, die in **Frankfurt** starten (`von`).",
+      "loesung": "SELECT name, fluglinie FROM kunde, flug WHERE kunde.knr <= 2 AND flug.von = 'Frankfurt'",
+      "muss": [{"muster": "\\bFROM\\s+\\w+\\s*,\\s*\\w+", "meldung": "Nenne beide Tabellen nach FROM, getrennt durch ein Komma."}],
+      "zeigen": ["kunde", "flug"],
+      "hinweise": [
+        "Zwei Tabellen in FROM, zwei Bedingungen in WHERE mit AND.",
+        "SELECT name, fluglinie FROM kunde, flug WHERE kunde.knr <= 2 AND flug.von = 'Frankfurt'"
+      ],
+      "erklaerung": "2 Kunden · 3 Flüge ab Frankfurt = 6 Zeilen. Beide Bedingungen betreffen je eine Tabelle und filtern das Kreuzprodukt."
+    },
+    {
+      "id": "p-sql-preis",
+      "typ": "sql",
+      "db": "obst",
+      "lz": ["L23", "L9"],
+      "thema": "Kreuzprodukt filtern",
+      "stufe": 2,
+      "frage": "Zeige Beschreibung und Tagespreis der Artikel, deren Beschreibung mit «{{a}}» beginnt. Verbinde die Tabellen über die ArtikelNr.",
+      "parameter": [
+        {"a": "Kiwi"},
+        {"a": "Trauben"}
+      ],
+      "loesung": "SELECT Beschreibung, Tagespreis FROM Artikel, Tagespreis WHERE Artikel.ArtikelNr = Tagespreis.ArtikelNr AND Beschreibung LIKE '{{a}}%'",
+      "muss": [
+        {"muster": "ARTIKEL\\.ARTIKELNR\\s*=\\s*TAGESPREIS\\.ARTIKELNR|TAGESPREIS\\.ARTIKELNR\\s*=\\s*ARTIKEL\\.ARTIKELNR", "meldung": "Verbinde die Tabellen mit Artikel.ArtikelNr = Tagespreis.ArtikelNr."}
+      ],
+      "zeigen": ["Artikel", "Tagespreis"],
+      "hinweise": [
+        "Zwei Bedingungen mit AND: eine verbindet die Tabellen, eine wählt den Artikel.",
+        "Beschreibung LIKE '{{a}}%'"
+      ],
+      "erklaerung": "Die Verbindungsbedingung lässt aus 4 Kombinationen die 2 passenden übrig, LIKE wählt den Artikel {{a}}. Ergebnis: eine Zeile."
+    },
+    {
+      "id": "p-zeilen-obst-join",
+      "typ": "ergebnis",
+      "modus": "zeilen",
+      "db": "obst",
+      "lz": ["L11", "L23"],
+      "thema": "Ergebniszeilen angeben",
+      "stufe": 2,
+      "frage": "Kreuze die Zeilen an, die diese Abfrage ausgibt.",
+      "abfrage": "SELECT Beschreibung, Tagespreis\nFROM Artikel, Tagespreis\nWHERE Artikel.ArtikelNr = Tagespreis.ArtikelNr",
+      "kandidaten": "SELECT Beschreibung, Tagespreis FROM Artikel, Tagespreis",
+      "zeigen": ["Artikel", "Tagespreis"],
+      "hinweise": [
+        "Prüfe bei jeder Kombination: Ist die ArtikelNr beider Tabellen gleich?",
+        "Trauben haben ArtikelNr 1, Kiwi hat ArtikelNr 2."
+      ],
+      "erklaerung": "Nur zwei Kombinationen haben dieselbe ArtikelNr: Trauben mit 3.5 (beide 1) und Kiwi mit 4.75 (beide 2). Das sind die korrekten Preise."
+    },
+    {
+      "id": "p-zeilen-param",
+      "typ": "ergebnis",
+      "modus": "zeilen",
+      "lz": ["L11", "L23"],
+      "thema": "Ergebniszeilen angeben",
+      "stufe": 2,
+      "frage": "Kreuze die Zeilen an, die diese Abfrage ausgibt. In der Auswahl stehen die Kombinationen für die Kunden 1 bis 3 und Flüge ab Frankfurt oder London.",
+      "abfrage": "SELECT name, nach\nFROM kunde, flug\nWHERE kunde.knr = {{k}}\nAND flug.von = 'Frankfurt'",
+      "parameter": [
+        {"k": 1},
+        {"k": 2},
+        {"k": 3}
+      ],
+      "kandidaten": "SELECT name, nach FROM kunde, flug WHERE kunde.knr <= 3 AND flug.von IN ('Frankfurt', 'London')",
+      "zeigen": ["kunde", "flug"],
+      "hinweise": [
+        "Nur der Kunde mit knr = {{k}} bleibt übrig. Welche Flüge starten in Frankfurt?",
+        "Der Kunde wird mit jedem Frankfurt-Flug kombiniert: 3 Flüge → 3 Zeilen."
+      ],
+      "erklaerung": "1 Kunde (knr = {{k}}) · 3 Flüge ab Frankfurt (nach Pittsburgh, Sydney, NewYorkJFK) = 3 Zeilen. Der Flug ab London gehört nicht dazu."
+    },
+    {
+      "id": "p-zeilen-flug",
+      "typ": "ergebnis",
+      "modus": "zeilen",
+      "lz": ["L11", "L23"],
+      "thema": "Ergebniszeilen angeben",
+      "stufe": 3,
+      "frage": "Kreuze die Zeilen an, die diese Abfrage ausgibt. Die Auswahl zeigt alle zusammengehörenden Kunden-Buchungs-Paare.",
+      "abfrage": "SELECT name, flugnr\nFROM kunde, buchung\nWHERE kunde.knr = buchung.knr\nAND buchung.sitz > 100",
+      "kandidaten": "SELECT name, flugnr FROM kunde, buchung WHERE kunde.knr = buchung.knr",
+      "zeigen": ["kunde", "buchung"],
+      "hinweise": [
+        "Die Verknüpfung über knr ist in der Auswahl schon enthalten. Es fehlt die Bedingung für sitz.",
+        "Suche die Buchungen mit sitz über 100."
+      ],
+      "erklaerung": "Die Buchungen mit Sitz über 100 sind 1004 (123, Beyenburg, US1), 1006 (101, Tiedemann, BA1) und 1007 (102, Messdiener, LH772)."
+    },
+    {
+      "id": "p-tabelle-aufgabe2",
+      "typ": "tabelle",
+      "lz": ["L11", "L23"],
+      "thema": "Ergebniszeilen angeben",
+      "stufe": 2,
+      "frage": [
+        "Schreibe das Ergebnis dieser Abfrage auf (sortiert nach bnr):",
+        "```sql",
+        "SELECT name, vorname, bnr, flugnr, sitz",
+        "FROM kunde, buchung",
+        "WHERE kunde.knr = buchung.knr",
+        "AND flugnr = 'GW4'",
+        "ORDER BY bnr",
+        "```"
+      ],
+      "zeigen": ["kunde", "buchung"],
+      "tabellenname": "Ergebnis",
+      "spalten": ["name", "vorname", "bnr", "flugnr", "sitz"],
+      "zeilen": [
+        [{"loesung": "Paetzold"}, {"loesung": "Claudia"}, {"loesung": "1002"}, {"loesung": "GW4"}, {"loesung": "54"}],
+        [{"loesung": "Beyenburg"}, {"loesung": "Dirk"}, {"loesung": "1003"}, {"loesung": "GW4"}, {"loesung": "55"}]
+      ],
+      "hinweise": [
+        "Welche Buchungen gehören zum Flug GW4? Zu welchem Kunden gehört jede (knr)?",
+        "Bnr 1002 und 1003. Suche die Kunden mit der passenden knr."
+      ],
+      "erklaerung": "Buchung 1002 gehört zu knr 8 (Claudia Paetzold), Sitz 54. Buchung 1003 gehört zu knr 7 (Dirk Beyenburg), Sitz 55. Es sind **2 Zeilen**."
+    },
+    {
+      "id": "p-tabelle-aufgabe3",
+      "typ": "tabelle",
+      "lz": ["L11", "L23"],
+      "thema": "Ergebniszeilen angeben",
+      "stufe": 3,
+      "frage": [
+        "Schreibe das Ergebnis dieser Abfrage auf (sortiert nach flugnr):",
+        "```sql",
+        "SELECT flug.flugnr, flug.fluglinie, flug.von, flug.nach, sitz",
+        "FROM kunde, flug, buchung",
+        "WHERE buchung.knr = kunde.knr",
+        "AND buchung.flugnr = flug.flugnr",
+        "AND name = 'Paetzold'",
+        "ORDER BY flug.flugnr",
+        "```"
+      ],
+      "zeigen": ["kunde", "flug", "buchung"],
+      "tabellenname": "Ergebnis",
+      "spalten": ["flugnr", "fluglinie", "von", "nach", "sitz"],
+      "zeilen": [
+        [{"loesung": "GW4"}, {"loesung": "Germanwings"}, {"loesung": "LondonStansted"}, {"loesung": ["Köln/Bonn", "Koeln/Bonn"]}, {"loesung": "54"}],
+        [{"loesung": "US1"}, {"loesung": "USAirways"}, {"loesung": "Frankfurt"}, {"loesung": "Pittsburgh"}, {"loesung": "79"}]
+      ],
+      "hinweise": [
+        "Suche in kunde die knr von Paetzold. Welche Buchungen hat diese knr?",
+        "Paetzold hat knr 8, mit den Buchungen 1002 (GW4) und 1009 (US1). Hole die Flugdaten aus der Tabelle flug."
+      ],
+      "erklaerung": "Claudia Paetzold (knr 8) hat zwei Buchungen: 1002 auf GW4 (Sitz 54) und 1009 auf US1 (Sitz 79). Die Bedingungen verbinden Buchung mit Kunde und Flug. Ergebnis: **2 Zeilen**."
+    },
+    {
+      "id": "p-tabelle-obst-falsch",
+      "typ": "tabelle",
+      "db": "obst",
+      "lz": ["L11", "L23"],
+      "thema": "Ergebniszeilen angeben",
+      "stufe": 2,
+      "frage": [
+        "Schreibe das Ergebnis dieser (fehlerhaften) Abfrage auf, nach Tagespreis sortiert:",
+        "```sql",
+        "SELECT Beschreibung, Tagespreis",
+        "FROM Artikel, Tagespreis",
+        "WHERE Beschreibung LIKE 'Kiwi%'",
+        "ORDER BY Tagespreis",
+        "```"
+      ],
+      "zeigen": ["Artikel", "Tagespreis"],
+      "tabellenname": "Ergebnis",
+      "spalten": ["Beschreibung", "Tagespreis"],
+      "zeilen": [
+        [{"loesung": ["Kiwi(3Stk.)", "Kiwi"]}, {"loesung": ["3.5", "3,5"]}],
+        [{"loesung": ["Kiwi(3Stk.)", "Kiwi"]}, {"loesung": ["4.75", "4,75"]}]
+      ],
+      "hinweise": [
+        "Welche Zeilen von Artikel erfüllen WHERE? Mit wie vielen Zeilen von Tagespreis werden sie kombiniert?",
+        "Kiwi wird mit beiden Preisen kombiniert."
+      ],
+      "erklaerung": "Die Kiwi-Zeile aus Artikel wird mit beiden Zeilen aus Tagespreis kombiniert: 1 · 2 = **2 Zeilen**, Kiwi mit 3.5 und Kiwi mit 4.75. Eine Bedingung zwischen den Tabellen fehlt."
+    }
+  ]
+}

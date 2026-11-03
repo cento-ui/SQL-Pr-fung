@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "kapitel": [
+    {"id": "k01", "datei": "chapters/k01-tabellen-lesen.json",            "titel": "Der erste Fall: Tabellen lesen",        "lernziele": ["L3", "L8", "L12"]},
+    {"id": "k02", "datei": "chapters/k02-redundanz.json",                 "titel": "Das Chaos in der Bibliothek",           "lernziele": ["L1", "L2", "L3"]},
+    {"id": "k03", "datei": "chapters/k03-schluessel-datentypen.json",     "titel": "Schlüssel zu allem",                    "lernziele": ["L4", "L5"]},
+    {"id": "k04", "datei": "chapters/k04-schema-beziehungen.json",        "titel": "Der Bauplan des Flughafens",            "lernziele": ["L6", "L7", "L8"]},
+    {"id": "k05", "datei": "chapters/k05-select-where.json",              "titel": "Spuren filtern",                        "lernziele": ["L9", "L12", "L15"]},
+    {"id": "k06", "datei": "chapters/k06-sortieren-distinct-alias.json",  "titel": "Ordnung in der Akte",                   "lernziele": ["L13", "L14", "L20", "L21"]},
+    {"id": "k07", "datei": "chapters/k07-logik-klammern.json",            "titel": "Und, oder, nicht",                      "lernziele": ["L15", "L22"]},
+    {"id": "k08", "datei": "chapters/k08-muster-bereiche-null.json",      "titel": "Unscharfe Zeugenaussagen",              "lernziele": ["L16", "L17", "L18"]},
+    {"id": "k09", "datei": "chapters/k09-aggregate.json",                 "titel": "Zählen, summieren, vergleichen",        "lernziele": ["L19", "L14", "L20"]},
+    {"id": "k10", "datei": "chapters/k10-kreuzprodukt.json",              "titel": "Alles mit allem: das Kreuzprodukt",     "lernziele": ["L23", "L10", "L11"]},
+    {"id": "k11", "datei": "chapters/k11-verknuepfen.json",               "titel": "Die Spur über drei Tabellen",           "lernziele": ["L24", "L7", "L9"]},
+    {"id": "k12", "datei": "chapters/k12-insel-training.json",            "titel": "Finale auf der Insel",                  "lernziele": ["L9", "L10", "L11", "L12", "L15", "L19", "L22", "L24"]},
+    {"id": "k13", "datei": "chapters/k13-pruefungspool.json",             "titel": "Prüfungspool",                          "lernziele": [], "nurPool": true}
+  ]
+}

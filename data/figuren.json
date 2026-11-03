@@ -1,0 +1,8 @@
+[
+  {"id": "tabea", "name": "Tabea Tupel", "rolle": "Kommissarin, Leiterin der Datendetektei", "kuerzel": "TT", "farbe": "#c2410c"},
+  {"id": "ammann", "name": "Herr Ammann", "rolle": "Bibliothekar der Stadtbibliothek", "kuerzel": "HA", "farbe": "#1d4ed8"},
+  {"id": "pilotin", "name": "Rita Riff", "rolle": "Pilotin am Flughafen", "kuerzel": "RR", "farbe": "#047857"},
+  {"id": "marktfrau", "name": "Frau Kiwi", "rolle": "Obsthändlerin am Markt", "kuerzel": "FK", "farbe": "#7c3aed"},
+  {"id": "kapitaen", "name": "Oskar Orka", "rolle": "Kapitän und Häuptling von Muschelbucht", "kuerzel": "OO", "farbe": "#0e7490"},
+  {"id": "erzaehler", "name": "Notiz", "rolle": "Erzähler", "kuerzel": "i", "farbe": "#6b7280"}
+]

@@ -1,0 +1,938 @@
+{
+  "id": "k07",
+  "titel": "Und, oder, nicht",
+  "untertitel": "Bedingungen kombinieren mit AND, OR, NOT und Klammern. Mit der richtigen Priorität.",
+  "db": "bibliothek",
+  "lernziele": [
+    "L15",
+    "L22"
+  ],
+  "dauer": 40,
+  "schritte": [
+    {
+      "id": "s-start",
+      "typ": "info",
+      "titel": "Eine Bedingung reicht nicht",
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Willkommen in der Stadtbibliothek. Ich bin Herr Ammann. Eine Kiste mit Büchern stand im Lager, und jemand hat etwas darauf geschlafen. Ich habe nur vage Angaben, wann und von welchem Verlag die Bücher stammen."
+        },
+        {
+          "sprecher": "tabea",
+          "text": "Dann brauchen wir Bedingungen, die man kombinieren kann."
+        }
+      ],
+      "text": [
+        "## Wiederholung: eine Bedingung",
+        "Mit `WHERE` wählst du Zeilen aus. Eine Bedingung vergleicht eine Spalte mit einem Wert, zum Beispiel `jahr = 1991` oder `verlagsid <> 3`. Eine Zeile kommt ins Ergebnis, wenn die Bedingung für diese Zeile **wahr** ist.",
+        "## Wo wir jetzt arbeiten",
+        "Wir arbeiten in der Datenbank *bibliothek*. Wichtig sind hier drei Tabellen:",
+        "- `buch` – `buchid`, `titel`, `isbn`, `auflage`, `jahr`, `preis`, `waehrung`, `signatur`, `verlagsid`",
+        "- `verlag` – `verlagsid`, `name`, `ort`",
+        "- `autor` – `autorid`, `nachname`, `zusatz`, `vornamen`",
+        "Oft reicht eine einzige Bedingung nicht. Herr Ammann sagt zum Beispiel: «Das Buch ist von 1991 **und** vom Verlag 3.» Oder: «Es ist von 1990 **oder** von 1991.» Dafür gibt es die **logischen Operatoren** `AND`, `OR` und `NOT`."
+      ]
+    },
+    {
+      "id": "s-and-or-not",
+      "typ": "info",
+      "titel": "AND, OR und NOT",
+      "story": "Du kennst die drei Wörter aus dem Alltag. SQL benutzt sie genau gleich.",
+      "text": [
+        "## AND – beide müssen stimmen",
+        "«Ich gehe ins Kino, wenn ich Zeit habe **und** Geld habe.» Fehlt eines von beiden, gehe ich nicht. Bei `AND` müssen **beide** Bedingungen wahr sein.",
+        "```sql",
+        "SELECT titel, jahr",
+        "FROM buch",
+        "WHERE verlagsid = 3 AND jahr = 1991",
+        "```",
+        "Das Buch muss vom Verlag 3 **und** von 1991 sein.",
+        "## OR – mindestens eines muss stimmen",
+        "«Ich nehme einen Tee **oder** einen Kaffee.» Es genügt eines von beiden. Bei `OR` reicht es, wenn **mindestens eine** Bedingung wahr ist. Auch beide zusammen sind erlaubt.",
+        "```sql",
+        "SELECT name, ort",
+        "FROM verlag",
+        "WHERE ort = 'Zürich' OR ort = 'Basel'",
+        "```",
+        "## NOT – das Gegenteil",
+        "`NOT` dreht eine Bedingung um: Was vorher wahr war, ist falsch, und umgekehrt.",
+        "```sql",
+        "SELECT name, ort",
+        "FROM verlag",
+        "WHERE NOT ort = 'Bonn'",
+        "```",
+        "Das ist gleichbedeutend mit `ort <> 'Bonn'`.",
+        "## Die Wahrheitstabelle",
+        "Eine Bedingung ist für jede Zeile entweder wahr (w) oder falsch (f). So verhalten sich die Operatoren:",
+        "| A | B | A AND B | A OR B | NOT A |",
+        "|---|---|---|---|---|",
+        "| w | w | w | w | f |",
+        "| w | f | f | w | f |",
+        "| f | w | f | w | w |",
+        "| f | f | f | f | w |",
+        "Lies jede Zeile der Tabelle einmal laut. Zum Beispiel die zweite: A ist wahr, B ist falsch. `AND` braucht beide, also falsch. `OR` braucht eines, also wahr.",
+        "## Zwei typische Fehler",
+        "- Jede Seite von `AND` / `OR` ist eine **vollständige** Bedingung. `jahr = 1990 OR 1991` ist falsch, richtig ist `jahr = 1990 OR jahr = 1991`.",
+        "- Ein einzelner Wert kann nicht gleichzeitig zwei Werte haben. `jahr = 1990 AND jahr = 1991` liefert nie eine Zeile. Du meinst dann `OR`.",
+        "> Merke: AND = beide wahr. OR = mindestens eine wahr. NOT = Gegenteil."
+      ]
+    },
+    {
+      "id": "a-and",
+      "typ": "sql",
+      "titel": "Zwei Bedingungen mit AND",
+      "lz": [
+        "L15",
+        "L9"
+      ],
+      "thema": "AND",
+      "stufe": 1,
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Die Kiste enthält Bücher vom Verlag mit der Nummer 3, erschienen 1991."
+        }
+      ],
+      "frage": "Zeige `titel` und `jahr` aller Bücher, die vom Verlag mit `verlagsid` 3 stammen **und** 1991 erschienen sind.",
+      "loesung": "SELECT titel, jahr FROM buch WHERE verlagsid = 3 AND jahr = 1991",
+      "hinweise": [
+        "Du brauchst zwei Bedingungen in WHERE. Wie verbindest du sie, wenn beide gelten müssen?",
+        "WHERE verlagsid = 3 AND …",
+        "SELECT titel, jahr FROM buch WHERE verlagsid = 3 AND jahr = 1991"
+      ],
+      "erklaerung": "`AND` verbindet zwei vollständige Bedingungen. Eine Zeile kommt nur ins Ergebnis, wenn **beide** wahr sind. Das Ergebnis hat 2 Zeilen: die beiden Bücher «Relationale Datenbanken …» von 1991."
+    },
+    {
+      "id": "a-or",
+      "typ": "sql",
+      "titel": "Zwei Möglichkeiten mit OR",
+      "lz": [
+        "L15",
+        "L9"
+      ],
+      "thema": "OR",
+      "stufe": 1,
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Ein Zeuge sagt: «Der Verlag sitzt in Zürich oder in Basel.»"
+        }
+      ],
+      "frage": "Zeige `name` und `ort` aller Verlage, die in **Zürich** oder in **Basel** sind.",
+      "loesung": "SELECT name, ort FROM verlag WHERE ort = 'Zürich' OR ort = 'Basel'",
+      "hinweise": [
+        "Texte stehen in einfachen Anführungszeichen: 'Zürich'.",
+        "Du brauchst zwei Vergleiche mit OR dazwischen. Jeder Vergleich ist vollständig: ort = …",
+        "WHERE ort = 'Zürich' OR ort = 'Basel'"
+      ],
+      "erklaerung": "Mit `OR` genügt es, wenn eine der beiden Bedingungen stimmt. Du erhältst 3 Verlage: Birkhäuser (Basel), Orell Füssli und vdf Hochschulverlag (beide Zürich). Falsch wäre `ort = 'Zürich' OR 'Basel'`: Jede Seite von OR braucht einen vollständigen Vergleich."
+    },
+    {
+      "id": "a-and-anzahl",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "titel": "Wie viele Zeilen mit AND?",
+      "lz": [
+        "L10",
+        "L15"
+      ],
+      "thema": "AND",
+      "stufe": 1,
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Ohne den Computer: Du bestimmst das Ergebnis im Kopf, so wie in der Prüfung."
+        }
+      ],
+      "frage": "Wie viele Zeilen liefert diese Abfrage? Prüfe jede Zeile der Tabelle `verlag`: Erfüllt sie **beide** Bedingungen?",
+      "abfrage": "SELECT *\nFROM verlag\nWHERE ort = 'Bonn' AND verlagsid > 10",
+      "zeigen": [
+        "verlag"
+      ],
+      "hinweise": [
+        "Suche zuerst alle Verlage in Bonn.",
+        "Streiche dann davon alle, deren verlagsid nicht grösser als 10 ist."
+      ],
+      "erklaerung": "In Bonn sind die Verlage 1, 16 und 18. Von diesen erfüllen nur 16 und 18 auch `verlagsid > 10`. Ergebnis: **2** Zeilen."
+    },
+    {
+      "id": "a-not",
+      "typ": "sql",
+      "titel": "Etwas ausschliessen mit NOT",
+      "lz": [
+        "L15",
+        "L9"
+      ],
+      "thema": "NOT",
+      "stufe": 2,
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Aus der Autorenkartei mit den Nummern 201 bis 206 suchen wir alle, die nicht Müller heissen."
+        }
+      ],
+      "frage": "Zeige `nachname` und `vornamen` aller Autoren mit `autorid` von 201 bis 206 (also `autorid >= 201 AND autorid <= 206`), aber **ohne** die, deren Nachname `Müller` ist. Verwende `NOT`.",
+      "loesung": "SELECT nachname, vornamen FROM autor WHERE autorid >= 201 AND autorid <= 206 AND NOT nachname = 'Müller'",
+      "muss": [
+        {
+          "muster": "\\bNOT\\b",
+          "meldung": "Verwende NOT."
+        }
+      ],
+      "hinweise": [
+        "Du brauchst drei Bedingungen, alle mit AND verbunden.",
+        "Die letzte Bedingung ist nachname = 'Müller'. Setze NOT davor.",
+        "… AND NOT nachname = 'Müller'"
+      ],
+      "erklaerung": "`NOT nachname = 'Müller'` ist wahr für alle, die nicht Müller heissen. Es bleiben Meier, Maier, Mueller und Meyer. «Mueller» ohne Umlaut ist ein anderer Text als «Müller»."
+    },
+    {
+      "id": "s-klammern",
+      "typ": "info",
+      "titel": "Klammern und Priorität",
+      "story": [
+        {
+          "sprecher": "tabea",
+          "text": "Jetzt kommt die Stelle, an der in Prüfungen die meisten Punkte verloren gehen: mehrere Operatoren in einer Bedingung."
+        }
+      ],
+      "text": [
+        "## Punkt vor Strich, auch in SQL",
+        "In der Mathematik gilt: `2 + 3 · 4` ergibt 14, weil Mal vor Plus gerechnet wird. Mit Klammern ändert sich das: `(2 + 3) · 4` ergibt 20.",
+        "Bei `AND`, `OR` und `NOT` gibt es eine solche Reihenfolge auch. Man nennt sie **Priorität** (oder Bindungsstärke):",
+        "1. Klammern `( )` zuerst",
+        "2. `NOT` bindet am stärksten",
+        "3. `AND` bindet danach",
+        "4. `OR` bindet am schwächsten",
+        "Kurz: **NOT > AND > OR.** `AND` ist wie «Mal», `OR` wie «Plus».",
+        "> Achtung, Fehler auf dem Hilfsblatt: Im Tipp 5 steht «AND > OR > NOT». Das ist falsch notiert. Richtig ist **NOT > AND > OR**, so steht es auch im SQL-Tutorial (Abschnitt 9.3). Auf der Seite zeigt das Hilfsblatt (Taste H) dazu einen Korrekturkasten.",
+        "## Ein Beispiel",
+        "```sql",
+        "WHERE ort = 'Bonn' OR ort = 'Zürich' AND verlagsid > 15",
+        "```",
+        "Weil `AND` stärker bindet, liest SQL das so:",
+        "```sql",
+        "WHERE ort = 'Bonn' OR (ort = 'Zürich' AND verlagsid > 15)",
+        "```",
+        "Die Bedingung heisst also: «in Bonn» **oder** «in Zürich mit verlagsid grösser als 15». Wer eigentlich meint «(Bonn oder Zürich) und verlagsid > 15», muss Klammern setzen:",
+        "```sql",
+        "WHERE (ort = 'Bonn' OR ort = 'Zürich') AND verlagsid > 15",
+        "```",
+        "## So gehst du vor",
+        "- **Setze im Zweifel immer Klammern.** Überflüssige Klammern schaden nie, fehlende schon.",
+        "- Beim Ergebnis bestimmen: Setze die Klammern, die SQL sich denkt, selbst ein, und prüfe dann jede Zeile.",
+        "- `NOT (A AND B)` bedeutet «nicht beides zugleich». Das ist etwas anderes als `NOT A AND NOT B`.",
+        "> Merke: NOT > AND > OR. Klammern gehen immer vor."
+      ]
+    },
+    {
+      "id": "a-prio-wahl",
+      "typ": "choice",
+      "titel": "Wie liest SQL das?",
+      "lz": [
+        "L22",
+        "L15"
+      ],
+      "thema": "Priorität",
+      "stufe": 2,
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Ich habe diese Bedingung ohne Klammern notiert. Was macht SQL daraus?"
+        }
+      ],
+      "frage": [
+        "Wie wertet SQL diese Bedingung aus?",
+        "```sql",
+        "WHERE ort = 'München' OR ort = 'Berlin' AND verlagsid > 4",
+        "```"
+      ],
+      "mischen": true,
+      "optionen": [
+        {
+          "text": "ort = 'München' OR (ort = 'Berlin' AND verlagsid > 4)",
+          "richtig": true,
+          "warum": "AND bindet stärker als OR, darum wird der AND-Teil zuerst zusammengefasst."
+        },
+        {
+          "text": "(ort = 'München' OR ort = 'Berlin') AND verlagsid > 4",
+          "warum": "So wäre es mit Klammern. Ohne Klammern gilt: AND zuerst."
+        },
+        {
+          "text": "Von links nach rechts: zuerst OR, dann AND",
+          "warum": "SQL liest nicht einfach von links nach rechts. Die Priorität entscheidet: NOT > AND > OR."
+        },
+        {
+          "text": "Das ist ein Fehler, man muss immer Klammern setzen",
+          "warum": "Die Bedingung ist gültig. Klammern sind nur empfohlen, nicht verlangt."
+        }
+      ],
+      "hinweise": [
+        "Denke an «Punkt vor Strich». Welcher Operator ist hier «Mal»?",
+        "AND ist stärker als OR."
+      ],
+      "erklaerung": "`AND` bindet stärker als `OR`. SQL liest also: «in München» **oder** «in Berlin mit verlagsid > 4». Das sieht man erst, wenn man die Klammern selbst setzt."
+    },
+    {
+      "id": "a-prio-anzahl",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "titel": "Zeilen zählen ohne Klammern",
+      "lz": [
+        "L22",
+        "L10"
+      ],
+      "thema": "Priorität",
+      "stufe": 2,
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Rechne es jetzt durch: Setze die Klammern gedanklich so, wie SQL sie liest, und prüfe jede Zeile."
+        }
+      ],
+      "frage": "Wie viele Zeilen liefert diese Abfrage?",
+      "abfrage": "SELECT *\nFROM verlag\nWHERE ort = 'München' OR ort = 'Berlin' AND verlagsid > 4",
+      "zeigen": [
+        "verlag"
+      ],
+      "hinweise": [
+        "Lies es als: ort = 'München' OR (ort = 'Berlin' AND verlagsid > 4).",
+        "Alle Verlage in München kommen sicher ins Ergebnis. Bei Berlin muss zusätzlich verlagsid > 4 gelten."
+      ],
+      "erklaerung": "München: Verlage 3 und 5, beide kommen ins Ergebnis. Berlin: Verlage 2 und 11, aber nur 11 hat verlagsid > 4. Insgesamt **3** Zeilen (3, 5, 11)."
+    },
+    {
+      "id": "a-prio-klammer-anzahl",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "titel": "Dieselbe Abfrage mit Klammern",
+      "lz": [
+        "L22",
+        "L10"
+      ],
+      "thema": "Klammern",
+      "stufe": 2,
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Jetzt setze ich Klammern. Sie verändern die Bedeutung."
+        }
+      ],
+      "frage": "Wie viele Zeilen liefert diese Abfrage mit den Klammern?",
+      "abfrage": "SELECT *\nFROM verlag\nWHERE (ort = 'München' OR ort = 'Berlin') AND verlagsid > 4",
+      "zeigen": [
+        "verlag"
+      ],
+      "hinweise": [
+        "Zuerst die Klammer: Welche Verlage sind in München oder Berlin?",
+        "Von diesen vier behältst du nur die mit verlagsid > 4."
+      ],
+      "erklaerung": "In München oder Berlin sind die Verlage 2, 3, 5 und 11. Von diesen haben nur 5 und 11 eine verlagsid grösser als 4. Ergebnis: **2** Zeilen. Gleiche Wörter, andere Klammern, anderes Ergebnis (vorher 3)."
+    },
+    {
+      "id": "a-klammer-sql",
+      "typ": "sql",
+      "titel": "Klammern selbst setzen",
+      "lz": [
+        "L22",
+        "L9"
+      ],
+      "thema": "Klammern",
+      "stufe": 2,
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Die Kiste enthält Bücher aus den Jahren 1990 oder 1991, und zwar von Verlag 3 oder Verlag 4."
+        }
+      ],
+      "frage": "Zeige `titel` und `jahr` aller Bücher, die **1990 oder 1991** erschienen sind und **vom Verlag 3 oder vom Verlag 4** stammen (`verlagsid`). Setze Klammern.",
+      "loesung": "SELECT titel, jahr FROM buch WHERE (jahr = 1990 OR jahr = 1991) AND (verlagsid = 3 OR verlagsid = 4)",
+      "muss": [
+        {
+          "muster": "\\(",
+          "meldung": "Setze Klammern um die OR-Teile."
+        }
+      ],
+      "hinweise": [
+        "Es gibt zwei «oder»-Paare, die mit «und» verbunden werden.",
+        "Jedes OR-Paar gehört in eine eigene Klammer.",
+        "WHERE (jahr = 1990 OR jahr = 1991) AND (verlagsid = 3 OR verlagsid = 4)"
+      ],
+      "erklaerung": "Ohne Klammern würde `AND` zuerst gerechnet und das Ergebnis wäre falsch. Mit den Klammern gilt: (eines der Jahre) **und** (einer der Verlage). Ergebnis: 3 Bücher."
+    },
+    {
+      "id": "a-not-klammer",
+      "typ": "sql",
+      "titel": "Weder … noch",
+      "lz": [
+        "L22",
+        "L15"
+      ],
+      "thema": "NOT mit Klammern",
+      "stufe": 3,
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Ich suche nur unter den ersten acht Verlagen, und zwar solche, die weder in München noch in Berlin sitzen."
+        }
+      ],
+      "frage": "Zeige `verlagsid` und `name` aller Verlage mit `verlagsid` kleiner oder gleich 8, die **weder in München noch in Berlin** sind.",
+      "loesung": "SELECT verlagsid, name FROM verlag WHERE verlagsid <= 8 AND NOT (ort = 'München' OR ort = 'Berlin')",
+      "hinweise": [
+        "«Weder A noch B» heisst: nicht A und nicht B. Oder zusammengefasst: NOT (A OR B).",
+        "Die Bedingung verlagsid <= 8 verbindest du mit AND.",
+        "… AND NOT (ort = 'München' OR ort = 'Berlin')"
+      ],
+      "erklaerung": "`NOT (A OR B)` verneint die ganze Klammer. Du kannst auch `ort <> 'München' AND ort <> 'Berlin'` schreiben. Der Verlag 8 hat den Ort «Berlin; Heidelberg». Das ist ein anderer Text als «Berlin» und gehört deshalb zum Ergebnis."
+    },
+    {
+      "id": "a-ergebnis-zeilen",
+      "typ": "ergebnis",
+      "modus": "zeilen",
+      "titel": "Ergebniszeilen angeben",
+      "lz": [
+        "L11",
+        "L22"
+      ],
+      "thema": "Priorität",
+      "stufe": 3,
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "In der Prüfung sollst du manchmal die Zeilen selbst aufschreiben. Kreuze hier an, welche vorkommen."
+        }
+      ],
+      "frage": "Welche Verlagsnamen stehen im Ergebnis? Denke an die Priorität von AND und OR.",
+      "abfrage": "SELECT name\nFROM verlag\nWHERE ort = 'Bonn' OR ort = 'Zürich' AND verlagsid > 15",
+      "kandidaten": "SELECT name FROM verlag WHERE ort = 'Bonn' OR ort = 'Zürich' OR ort = 'Berlin'",
+      "zeigen": [
+        "verlag"
+      ],
+      "hinweise": [
+        "Lies es als: ort = 'Bonn' OR (ort = 'Zürich' AND verlagsid > 15).",
+        "Alle Verlage in Bonn kommen ins Ergebnis. Bei Zürich zählt nur, wer verlagsid > 15 hat."
+      ],
+      "erklaerung": "Bonn: Addison Wesley (1), Galileo (16), Thomson (18), alle drei kommen ins Ergebnis. Zürich: Orell Füssli (14) und vdf Hochschulverlag (15) haben keine verlagsid > 15, also fallen sie weg. Berlin kommt in der Bedingung gar nicht vor."
+    },
+    {
+      "id": "s-ende",
+      "typ": "info",
+      "titel": "Die Kiste ist geöffnet",
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Gut gemacht. Die Kiste stammt aus dem Lager, in dem auch viele Bücher ohne Preis und ohne Titel liegen. Das ist ein Problem für den nächsten Schritt: Manche Angaben fehlen ganz."
+        },
+        {
+          "sprecher": "tabea",
+          "text": "Dann fragen wir als Nächstes nach Mustern, Bereichen und leeren Werten."
+        }
+      ],
+      "text": [
+        "## Zusammenfassung",
+        "- `AND`: beide Bedingungen müssen wahr sein. `OR`: mindestens eine muss wahr sein. `NOT`: dreht um.",
+        "- Jede Seite von AND / OR ist eine vollständige Bedingung (`jahr = 1990 OR jahr = 1991`).",
+        "- Priorität: **NOT > AND > OR**. Das Hilfsblatt-Tipp «AND > OR > NOT» ist verkehrt.",
+        "- Klammern gehen vor. Im Zweifel immer Klammern setzen.",
+        "- Beim Ergebnis bestimmen: Klammern gedanklich setzen, dann Zeile für Zeile prüfen."
+      ]
+    }
+  ],
+  "pool": [
+    {
+      "id": "p-wahrheit",
+      "typ": "text",
+      "lz": [
+        "L15"
+      ],
+      "thema": "Wahrheitstabelle",
+      "stufe": 1,
+      "frage": "Ist dieser Ausdruck **wahr** oder **falsch**? `{{ausdruck}}`",
+      "eingabeLabel": "wahr oder falsch:",
+      "antworten": [
+        "{{antwort}}"
+      ],
+      "parameter": [
+        {
+          "ausdruck": "wahr AND falsch",
+          "antwort": "falsch"
+        },
+        {
+          "ausdruck": "wahr OR falsch",
+          "antwort": "wahr"
+        },
+        {
+          "ausdruck": "NOT falsch",
+          "antwort": "wahr"
+        },
+        {
+          "ausdruck": "falsch OR falsch",
+          "antwort": "falsch"
+        }
+      ],
+      "hinweise": [
+        "AND braucht beide wahr, OR genügt eines.",
+        "NOT dreht um."
+      ],
+      "erklaerung": "`{{ausdruck}}` ergibt **{{antwort}}**. AND ist nur wahr, wenn beide Seiten wahr sind. OR ist wahr, wenn mindestens eine Seite wahr ist. NOT dreht den Wert um."
+    },
+    {
+      "id": "p-wahrheit-prio",
+      "typ": "text",
+      "lz": [
+        "L22",
+        "L15"
+      ],
+      "thema": "Priorität",
+      "stufe": 2,
+      "frage": "Ist dieser Ausdruck **wahr** oder **falsch**? Beachte die Priorität NOT > AND > OR. `{{ausdruck}}`",
+      "eingabeLabel": "wahr oder falsch:",
+      "antworten": [
+        "{{antwort}}"
+      ],
+      "parameter": [
+        {
+          "ausdruck": "wahr OR falsch AND falsch",
+          "antwort": "wahr"
+        },
+        {
+          "ausdruck": "falsch AND falsch OR wahr",
+          "antwort": "wahr"
+        },
+        {
+          "ausdruck": "NOT wahr OR wahr",
+          "antwort": "wahr"
+        },
+        {
+          "ausdruck": "NOT (wahr AND falsch)",
+          "antwort": "wahr"
+        },
+        {
+          "ausdruck": "falsch OR wahr AND falsch",
+          "antwort": "falsch"
+        },
+        {
+          "ausdruck": "NOT wahr AND wahr OR falsch",
+          "antwort": "falsch"
+        }
+      ],
+      "hinweise": [
+        "Setze zuerst die Klammern, die SQL sich denkt: AND vor OR, NOT vor AND.",
+        "Rechne dann von innen nach aussen."
+      ],
+      "erklaerung": "Mit den gedachten Klammern wird `{{ausdruck}}` Schritt für Schritt vereinfacht. Das Ergebnis ist **{{antwort}}**."
+    },
+    {
+      "id": "p-und-sql",
+      "typ": "sql",
+      "lz": [
+        "L15",
+        "L9"
+      ],
+      "thema": "AND",
+      "stufe": 1,
+      "frage": "Zeige den `titel` aller Bücher, die vom Verlag mit `verlagsid` {{v}} stammen und **nach** {{j}} erschienen sind.",
+      "loesung": "SELECT titel FROM buch WHERE verlagsid = {{v}} AND jahr > {{j}}",
+      "parameter": [
+        {
+          "v": 4,
+          "j": 1995
+        },
+        {
+          "v": 5,
+          "j": 1990
+        },
+        {
+          "v": 3,
+          "j": 1990
+        },
+        {
+          "v": 2,
+          "j": 1990
+        }
+      ],
+      "hinweise": [
+        "Zwei Bedingungen, beide müssen gelten: AND.",
+        "«nach {{j}}» heisst: jahr ist grösser als {{j}}, ohne {{j}} selbst."
+      ],
+      "erklaerung": "`WHERE verlagsid = {{v}} AND jahr > {{j}}`. «Nach» bedeutet `>`, nicht `>=`."
+    },
+    {
+      "id": "p-oder-sql",
+      "typ": "sql",
+      "lz": [
+        "L15",
+        "L9"
+      ],
+      "thema": "OR",
+      "stufe": 1,
+      "frage": "Zeige `nachname` und `vornamen` aller Autoren, deren Nachname `{{a}}` oder `{{b}}` ist.",
+      "loesung": "SELECT nachname, vornamen FROM autor WHERE nachname = '{{a}}' OR nachname = '{{b}}'",
+      "parameter": [
+        {
+          "a": "Meier",
+          "b": "Maier"
+        },
+        {
+          "a": "Gamma",
+          "b": "Knuth"
+        },
+        {
+          "a": "Müller",
+          "b": "Mueller"
+        },
+        {
+          "a": "Zuse",
+          "b": "Wirth"
+        }
+      ],
+      "hinweise": [
+        "Zwei Vergleiche, verbunden mit OR.",
+        "Texte stehen in einfachen Anführungszeichen."
+      ],
+      "erklaerung": "`WHERE nachname = '{{a}}' OR nachname = '{{b}}'`. Jede Seite von OR ist ein vollständiger Vergleich."
+    },
+    {
+      "id": "p-nicht-sql",
+      "typ": "sql",
+      "lz": [
+        "L15",
+        "L9"
+      ],
+      "thema": "NOT",
+      "stufe": 2,
+      "frage": "Zeige `titel` und `jahr` aller Bücher, die **1999 oder später** erschienen sind, aber **nicht** vom Verlag mit `verlagsid` 4 stammen. Verwende `NOT`.",
+      "loesung": "SELECT titel, jahr FROM buch WHERE jahr >= 1999 AND NOT verlagsid = 4",
+      "muss": [
+        {
+          "muster": "\\bNOT\\b",
+          "meldung": "Verwende NOT."
+        }
+      ],
+      "hinweise": [
+        "«1999 oder später» heisst jahr >= 1999.",
+        "AND NOT verlagsid = 4"
+      ],
+      "erklaerung": "`jahr >= 1999` schliesst 1999 mit ein. `NOT verlagsid = 4` schliesst den Verlag 4 aus. Die beiden Bedingungen gelten gleichzeitig, darum AND."
+    },
+    {
+      "id": "p-fehler-und",
+      "typ": "choice",
+      "lz": [
+        "L15"
+      ],
+      "thema": "AND / OR verwechseln",
+      "stufe": 2,
+      "frage": [
+        "Die Abfrage soll alle Bücher von 1990 **und** alle von 1991 zeigen:",
+        "```sql",
+        "SELECT titel FROM buch",
+        "WHERE jahr = 1990 AND jahr = 1991",
+        "```",
+        "Sie liefert aber keine einzige Zeile. Warum?"
+      ],
+      "mischen": true,
+      "optionen": [
+        {
+          "text": "Ein Buch hat nur ein Jahr. Es kann nicht gleichzeitig 1990 und 1991 sein; richtig wäre OR.",
+          "richtig": true
+        },
+        {
+          "text": "Es gibt in der Tabelle keine Bücher von 1990 oder 1991.",
+          "warum": "Doch, es gibt Bücher aus beiden Jahren (z. B. «Datenbanken und SQL» von 1990)."
+        },
+        {
+          "text": "Man darf dieselbe Spalte nicht zweimal verwenden.",
+          "warum": "Doch, das ist erlaubt, etwa bei `jahr = 1990 OR jahr = 1991`."
+        },
+        {
+          "text": "Es fehlen Klammern.",
+          "warum": "Klammern ändern hier nichts. Der Fehler liegt im Operator."
+        }
+      ],
+      "hinweise": [
+        "Kann ein einzelnes Buch gleichzeitig 1990 und 1991 erschienen sein?",
+        "Im Alltag sagt man «und», meint hier aber «oder»."
+      ],
+      "erklaerung": "Im Alltag sagt man «Bücher von 1990 und 1991» und meint beide Gruppen. In SQL prüft WHERE aber **jede Zeile einzeln**. Eine Zeile hat nur ein Jahr, also nimmst du `OR`."
+    },
+    {
+      "id": "p-prio-ergebnis",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "lz": [
+        "L22",
+        "L10"
+      ],
+      "thema": "Priorität",
+      "stufe": 2,
+      "frage": "Wie viele Zeilen liefert diese Abfrage? (Keine Klammern: AND bindet stärker als OR.)",
+      "abfrage": "SELECT *\nFROM verlag\nWHERE ort = '{{o1}}' OR ort = '{{o2}}' AND verlagsid > {{n}}",
+      "zeigen": [
+        "verlag"
+      ],
+      "parameter": [
+        {
+          "o1": "Berlin",
+          "o2": "Bonn",
+          "n": 10
+        },
+        {
+          "o1": "München",
+          "o2": "Berlin",
+          "n": 4
+        },
+        {
+          "o1": "Bonn",
+          "o2": "Zürich",
+          "n": 15
+        }
+      ],
+      "hinweise": [
+        "Setze Klammern um den AND-Teil: ort = '{{o1}}' OR (ort = '{{o2}}' AND verlagsid > {{n}}).",
+        "Alle Verlage in {{o1}} zählen. Von den Verlagen in {{o2}} nur die mit verlagsid > {{n}}."
+      ],
+      "erklaerung": "Der AND-Teil wird zuerst gebildet: «ort = {{o2}} und verlagsid > {{n}}». Dazu kommen **alle** Verlage in {{o1}}. Zähle beide Gruppen zusammen."
+    },
+    {
+      "id": "p-klammer-ergebnis",
+      "typ": "ergebnis",
+      "modus": "anzahl",
+      "lz": [
+        "L22",
+        "L10"
+      ],
+      "thema": "Klammern",
+      "stufe": 2,
+      "frage": "Wie viele Zeilen liefert diese Abfrage mit Klammern?",
+      "abfrage": "SELECT *\nFROM verlag\nWHERE (ort = '{{o1}}' OR ort = '{{o2}}') AND verlagsid > {{n}}",
+      "zeigen": [
+        "verlag"
+      ],
+      "parameter": [
+        {
+          "o1": "Berlin",
+          "o2": "Bonn",
+          "n": 10
+        },
+        {
+          "o1": "München",
+          "o2": "Berlin",
+          "n": 4
+        },
+        {
+          "o1": "Bonn",
+          "o2": "Zürich",
+          "n": 15
+        }
+      ],
+      "hinweise": [
+        "Bestimme zuerst, welche Verlage in {{o1}} oder {{o2}} sind.",
+        "Behalte davon nur die mit verlagsid > {{n}}."
+      ],
+      "erklaerung": "Durch die Klammer gilt `verlagsid > {{n}}` für **beide** Orte. Darum ist das Ergebnis kleiner als ohne Klammern."
+    },
+    {
+      "id": "p-klammer-sql",
+      "typ": "sql",
+      "lz": [
+        "L22",
+        "L9"
+      ],
+      "thema": "Klammern",
+      "stufe": 3,
+      "frage": "Zeige `titel` und `jahr` aller Bücher, die vom Verlag mit `verlagsid` 1 stammen und **1993 oder 1994** erschienen sind. Setze Klammern.",
+      "loesung": "SELECT titel, jahr FROM buch WHERE verlagsid = 1 AND (jahr = 1993 OR jahr = 1994)",
+      "muss": [
+        {
+          "muster": "\\(",
+          "meldung": "Setze Klammern um den OR-Teil."
+        }
+      ],
+      "hinweise": [
+        "Das OR-Paar (1993 oder 1994) gehört in eine Klammer.",
+        "WHERE verlagsid = 1 AND (…)"
+      ],
+      "erklaerung": "Ohne Klammern würde `AND` zuerst gerechnet: «Verlag 1 und 1993» oder «1994». Dann kämen auch Bücher anderer Verlage von 1994 ins Ergebnis. Die Klammer sorgt dafür, dass der Verlag für beide Jahre gilt."
+    },
+    {
+      "id": "p-klammer-param",
+      "typ": "sql",
+      "lz": [
+        "L22",
+        "L9"
+      ],
+      "thema": "Klammern",
+      "stufe": 2,
+      "frage": "Zeige `titel` und `jahr` aller Bücher, die vom Verlag {{v}} **oder** vom Verlag {{w}} stammen (`verlagsid`) und {{j}} **oder später** erschienen sind. Setze Klammern.",
+      "loesung": "SELECT titel, jahr FROM buch WHERE (verlagsid = {{v}} OR verlagsid = {{w}}) AND jahr >= {{j}}",
+      "muss": [
+        {
+          "muster": "\\(",
+          "meldung": "Setze Klammern um den OR-Teil."
+        }
+      ],
+      "parameter": [
+        {
+          "v": 3,
+          "w": 4,
+          "j": 1995
+        },
+        {
+          "v": 1,
+          "w": 2,
+          "j": 1995
+        },
+        {
+          "v": 5,
+          "w": 6,
+          "j": 1990
+        }
+      ],
+      "hinweise": [
+        "Die beiden Verlage gehören zusammen in eine Klammer.",
+        "«{{j}} oder später» heisst jahr >= {{j}}."
+      ],
+      "erklaerung": "`(verlagsid = {{v}} OR verlagsid = {{w}}) AND jahr >= {{j}}`. Die Jahresbedingung muss für beide Verlage gelten, darum braucht der OR-Teil eine Klammer."
+    },
+    {
+      "id": "p-demorgan",
+      "typ": "choice",
+      "lz": [
+        "L22",
+        "L15"
+      ],
+      "thema": "NOT mit Klammern",
+      "stufe": 3,
+      "frage": [
+        "Welche Abfrage liefert dieselben Zeilen wie diese?",
+        "```sql",
+        "SELECT * FROM buch",
+        "WHERE NOT (jahr = 1986 AND verlagsid = 1)",
+        "```"
+      ],
+      "mischen": true,
+      "optionen": [
+        {
+          "text": "WHERE jahr <> 1986 OR verlagsid <> 1",
+          "richtig": true,
+          "warum": ""
+        },
+        {
+          "text": "WHERE jahr <> 1986 AND verlagsid <> 1",
+          "warum": "Das schliesst zu viel aus: auch Bücher von 1986 anderer Verlage und Bücher des Verlags 1 aus anderen Jahren würden fehlen."
+        },
+        {
+          "text": "WHERE jahr = 1986 AND verlagsid = 1",
+          "warum": "Das ist das Gegenteil: genau die Zeilen, die oben ausgeschlossen werden."
+        },
+        {
+          "text": "WHERE jahr = 1986 OR verlagsid = 1",
+          "warum": "Das wählt viel mehr Zeilen aus und ist nicht die Verneinung."
+        }
+      ],
+      "hinweise": [
+        "Die Originalabfrage schliesst nur Bücher aus, die **beides** erfüllen: 1986 und Verlag 1.",
+        "Ein Buch bleibt im Ergebnis, sobald mindestens eines von beiden nicht stimmt."
+      ],
+      "erklaerung": "`NOT (A AND B)` heisst «nicht beides zugleich», also «nicht A **oder** nicht B». Beim Verneinen wird AND zu OR und OR zu AND (Regel von De Morgan)."
+    },
+    {
+      "id": "p-zeilen-buch",
+      "typ": "ergebnis",
+      "modus": "zeilen",
+      "lz": [
+        "L11",
+        "L22"
+      ],
+      "thema": "NOT mit Klammern",
+      "stufe": 3,
+      "frage": "Die Abfrage prüft nur die Bücher mit `buchid` 3008 bis 3011 (siehe Tabelle). Welche Titel stehen im Ergebnis?",
+      "abfrage": "SELECT titel\nFROM buch\nWHERE buchid >= 3008 AND buchid <= 3011\nAND NOT (jahr = 1991 AND verlagsid = 3)",
+      "kandidaten": "SELECT titel FROM buch WHERE buchid >= 3008 AND buchid <= 3011",
+      "zeigen": [
+        {
+          "titel": "Ausschnitt der Tabelle buch (buchid 3008 bis 3011)",
+          "sql": "SELECT buchid, titel, jahr, preis, verlagsid FROM buch WHERE buchid >= 3008 AND buchid <= 3011"
+        }
+      ],
+      "hinweise": [
+        "Streiche zuerst alle Bücher, die 1991 erschienen **und** vom Verlag 3 sind.",
+        "Was übrig bleibt, kommt ins Ergebnis."
+      ],
+      "erklaerung": "Die Bücher 3009 und 3010 sind beide von 1991 und vom Verlag 3. Für sie ist die Klammer wahr, NOT macht sie falsch, sie fallen weg. Übrig bleiben «Datenbanken und SQL» (3008) und «Computer Graphics: Principles and Practice» (3011)."
+    },
+    {
+      "id": "p-uebersetzen",
+      "typ": "choice",
+      "lz": [
+        "L22",
+        "L9"
+      ],
+      "thema": "Text in Bedingung",
+      "stufe": 2,
+      "frage": "Gesucht sind alle Verlage, die in **Bonn oder Berlin** sitzen und eine `verlagsid` **grösser als 10** haben. Welche Bedingung stimmt?",
+      "mischen": true,
+      "optionen": [
+        {
+          "text": "WHERE (ort = 'Bonn' OR ort = 'Berlin') AND verlagsid > 10",
+          "richtig": true,
+          "warum": ""
+        },
+        {
+          "text": "WHERE ort = 'Bonn' OR ort = 'Berlin' AND verlagsid > 10",
+          "warum": "Ohne Klammern gilt die verlagsid-Bedingung nur für Berlin. Bonn-Verlage mit kleiner Nummer kämen auch ins Ergebnis."
+        },
+        {
+          "text": "WHERE ort = 'Bonn' AND ort = 'Berlin' AND verlagsid > 10",
+          "warum": "Ein Verlag kann nicht gleichzeitig in Bonn und Berlin sein. Das Ergebnis wäre leer."
+        },
+        {
+          "text": "WHERE ort = 'Bonn' OR 'Berlin' AND verlagsid > 10",
+          "warum": "Jede Seite von OR braucht einen vollständigen Vergleich (ort = …)."
+        }
+      ],
+      "hinweise": [
+        "Gehört die Zahlenbedingung zu beiden Orten oder nur zu einem?",
+        "Wenn sie zu beiden gehört, braucht es eine Klammer."
+      ],
+      "erklaerung": "Der Ort ist ein «oder»-Paar (Klammer), die Nummer gilt für beide (AND ausserhalb der Klammer)."
+    },
+    {
+      "id": "p-prio-regel",
+      "typ": "choice",
+      "lz": [
+        "L22"
+      ],
+      "thema": "Priorität",
+      "stufe": 1,
+      "frage": "Welche Reihenfolge der Bindungsstärke ist richtig (stärkster Operator zuerst)?",
+      "mischen": true,
+      "optionen": [
+        {
+          "text": "NOT, dann AND, dann OR",
+          "richtig": true,
+          "warum": ""
+        },
+        {
+          "text": "AND, dann OR, dann NOT",
+          "warum": "Diese Reihenfolge steht als Tipp auf dem Hilfsblatt, sie ist aber verkehrt notiert. NOT bindet am stärksten."
+        },
+        {
+          "text": "OR, dann AND, dann NOT",
+          "warum": "OR bindet am schwächsten, nicht am stärksten."
+        },
+        {
+          "text": "Alle gleich stark, es wird von links nach rechts gelesen",
+          "warum": "Nein, SQL kennt eine feste Priorität: NOT > AND > OR."
+        }
+      ],
+      "hinweise": [
+        "Denke an «Punkt vor Strich». AND ist «Mal», OR ist «Plus».",
+        "NOT wirkt nur auf die Bedingung direkt dahinter."
+      ],
+      "erklaerung": "Richtig ist **NOT > AND > OR** (Tutorial 9.3). Der Tipp 5 auf dem Hilfsblatt («AND > OR > NOT») ist falsch notiert. Im Zweifel setzt du Klammern."
+    }
+  ]
+}

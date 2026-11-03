@@ -1,0 +1,817 @@
+{
+ "id": "k12",
+ "titel": "Finale auf der Insel",
+ "untertitel": "Gemischte Aufgaben: Du findest den Kater mit allem, was du gelernt hast.",
+ "db": "insel",
+ "lernziele": [
+  "L9",
+  "L10",
+  "L11",
+  "L12",
+  "L15",
+  "L19",
+  "L22",
+  "L24"
+ ],
+ "dauer": 45,
+ "schritte": [
+  {
+   "id": "s-start",
+   "typ": "info",
+   "titel": "Die Insel Muschelbucht",
+   "story": [
+    {
+     "sprecher": "tabea",
+     "text": "Die Spur führt uns auf eine Insel. Kapitän **Oskar Orka**, Häuptling von Muschelbucht, hat Katerspuren am Strand gesehen. Hier wendest du alles an, was du gelernt hast."
+    }
+   ],
+   "text": [
+    "## Die Datenbank «insel»",
+    "Sie hat drei Tabellen:",
+    "",
+    "- `dorf(dorfnr, name, haeuptling)`: die drei Dörfer",
+    "- `bewohner(bewohnernr, name, dorfnr, geschlecht, beruf, gold, status)`: wer auf der Insel wohnt",
+    "- `gegenstand(gegenstand, besitzer)`: Dinge und ihre Besitzer; `besitzer` ist ein Fremdschlüssel auf `bewohner.bewohnernr`",
+    "",
+    "Einige Werte sind leer (NULL). Namen sind ohne Umlaute geschrieben (Haendler, Baecker).",
+    "> Die Aufgaben sind gemischt: Du musst selbst erkennen, welches Werkzeug passt."
+   ]
+  },
+  {
+   "id": "a-dorf",
+   "typ": "sql",
+   "lz": [
+    "L12",
+    "L9"
+   ],
+   "thema": "SELECT FROM WHERE",
+   "stufe": 2,
+   "frage": "Gib Name und Beruf aller Bewohner aus, die im Dorf mit der Nummer **{{dorf}}** wohnen.",
+   "hinweise": [
+    "Bedingung auf `dorfnr`. Zahlen brauchen keine Anführungszeichen.",
+    "SELECT name, beruf FROM bewohner WHERE ..."
+   ],
+   "erklaerung": "Eine Zahl wie `{{dorf}}` steht ohne Anführungszeichen.",
+   "titel": "Wer wohnt im Dorf?",
+   "story": [
+    {
+     "sprecher": "kapitaen",
+     "text": "Zuerst die Bewohner eines Dorfs. Wer ist wer?"
+    }
+   ],
+   "db": "insel",
+   "loesung": "SELECT name, beruf FROM bewohner WHERE dorfnr = {{dorf}}",
+   "parameter": [
+    {
+     "dorf": 1
+    },
+    {
+     "dorf": 2
+    },
+    {
+     "dorf": 3
+    }
+   ],
+   "zeigen": [
+    "bewohner"
+   ]
+  },
+  {
+   "id": "a-gold-anzahl",
+   "typ": "ergebnis",
+   "lz": [
+    "L10",
+    "L15"
+   ],
+   "thema": "Anzahl bestimmen",
+   "stufe": 2,
+   "frage": "Wie viele Zeilen liefert diese Abfrage?",
+   "hinweise": [
+    "Beide Bedingungen müssen gelten.",
+    "Schaue zuerst alle mit gold > 500 an, streiche dann alle, die nicht friedlich sind."
+   ],
+   "erklaerung": "Mit AND müssen beide Bedingungen stimmen. Gold über 500: Mara, Oskar, Paul, Hanna, Fritz (misstrauisch, entfällt). Ergebnis: 4 Zeilen.",
+   "titel": "Wer ist reich und friedlich?",
+   "modus": "anzahl",
+   "story": [
+    {
+     "sprecher": "kapitaen",
+     "text": "Der Kater braucht Futter. Wer hat genug Gold, uns zu helfen?"
+    }
+   ],
+   "abfrage": "SELECT name\nFROM bewohner\nWHERE gold > 500 AND status = 'friedlich'",
+   "db": "insel",
+   "zeigen": [
+    "bewohner"
+   ]
+  },
+  {
+   "id": "a-klammern",
+   "typ": "sql",
+   "lz": [
+    "L22",
+    "L15"
+   ],
+   "thema": "Klammern",
+   "stufe": 3,
+   "frage": "Gib Name und Gold aller **Haendler oder Piloten** aus, die **mehr als 100 Gold** haben.",
+   "hinweise": [
+    "Zwei Berufe mit OR, dazu eine Goldbedingung mit AND.",
+    "AND bindet stärker als OR: Klammern setzen!"
+   ],
+   "erklaerung": "`(beruf = 'Haendler' OR beruf = 'Pilot') AND gold > 100`. Ohne Klammern würden alle Piloten ohne Goldprüfung erscheinen.",
+   "titel": "Händler oder Pilot",
+   "story": [
+    {
+     "sprecher": "kapitaen",
+     "text": "Händler und Piloten kommen weit herum. Frag nur die mit genug Gold."
+    }
+   ],
+   "db": "insel",
+   "loesung": "SELECT name, gold FROM bewohner WHERE (beruf = 'Haendler' OR beruf = 'Pilot') AND gold > 100",
+   "muss": [
+    {
+     "muster": "\\(",
+     "meldung": "Setze die OR-Bedingung in Klammern."
+    }
+   ]
+  },
+  {
+   "id": "a-zeilen",
+   "typ": "ergebnis",
+   "lz": [
+    "L11",
+    "L16"
+   ],
+   "thema": "Zeilen angeben",
+   "stufe": 3,
+   "frage": "Welche Zeilen liefert diese Abfrage? Kreuze alle an.",
+   "hinweise": [
+    "LIKE '_a%': Der zweite Buchstabe ist ein a.",
+    "Gross-/Kleinschreibung spielt bei LIKE für A–Z keine Rolle."
+   ],
+   "erklaerung": "`_a%` bedeutet: ein beliebiges Zeichen, dann a, dann beliebig weiter. Treffer: Kai Kokos, Mara Muschel, Wanda Welle, Paul Palme, Hanna Hibiskus, Kater NULL und Gast (7 Zeilen).",
+   "titel": "Zweiter Buchstabe a",
+   "modus": "zeilen",
+   "story": [
+    {
+     "sprecher": "kapitaen",
+     "text": "Eine Zeugin sagt, der Name habe als zweiten Buchstaben ein A."
+    }
+   ],
+   "abfrage": "SELECT name\nFROM bewohner\nWHERE name LIKE '_a%'",
+   "kandidaten": "SELECT name FROM bewohner",
+   "db": "insel",
+   "zeigen": [
+    "bewohner"
+   ]
+  },
+  {
+   "id": "a-null",
+   "typ": "sql",
+   "lz": [
+    "L18",
+    "L12"
+   ],
+   "thema": "IS NULL",
+   "stufe": 2,
+   "frage": "Welche Gegenstände haben **keinen Besitzer**? Gib nur die Gegenstände aus.",
+   "hinweise": [
+    "Leer = NULL. Mit = geht es nicht.",
+    "WHERE besitzer IS NULL"
+   ],
+   "erklaerung": "Der Katzenkorb gehört niemandem. Auch die Landkarte und die Taschenlampe: `besitzer IS NULL`.",
+   "titel": "Herrenlose Dinge",
+   "story": [
+    {
+     "sprecher": "kapitaen",
+     "text": "Am Strand lag ein Korb. Wem gehört er?"
+    }
+   ],
+   "db": "insel",
+   "loesung": "SELECT gegenstand FROM gegenstand WHERE besitzer IS NULL",
+   "zeigen": [
+    "gegenstand"
+   ]
+  },
+  {
+   "id": "a-between-in",
+   "typ": "sql",
+   "lz": [
+    "L17",
+    "L9"
+   ],
+   "thema": "BETWEEN und IN",
+   "stufe": 3,
+   "frage": "Gib Name und Beruf der Bewohner aus, die **zwischen 100 und 500 Gold** (Grenzen eingeschlossen) haben und als **Baecker, Fischer oder Koch** arbeiten.",
+   "hinweise": [
+    "Zwei Bedingungen mit AND: BETWEEN und IN.",
+    "IN ('Baecker', 'Fischer', 'Koch')"
+   ],
+   "erklaerung": "`gold BETWEEN 100 AND 500 AND beruf IN (...)`. Treffer: Kai Kokos (Fischer, 120) und Greta Granit (Baecker, 480).",
+   "titel": "Bäcker, Fischer, Köche",
+   "story": [
+    {
+     "sprecher": "kapitaen",
+     "text": "Der Kater mag Fisch. Wer kocht oder fängt ihn, ohne reich zu sein?"
+    }
+   ],
+   "db": "insel",
+   "loesung": "SELECT name, beruf FROM bewohner WHERE gold BETWEEN 100 AND 500 AND beruf IN ('Baecker', 'Fischer', 'Koch')",
+   "muss": [
+    {
+     "muster": "\\bBETWEEN\\b",
+     "meldung": "Verwende BETWEEN."
+    },
+    {
+     "muster": "\\bIN\\b",
+     "meldung": "Verwende IN."
+    }
+   ]
+  },
+  {
+   "id": "a-order",
+   "typ": "sql",
+   "lz": [
+    "L13",
+    "L21"
+   ],
+   "thema": "Sortieren",
+   "stufe": 3,
+   "frage": "Gib Name, Dorfnummer und Gold aller Bewohner **mit bekanntem Dorf** aus. Sortiere nach Dorfnummer aufsteigend, innerhalb eines Dorfs nach Gold absteigend.",
+   "hinweise": [
+    "Zwei Kriterien in ORDER BY.",
+    "Bekanntes Dorf: dorfnr IS NOT NULL."
+   ],
+   "erklaerung": "`ORDER BY dorfnr ASC, gold DESC`.",
+   "titel": "Rangliste je Dorf",
+   "story": [
+    {
+     "sprecher": "kapitaen",
+     "text": "Ich brauche eine Liste für den Dorfrat."
+    }
+   ],
+   "db": "insel",
+   "loesung": "SELECT name, dorfnr, gold FROM bewohner WHERE dorfnr IS NOT NULL ORDER BY dorfnr ASC, gold DESC",
+   "reihenfolge": true
+  },
+  {
+   "id": "a-distinct",
+   "typ": "sql",
+   "lz": [
+    "L14",
+    "L18"
+   ],
+   "thema": "DISTINCT",
+   "stufe": 2,
+   "frage": "Welche **verschiedenen Berufe** gibt es auf der Insel? Jeder Beruf soll nur einmal vorkommen, ohne leere Einträge.",
+   "hinweise": [
+    "DISTINCT steht direkt hinter SELECT.",
+    "Leere Berufe ausschliessen: IS NOT NULL."
+   ],
+   "erklaerung": "`SELECT DISTINCT beruf ... WHERE beruf IS NOT NULL`.",
+   "titel": "Alle Berufe",
+   "story": [
+    {
+     "sprecher": "kapitaen",
+     "text": "Ich will wissen, welche Berufe es hier gibt."
+    }
+   ],
+   "db": "insel",
+   "loesung": "SELECT DISTINCT beruf FROM bewohner WHERE beruf IS NOT NULL",
+   "zeigen": [
+    "bewohner"
+   ]
+  },
+  {
+   "id": "a-avg",
+   "typ": "sql",
+   "lz": [
+    "L19",
+    "L20"
+   ],
+   "thema": "AVG mit Alias",
+   "stufe": 3,
+   "frage": "Wie viel Gold besitzen die Bewohner von Dorf {{dorf}} **im Durchschnitt**? Nenne die Spalte `schnitt`.",
+   "hinweise": [
+    "AVG(gold)",
+    "AS schnitt"
+   ],
+   "erklaerung": "`SELECT AVG(gold) AS schnitt FROM bewohner WHERE dorfnr = {{dorf}}`: Es kommt nur eine Zeile heraus.",
+   "titel": "Durchschnittsgold",
+   "story": [
+    {
+     "sprecher": "kapitaen",
+     "text": "Welches Dorf ist am reichsten?"
+    }
+   ],
+   "db": "insel",
+   "loesung": "SELECT AVG(gold) AS schnitt FROM bewohner WHERE dorfnr = {{dorf}}",
+   "spaltennamen": true,
+   "parameter": [
+    {
+     "dorf": 1
+    },
+    {
+     "dorf": 2
+    },
+    {
+     "dorf": 3
+    }
+   ]
+  },
+  {
+   "id": "a-kreuz",
+   "typ": "ergebnis",
+   "lz": [
+    "L23",
+    "L10"
+   ],
+   "thema": "Kreuzprodukt",
+   "stufe": 2,
+   "frage": "Wie viele Zeilen liefert diese Abfrage?",
+   "hinweise": [
+    "Dörfer · Gegenstände."
+   ],
+   "erklaerung": "3 Dörfer, 12 Gegenstände: 3 · 12 = **36** Zeilen. Es fehlt jede Verknüpfungsbedingung.",
+   "titel": "Ein Fehler im Protokoll",
+   "story": [
+    {
+     "sprecher": "kapitaen",
+     "text": "Der Schreiber hat die Bedingung vergessen. Wie gross ist das Chaos?"
+    }
+   ],
+   "modus": "anzahl",
+   "abfrage": "SELECT *\nFROM dorf, gegenstand",
+   "db": "insel",
+   "zeigen": [
+    "dorf",
+    "gegenstand"
+   ]
+  },
+  {
+   "id": "a-verknuepfen",
+   "typ": "sql",
+   "lz": [
+    "L24",
+    "L9"
+   ],
+   "thema": "Zwei Tabellen verknüpfen",
+   "stufe": 3,
+   "frage": "Gib den Namen jedes Bewohners zusammen mit dem **Namen seines Dorfs** aus. Nenne die Spalten `bewohner` und `dorf`.",
+   "hinweise": [
+    "FROM bewohner, dorf",
+    "Fremdschlüssel: bewohner.dorfnr = dorf.dorfnr",
+    "Beide Tabellen haben eine Spalte `name`: Alias nötig."
+   ],
+   "erklaerung": "`bewohner.name AS bewohner, dorf.name AS dorf` und `bewohner.dorfnr = dorf.dorfnr`. Bewohner ohne Dorf (Kater, Gast) fallen heraus.",
+   "titel": "Bewohner und Dörfer",
+   "story": [
+    {
+     "sprecher": "kapitaen",
+     "text": "Welcher Bewohner gehört zu welchem Dorf?"
+    }
+   ],
+   "db": "insel",
+   "loesung": "SELECT bewohner.name AS bewohner, dorf.name AS dorf FROM bewohner, dorf WHERE bewohner.dorfnr = dorf.dorfnr",
+   "spaltennamen": true
+  },
+  {
+   "id": "a-besitz",
+   "typ": "sql",
+   "lz": [
+    "L24",
+    "L15"
+   ],
+   "thema": "Verknüpfung mit Filter",
+   "stufe": 3,
+   "frage": "Welche **Gegenstände** gehören Bewohnern aus dem Dorf **Muschelbucht**? Gib Gegenstand und Besitzername aus.",
+   "hinweise": [
+    "Drei Tabellen: gegenstand, bewohner, dorf.",
+    "Zwei Verknüpfungen und der Filter auf den Dorfnamen."
+   ],
+   "erklaerung": "`gegenstand.besitzer = bewohner.bewohnernr AND bewohner.dorfnr = dorf.dorfnr AND dorf.name = 'Muschelbucht'`. Kette: gegenstand → bewohner → dorf.",
+   "titel": "Wem gehört was?",
+   "story": [
+    {
+     "sprecher": "kapitaen",
+     "text": "Nur was in meinem Dorf liegt, geht mich etwas an."
+    }
+   ],
+   "db": "insel",
+   "loesung": "SELECT gegenstand.gegenstand, bewohner.name FROM gegenstand, bewohner, dorf WHERE gegenstand.besitzer = bewohner.bewohnernr AND bewohner.dorfnr = dorf.dorfnr AND dorf.name = 'Muschelbucht'"
+  },
+  {
+   "id": "a-finale",
+   "typ": "sql",
+   "lz": [
+    "L18",
+    "L12",
+    "L9"
+   ],
+   "thema": "Finale",
+   "stufe": 3,
+   "frage": "Wer auf der Insel hat **kein Dorf, keinen Beruf und kein Gold** (alles leer)? Gib den Namen aus.",
+   "hinweise": [
+    "Drei Bedingungen mit IS NULL, verbunden mit AND."
+   ],
+   "erklaerung": "`dorfnr IS NULL AND beruf IS NULL AND gold IS NULL`. Der Gast hat gold = 0 (nicht leer), nur einer erfüllt alle drei Bedingungen: **Kater NULL**!",
+   "titel": "Wo ist NULL?",
+   "story": [
+    {
+     "sprecher": "tabea",
+     "text": "Das war's: Ein Bewohner ohne Dorf, ohne Beruf, ohne Gold. Er schläft im Katzenkorb, dem Gegenstand ohne Besitzer. NULL ist gefunden!"
+    }
+   ],
+   "db": "insel",
+   "loesung": "SELECT name FROM bewohner WHERE dorfnr IS NULL AND beruf IS NULL AND gold IS NULL",
+   "muss": [
+    {
+     "muster": "\\bIS NULL\\b",
+     "meldung": "Verwende IS NULL."
+    }
+   ]
+  },
+  {
+   "id": "s-ende",
+   "typ": "info",
+   "titel": "Fall gelöst",
+   "story": [
+    {
+     "sprecher": "tabea",
+     "text": "Danke! NULL ist wieder zu Hause. Du kannst jetzt Text in SQL übersetzen, Ergebnisse vorhersagen und Tabellen verknüpfen."
+    }
+   ],
+   "text": [
+    "## Wie weiter?",
+    "Im **Prüfungspool** (Kapitel 13) und in der **Probeprüfung** übst du im Stil der echten Prüfung."
+   ]
+  }
+ ],
+ "pool": [
+  {
+   "id": "p-name-status",
+   "typ": "sql",
+   "lz": [
+    "L12",
+    "L9"
+   ],
+   "thema": "WHERE",
+   "stufe": 2,
+   "frage": "Gib Name und Gold aller Bewohner aus, deren Status **{{status}}** ist.",
+   "hinweise": [
+    "Text in Anführungszeichen."
+   ],
+   "erklaerung": "`status = '{{status}}'`.",
+   "db": "insel",
+   "loesung": "SELECT name, gold FROM bewohner WHERE status = '{{status}}'",
+   "parameter": [
+    {
+     "status": "friedlich"
+    },
+    {
+     "status": "misstrauisch"
+    },
+    {
+     "status": "gefangen"
+    }
+   ]
+  },
+  {
+   "id": "p-gold-ueber",
+   "typ": "sql",
+   "lz": [
+    "L15",
+    "L12"
+   ],
+   "thema": "Vergleich",
+   "stufe": 2,
+   "frage": "Gib die Namen aller Bewohner aus, die **mehr als {{g}} Gold** haben.",
+   "hinweise": [
+    "Zahl ohne Anführungszeichen."
+   ],
+   "erklaerung": "`gold > {{g}}`.",
+   "db": "insel",
+   "loesung": "SELECT name FROM bewohner WHERE gold > {{g}}",
+   "parameter": [
+    {
+     "g": 500
+    },
+    {
+     "g": 700
+    },
+    {
+     "g": 300
+    }
+   ]
+  },
+  {
+   "id": "p-like-anfang",
+   "typ": "sql",
+   "lz": [
+    "L16"
+   ],
+   "thema": "LIKE",
+   "stufe": 2,
+   "frage": "Gib die Namen aller Bewohner aus, deren Name mit dem Buchstaben **{{b}}** beginnt.",
+   "hinweise": [
+    "LIKE 'B%'"
+   ],
+   "erklaerung": "`LIKE '{{b}}%'`.",
+   "db": "insel",
+   "loesung": "SELECT name FROM bewohner WHERE name LIKE '{{b}}%'",
+   "parameter": [
+    {
+     "b": "K"
+    },
+    {
+     "b": "G"
+    },
+    {
+     "b": "P"
+    }
+   ]
+  },
+  {
+   "id": "p-not-like",
+   "typ": "sql",
+   "lz": [
+    "L16",
+    "L15"
+   ],
+   "thema": "NOT LIKE",
+   "stufe": 3,
+   "frage": "Gib die Namen aller Bewohner aus, deren Name **nicht** mit dem Buchstaben K beginnt.",
+   "hinweise": [
+    "NOT LIKE mit %."
+   ],
+   "erklaerung": "`name NOT LIKE 'K%'` ist das Gegenteil von `LIKE 'K%'`.",
+   "db": "insel",
+   "loesung": "SELECT name FROM bewohner WHERE name NOT LIKE 'K%'"
+  },
+  {
+   "id": "p-in-dorf",
+   "typ": "sql",
+   "lz": [
+    "L17"
+   ],
+   "thema": "IN",
+   "stufe": 2,
+   "frage": "Gib Name und Dorfnummer aller Bewohner aus, die in Dorf 1 oder 3 wohnen. Verwende IN.",
+   "hinweise": [
+    "IN (1, 3)"
+   ],
+   "erklaerung": "`dorfnr IN (1, 3)`.",
+   "db": "insel",
+   "loesung": "SELECT name, dorfnr FROM bewohner WHERE dorfnr IN (1, 3)",
+   "muss": [
+    {
+     "muster": "\\bIN\\b",
+     "meldung": "Verwende IN."
+    }
+   ]
+  },
+  {
+   "id": "p-not-between",
+   "typ": "sql",
+   "lz": [
+    "L17",
+    "L15"
+   ],
+   "thema": "NOT BETWEEN",
+   "stufe": 3,
+   "frage": "Gib die Namen aller Bewohner aus, deren Gold **nicht zwischen 100 und 700** liegt (NULL ignorieren).",
+   "hinweise": [
+    "NOT BETWEEN a AND b"
+   ],
+   "erklaerung": "`gold NOT BETWEEN 100 AND 700`: NULL liefert weder wahr noch falsch und fällt heraus.",
+   "db": "insel",
+   "loesung": "SELECT name FROM bewohner WHERE gold NOT BETWEEN 100 AND 700",
+   "muss": [
+    {
+     "muster": "\\bBETWEEN\\b",
+     "meldung": "Verwende BETWEEN."
+    }
+   ]
+  },
+  {
+   "id": "p-count-berufe",
+   "typ": "sql",
+   "lz": [
+    "L19",
+    "L14"
+   ],
+   "thema": "COUNT(DISTINCT)",
+   "stufe": 3,
+   "frage": "Wie viele **verschiedene Berufe** gibt es auf der Insel?",
+   "hinweise": [
+    "COUNT(DISTINCT beruf)"
+   ],
+   "erklaerung": "`COUNT(DISTINCT beruf)` zählt jeden Beruf einmal und ignoriert NULL.",
+   "db": "insel",
+   "loesung": "SELECT COUNT(DISTINCT beruf) FROM bewohner"
+  },
+  {
+   "id": "p-sum",
+   "typ": "sql",
+   "lz": [
+    "L19",
+    "L20"
+   ],
+   "thema": "SUM mit Alias",
+   "stufe": 2,
+   "frage": "Wie viel Gold besitzen alle Bewohner von Dorf {{d}} zusammen? Nenne die Spalte `summe`.",
+   "hinweise": [
+    "SUM(gold)"
+   ],
+   "erklaerung": "`SUM(gold) AS summe`.",
+   "db": "insel",
+   "loesung": "SELECT SUM(gold) AS summe FROM bewohner WHERE dorfnr = {{d}}",
+   "spaltennamen": true,
+   "parameter": [
+    {
+     "d": 1
+    },
+    {
+     "d": 2
+    },
+    {
+     "d": 3
+    }
+   ]
+  },
+  {
+   "id": "p-max",
+   "typ": "sql",
+   "lz": [
+    "L19"
+   ],
+   "thema": "MAX und MIN",
+   "stufe": 2,
+   "frage": "Gib das höchste und das niedrigste Gold aller Bewohner aus.",
+   "hinweise": [
+    "Zwei Funktionen."
+   ],
+   "erklaerung": "`SELECT MAX(gold), MIN(gold) FROM bewohner`. NULL wird ignoriert.",
+   "db": "insel",
+   "loesung": "SELECT MAX(gold), MIN(gold) FROM bewohner"
+  },
+  {
+   "id": "p-haeuptling",
+   "typ": "sql",
+   "lz": [
+    "L24",
+    "L9"
+   ],
+   "thema": "Verknüpfung",
+   "stufe": 3,
+   "frage": "Gib den Namen jedes Dorfs und den Namen seines **Häuptlings** aus.",
+   "hinweise": [
+    "dorf.haeuptling verweist auf bewohner.bewohnernr."
+   ],
+   "erklaerung": "`dorf.haeuptling = bewohner.bewohnernr`. Zwei Spalten heissen `name`: Alias hilft beim Lesen.",
+   "db": "insel",
+   "loesung": "SELECT dorf.name, bewohner.name FROM dorf, bewohner WHERE dorf.haeuptling = bewohner.bewohnernr"
+  },
+  {
+   "id": "p-besitzer-gold",
+   "typ": "sql",
+   "lz": [
+    "L24",
+    "L15"
+   ],
+   "thema": "Verknüpfung und Filter",
+   "stufe": 3,
+   "frage": "Gib alle Gegenstände aus, deren Besitzer **mehr als 500 Gold** hat, zusammen mit dem Namen des Besitzers.",
+   "hinweise": [
+    "Verknüpfe gegenstand und bewohner."
+   ],
+   "erklaerung": "Erst verknüpfen, dann filtern: `gegenstand.besitzer = bewohner.bewohnernr AND bewohner.gold > 500`.",
+   "db": "insel",
+   "loesung": "SELECT gegenstand.gegenstand, bewohner.name FROM gegenstand, bewohner WHERE gegenstand.besitzer = bewohner.bewohnernr AND bewohner.gold > 500"
+  },
+  {
+   "id": "p-ohne-dorf",
+   "typ": "sql",
+   "lz": [
+    "L18"
+   ],
+   "thema": "IS NULL",
+   "stufe": 2,
+   "frage": "Welche Bewohner haben **kein Dorf**? Gib den Namen aus.",
+   "hinweise": [
+    "IS NULL"
+   ],
+   "erklaerung": "`dorfnr IS NULL`: Kater NULL und Gast.",
+   "db": "insel",
+   "loesung": "SELECT name FROM bewohner WHERE dorfnr IS NULL"
+  },
+  {
+   "id": "p-order-gold",
+   "typ": "sql",
+   "lz": [
+    "L13",
+    "L15"
+   ],
+   "thema": "ORDER BY DESC",
+   "stufe": 2,
+   "frage": "Gib Name und Gold aller Bewohner mit **mehr als 500 Gold** aus, der reichste zuerst.",
+   "hinweise": [
+    "ORDER BY gold DESC"
+   ],
+   "erklaerung": "`ORDER BY gold DESC` sortiert absteigend.",
+   "db": "insel",
+   "loesung": "SELECT name, gold FROM bewohner WHERE gold > 500 ORDER BY gold DESC",
+   "reihenfolge": true
+  },
+  {
+   "id": "p-e-null-gold",
+   "typ": "ergebnis",
+   "lz": [
+    "L10",
+    "L18"
+   ],
+   "thema": "Anzahl: NULL",
+   "stufe": 3,
+   "frage": "Wie viele Zeilen liefert diese Abfrage?",
+   "hinweise": [
+    "NULL wird von > nicht erfasst."
+   ],
+   "erklaerung": "Bewohner mit mehr als 100 Gold zählen. Kater NULL (gold leer) erfüllt den Vergleich nicht und fällt heraus: 14 Zeilen.",
+   "db": "insel",
+   "modus": "anzahl",
+   "abfrage": "SELECT name\nFROM bewohner\nWHERE gold > 100",
+   "zeigen": [
+    {
+     "titel": "bewohner",
+     "sql": "SELECT name, gold FROM bewohner"
+    }
+   ]
+  },
+  {
+   "id": "p-e-or",
+   "typ": "ergebnis",
+   "lz": [
+    "L10",
+    "L22"
+   ],
+   "thema": "Anzahl: AND/OR",
+   "stufe": 3,
+   "frage": "Wie viele Zeilen liefert diese Abfrage?",
+   "hinweise": [
+    "AND bindet stärker."
+   ],
+   "erklaerung": "Gelesen wird: dorfnr = 1 ODER (dorfnr = 2 UND weiblich): alle 6 aus Dorf 1 plus die 3 Frauen aus Dorf 2: 9 Zeilen.",
+   "db": "insel",
+   "modus": "anzahl",
+   "abfrage": "SELECT name\nFROM bewohner\nWHERE dorfnr = 1 OR dorfnr = 2 AND geschlecht = 'w'",
+   "zeigen": [
+    "bewohner"
+   ]
+  },
+  {
+   "id": "p-e-zeilen",
+   "typ": "ergebnis",
+   "lz": [
+    "L11",
+    "L17"
+   ],
+   "thema": "Zeilen angeben: IN",
+   "stufe": 2,
+   "frage": "Welche Zeilen liefert diese Abfrage? Kreuze alle an.",
+   "hinweise": [
+    "Prüfe jeden Beruf."
+   ],
+   "erklaerung": "Nur Zeilen mit Pilot, Koch oder Weberin.",
+   "db": "insel",
+   "modus": "zeilen",
+   "abfrage": "SELECT name, beruf\nFROM bewohner\nWHERE beruf IN ('Pilot', 'Koch', 'Weberin')",
+   "kandidaten": "SELECT name, beruf FROM bewohner",
+   "zeigen": [
+    "bewohner"
+   ]
+  },
+  {
+   "id": "p-e-kreuz",
+   "typ": "ergebnis",
+   "lz": [
+    "L23",
+    "L10"
+   ],
+   "thema": "Kreuzprodukt mit Bedingung",
+   "stufe": 3,
+   "frage": "Wie viele Zeilen liefert diese Abfrage?",
+   "hinweise": [
+    "Erst Kreuzprodukt, dann die Bedingung."
+   ],
+   "erklaerung": "Das Kreuzprodukt hat 20 · 3 = 60 Zeilen. Die Bedingung `bewohner.dorfnr = dorf.dorfnr` lässt jeden Bewohner mit Dorf genau einmal übrig: 18.",
+   "db": "insel",
+   "modus": "anzahl",
+   "abfrage": "SELECT *\nFROM bewohner, dorf\nWHERE bewohner.dorfnr = dorf.dorfnr",
+   "zeigen": [
+    "bewohner",
+    "dorf"
+   ]
+  }
+ ]
+}

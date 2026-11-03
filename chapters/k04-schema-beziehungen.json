@@ -1,0 +1,1781 @@
+{
+  "id": "k04",
+  "titel": "Der Bauplan des Flughafens",
+  "untertitel": "Datenbankschema lesen und zeichnen, 1:n und n:m, Zwischentabellen.",
+  "db": "flugbuchung",
+  "lernziele": [
+    "L6",
+    "L7",
+    "L8"
+  ],
+  "dauer": 40,
+  "schritte": [
+    {
+      "id": "s-einstieg",
+      "typ": "info",
+      "titel": "Wie hängen die Tabellen zusammen?",
+      "story": [
+        {
+          "sprecher": "tabea",
+          "text": "Am Flughafen sind die Daten auf drei Tabellen verteilt. Bevor wir weiter suchen, will ich den **Bauplan** dieser Datenbank verstehen."
+        }
+      ],
+      "text": [
+        "Eine kurze Wiederholung (ausführlich im Kapitel [Schlüssel](#/kapitel/k03/s-primaerschluessel)):",
+        "- Ein **Primärschlüssel** (PK) ist ein Attribut, das jeden Datensatz einer Tabelle eindeutig erkennbar macht. In `kunde` ist das `knr`: Keine Kundennummer kommt zweimal vor.",
+        "- Ein **Fremdschlüssel** (FK) ist ein Attribut, das auf den Primärschlüssel einer *anderen* Tabelle zeigt. In `buchung` ist `knr` ein Fremdschlüssel: Der Wert dort ist eine Kundennummer aus `kunde`.",
+        "",
+        "Über Fremdschlüssel sind Tabellen verknüpft. Ein **Datenbankschema** zeigt genau diese Verknüpfungen auf einen Blick. Wie das aussieht und wie du es liest, lernst du jetzt.",
+        "> Merke: Primärschlüssel = eindeutige Nummer in der eigenen Tabelle. Fremdschlüssel = Verweis auf den Primärschlüssel einer anderen Tabelle."
+      ]
+    },
+    {
+      "id": "s-schema",
+      "typ": "info",
+      "titel": "Das Datenbankschema",
+      "story": "Das Schema ist wie der Grundriss eines Hauses: Er zeigt, welche Räume es gibt und wie sie verbunden sind. Wer darin wohnt (die Daten), steht nicht darauf.",
+      "text": [
+        "Ein **Datenbankschema** ist der Bauplan einer relationalen Datenbank. Es enthält mindestens:",
+        "- die **Tabellen** mit ihren **Attributen** und deren **Datentypen**,",
+        "- die **Primärschlüssel** (PK) und **Fremdschlüssel** (FK),",
+        "- die **Verknüpfungen** zwischen Fremdschlüssel und Primärschlüssel (als **Pfeile**).",
+        "Die Datensätze selbst (z. B. «Markus Adlon») gehören *nicht* ins Schema. Das Schema bleibt gleich, auch wenn neue Kunden dazukommen.",
+        "So sieht das Schema der Datenbank *flugbuchung* aus:",
+        "```",
+        "kunde",
+        "  [PK] knr      INTEGER",
+        "       name     TEXT",
+        "       vorname  TEXT",
+        "       alter    INTEGER",
+        "",
+        "buchung",
+        "  [PK] bnr      INTEGER",
+        "  [FK] knr      INTEGER   --> kunde.knr",
+        "  [FK] flugnr   TEXT      --> flug.flugnr",
+        "       sitz     INTEGER",
+        "       datum    NUMERIC",
+        "",
+        "flug",
+        "  [PK] flugnr    TEXT",
+        "       fluglinie TEXT",
+        "       von       TEXT",
+        "       nach      TEXT",
+        "       ab        NUMERIC",
+        "       an        NUMERIC",
+        "       groesse   INTEGER",
+        "```",
+        "So liest du es:",
+        "- Jeder Block ist eine Tabelle, die erste Zeile ist ihr Name.",
+        "- Jede weitere Zeile ist ein Attribut mit seinem **Datentyp** (INTEGER = ganze Zahl, TEXT = Text, NUMERIC = Datum oder Uhrzeit).",
+        "- `[PK]` markiert den Primärschlüssel, `[FK]` einen Fremdschlüssel.",
+        "- Der Pfeil `-->` beginnt beim **Fremdschlüssel** und endet beim **Primärschlüssel**, auf den er zeigt. In Zeichnungen sind es echte Pfeile zwischen den Tabellenkästchen, am Schlüssel steht oft ein Schlüssel-Symbol.",
+        "> Merke: Ein Pfeil geht immer vom Fremdschlüssel zum Primärschlüssel. Die Tabelle `buchung` verweist auf `kunde` und `flug` – nicht umgekehrt.",
+        "Auf Papier darfst du `alter` schreiben; im SQL-Editor muss es `\"alter\"` heissen."
+      ]
+    },
+    {
+      "id": "a-lesen-fk",
+      "typ": "choice",
+      "titel": "Das Schema lesen",
+      "lz": [
+        "L6"
+      ],
+      "thema": "Schema lesen",
+      "stufe": 1,
+      "story": "Probier es gleich aus.",
+      "frage": [
+        "Das Schema der Datenbank *flugbuchung*:",
+        "```",
+        "kunde",
+        "  [PK] knr      INTEGER",
+        "       name     TEXT",
+        "       vorname  TEXT",
+        "       alter    INTEGER",
+        "",
+        "buchung",
+        "  [PK] bnr      INTEGER",
+        "  [FK] knr      INTEGER   --> kunde.knr",
+        "  [FK] flugnr   TEXT      --> flug.flugnr",
+        "       sitz     INTEGER",
+        "       datum    NUMERIC",
+        "",
+        "flug",
+        "  [PK] flugnr    TEXT",
+        "       fluglinie TEXT",
+        "       von       TEXT",
+        "       nach      TEXT",
+        "       ab        NUMERIC",
+        "       an        NUMERIC",
+        "       groesse   INTEGER",
+        "```",
+        "Welche Tabelle enthält **zwei Fremdschlüssel**?"
+      ],
+      "optionen": [
+        {
+          "text": "buchung",
+          "richtig": true,
+          "warum": "Genau: knr und flugnr sind beide Fremdschlüssel."
+        },
+        {
+          "text": "kunde",
+          "warum": "kunde hat nur einen Primärschlüssel (knr) und keinen Fremdschlüssel."
+        },
+        {
+          "text": "flug",
+          "warum": "flug hat nur einen Primärschlüssel (flugnr) und keinen Fremdschlüssel."
+        },
+        {
+          "text": "Keine – es gibt nur Primärschlüssel.",
+          "warum": "Doch: In buchung zeigen knr und flugnr auf andere Tabellen."
+        }
+      ],
+      "mischen": true,
+      "hinweise": [
+        "Suche die Zeilen mit [FK].",
+        "[FK] steht in der Tabelle, in der die Pfeile beginnen."
+      ],
+      "erklaerung": "Die Pfeile beginnen beide in `buchung`: `knr` zeigt auf `kunde.knr`, `flugnr` zeigt auf `flug.flugnr`. Darum hat `buchung` zwei Fremdschlüssel."
+    },
+    {
+      "id": "a-lesen-pfeil",
+      "typ": "text",
+      "titel": "Wohin zeigt der Pfeil?",
+      "lz": [
+        "L6",
+        "L4"
+      ],
+      "thema": "Schema lesen",
+      "stufe": 1,
+      "story": "Folge dem Pfeil wie einer Spur.",
+      "frage": [
+        "Das Schema der Datenbank *flugbuchung*:",
+        "```",
+        "kunde",
+        "  [PK] knr      INTEGER",
+        "       name     TEXT",
+        "       vorname  TEXT",
+        "       alter    INTEGER",
+        "",
+        "buchung",
+        "  [PK] bnr      INTEGER",
+        "  [FK] knr      INTEGER   --> kunde.knr",
+        "  [FK] flugnr   TEXT      --> flug.flugnr",
+        "       sitz     INTEGER",
+        "       datum    NUMERIC",
+        "",
+        "flug",
+        "  [PK] flugnr    TEXT",
+        "       fluglinie TEXT",
+        "       von       TEXT",
+        "       nach      TEXT",
+        "       ab        NUMERIC",
+        "       an        NUMERIC",
+        "       groesse   INTEGER",
+        "```",
+        "Auf welche **Tabelle** zeigt der Fremdschlüssel `buchung.{{fk}}`? (Nur den Tabellennamen eintragen.)"
+      ],
+      "antworten": [
+        "{{tab}}"
+      ],
+      "parameter": [
+        {
+          "fk": "knr",
+          "tab": "kunde"
+        },
+        {
+          "fk": "flugnr",
+          "tab": "flug"
+        }
+      ],
+      "hinweise": [
+        "Suche in `buchung` die Zeile mit {{fk}}. Rechts davon steht ein Pfeil.",
+        "Hinter `-->` steht Tabelle.Attribut. Du suchst den Tabellennamen."
+      ],
+      "erklaerung": "Der Fremdschlüssel `buchung.{{fk}}` zeigt auf den Primärschlüssel der Tabelle **{{tab}}**."
+    },
+    {
+      "id": "a-pkfk",
+      "typ": "zuordnen",
+      "titel": "Primär- oder Fremdschlüssel?",
+      "lz": [
+        "L6",
+        "L4"
+      ],
+      "thema": "PK und FK im Schema",
+      "stufe": 1,
+      "story": "Jetzt sortierst du die Attribute.",
+      "frage": [
+        "Ordne jedes Attribut der Datenbank *flugbuchung* zu. Das Schema steht unten.",
+        "```",
+        "kunde",
+        "  [PK] knr      INTEGER",
+        "       name     TEXT",
+        "       vorname  TEXT",
+        "       alter    INTEGER",
+        "",
+        "buchung",
+        "  [PK] bnr      INTEGER",
+        "  [FK] knr      INTEGER   --> kunde.knr",
+        "  [FK] flugnr   TEXT      --> flug.flugnr",
+        "       sitz     INTEGER",
+        "       datum    NUMERIC",
+        "",
+        "flug",
+        "  [PK] flugnr    TEXT",
+        "       fluglinie TEXT",
+        "       von       TEXT",
+        "       nach      TEXT",
+        "       ab        NUMERIC",
+        "       an        NUMERIC",
+        "       groesse   INTEGER",
+        "```"
+      ],
+      "kategorien": [
+        "Primärschlüssel",
+        "Fremdschlüssel",
+        "kein Schlüssel"
+      ],
+      "elemente": [
+        {
+          "text": "`kunde.knr`",
+          "antwort": "Primärschlüssel",
+          "warum": "Identifiziert jeden Kunden eindeutig."
+        },
+        {
+          "text": "`buchung.knr`",
+          "antwort": "Fremdschlüssel",
+          "warum": "Der Wert verweist auf einen Kunden in `kunde`."
+        },
+        {
+          "text": "`buchung.bnr`",
+          "antwort": "Primärschlüssel",
+          "warum": "Die Buchungsnummer identifiziert jede Buchung."
+        },
+        {
+          "text": "`buchung.sitz`",
+          "antwort": "kein Schlüssel",
+          "warum": "Der Sitz ist eine normale Angabe."
+        },
+        {
+          "text": "`flug.flugnr`",
+          "antwort": "Primärschlüssel",
+          "warum": "Identifiziert jeden Flug."
+        },
+        {
+          "text": "`buchung.flugnr`",
+          "antwort": "Fremdschlüssel",
+          "warum": "Verweist auf `flug.flugnr`."
+        },
+        {
+          "text": "`kunde.name`",
+          "antwort": "kein Schlüssel",
+          "warum": "Namen können doppelt vorkommen (Meier/Meyer): kein Schlüssel."
+        }
+      ],
+      "hinweise": [
+        "Gleicher Attributname in zwei Tabellen: Der Primärschlüssel ist in der Tabelle, in der er die Nummer 'besitzt'. Der Fremdschlüssel steht dort, wo ein [FK] davor steht.",
+        "Alles ohne [PK] und [FK] ist kein Schlüssel."
+      ],
+      "erklaerung": "`knr` kommt in zwei Tabellen vor, aber mit verschiedener Rolle: in `kunde` ist es Primärschlüssel, in `buchung` Fremdschlüssel. Dasselbe gilt für `flugnr`."
+    },
+    {
+      "id": "s-zeichnen",
+      "typ": "info",
+      "titel": "Ein Schema zeichnen",
+      "story": "Aus gegebenen Tabellen sollst du in der Prüfung ein Schema zeichnen können. Dazu gibt es ein festes Vorgehen.",
+      "text": [
+        "Du bekommst Tabellen mit Beispieldaten, z. B. aus der Bibliothek:",
+        "| verlagsid | name |",
+        "|---|---|",
+        "| 1 | Addison Wesley |",
+        "| 5 | Oldenbourg |",
+        "",
+        "| buchid | titel | jahr | verlagsid |",
+        "|---|---|---|---|",
+        "| 122 | 3D-Computergrafik und -animation | 1993 | 1 |",
+        "| 138 | 3D-computergrafische Darstellungen | 1994 | 5 |",
+        "",
+        "Vorgehen in fünf Schritten:",
+        "1. **Tabellen**: Für jede Tabelle ein Kästchen mit dem Tabellennamen (`verlag`, `buch`).",
+        "2. **Attribute**: Jedes Attribut untereinander ins Kästchen schreiben.",
+        "3. **Datentypen**: Zu jedem Attribut den passenden Typ: ganze Zahl = INTEGER, Text = TEXT, Kommazahl = REAL.",
+        "4. **Primärschlüssel**: In jeder Tabelle das Attribut markieren, das jeden Datensatz eindeutig macht (`verlagsid`, `buchid`).",
+        "5. **Fremdschlüssel und Pfeile**: Welches Attribut enthält Werte, die in einer anderen Tabelle Primärschlüssel sind? Hier `buch.verlagsid` (1 und 5 gibt es in `verlag`). Pfeil vom Fremdschlüssel zum Primärschlüssel.",
+        "Ergebnis:",
+        "```",
+        "verlag",
+        "  [PK] verlagsid  INTEGER   <--+",
+        "       name       TEXT         |",
+        "                               |",
+        "buch                           |",
+        "  [PK] buchid     INTEGER      |",
+        "       titel      TEXT         |",
+        "       jahr       INTEGER      |",
+        "  [FK] verlagsid  INTEGER  ----+",
+        "```",
+        "> Tipp: Der Fremdschlüssel muss nicht gleich heissen wie der Primärschlüssel. Er verrät sich dadurch, dass seine Werte in einer anderen Tabelle als Primärschlüssel vorkommen."
+      ]
+    },
+    {
+      "id": "a-zeichnen-buchung",
+      "typ": "tabelle",
+      "titel": "Schema von buchung ergänzen",
+      "lz": [
+        "L6",
+        "L8"
+      ],
+      "thema": "Schema zeichnen",
+      "stufe": 2,
+      "story": "Du zeichnest den Block für die Tabelle `buchung`. Auf der Tafel fehlen noch Datentyp und Schlüssel.",
+      "frage": [
+        "Ergänze das Schema der Tabelle `buchung`: Trage den Datentyp ein (INTEGER, TEXT oder NUMERIC) und die Schlüsselart (`PK`, `FK` oder `kein`).",
+        "Zur Erinnerung die Daten: `bnr` Buchungsnummer, `knr` Kundennummer, `flugnr` Flugnummer wie US1, `sitz` Sitznummer, `datum` wie 2025-09-15."
+      ],
+      "zeigen": [
+        "buchung"
+      ],
+      "tabellenname": "buchung (Schema)",
+      "spalten": [
+        "Attribut",
+        "Datentyp",
+        "Schlüssel"
+      ],
+      "zeilen": [
+        [
+          "bnr",
+          {
+            "loesung": "INTEGER"
+          },
+          {
+            "loesung": [
+              "PK",
+              "Primärschlüssel"
+            ]
+          }
+        ],
+        [
+          "knr",
+          {
+            "loesung": "INTEGER"
+          },
+          {
+            "loesung": [
+              "FK",
+              "Fremdschlüssel"
+            ]
+          }
+        ],
+        [
+          "flugnr",
+          {
+            "loesung": "TEXT"
+          },
+          {
+            "loesung": [
+              "FK",
+              "Fremdschlüssel"
+            ]
+          }
+        ],
+        [
+          "sitz",
+          {
+            "loesung": "INTEGER"
+          },
+          {
+            "loesung": [
+              "kein",
+              "keiner",
+              "kein Schlüssel"
+            ]
+          }
+        ],
+        [
+          "datum",
+          {
+            "loesung": [
+              "NUMERIC",
+              "DATE",
+              "Datum"
+            ]
+          },
+          {
+            "loesung": [
+              "kein",
+              "keiner",
+              "kein Schlüssel"
+            ]
+          }
+        ]
+      ],
+      "hinweise": [
+        "Zahlen ohne Komma sind INTEGER, Text wie US1 ist TEXT. Datumsangaben sind in unseren Datenbanken NUMERIC.",
+        "Fremdschlüssel sind die Attribute, deren Werte in `kunde` bzw. `flug` Primärschlüssel sind."
+      ],
+      "erklaerung": "`bnr` ist der Primärschlüssel von `buchung`. `knr` und `flugnr` sind Fremdschlüssel (INTEGER bzw. TEXT, genau wie der Primärschlüssel, auf den sie zeigen). `sitz` und `datum` sind gewöhnliche Attribute."
+    },
+    {
+      "id": "a-pfeile",
+      "typ": "zuordnen",
+      "titel": "Pfeile bestimmen",
+      "lz": [
+        "L6"
+      ],
+      "thema": "Pfeile im Schema",
+      "stufe": 2,
+      "story": "Welche Pfeile fehlen noch im Plan?",
+      "frage": "Im Schema der Datenbank *flugbuchung* gibt es Pfeile. Wohin zeigt der Pfeil, der bei diesem Attribut beginnt?",
+      "kategorien": [
+        "kunde.knr",
+        "flug.flugnr",
+        "Es beginnt kein Pfeil"
+      ],
+      "elemente": [
+        {
+          "text": "`buchung.knr`",
+          "antwort": "kunde.knr",
+          "warum": "Fremdschlüssel auf die Kundentabelle."
+        },
+        {
+          "text": "`buchung.flugnr`",
+          "antwort": "flug.flugnr",
+          "warum": "Fremdschlüssel auf die Flugtabelle."
+        },
+        {
+          "text": "`buchung.sitz`",
+          "antwort": "Es beginnt kein Pfeil",
+          "warum": "sitz ist kein Fremdschlüssel."
+        },
+        {
+          "text": "`kunde.knr`",
+          "antwort": "Es beginnt kein Pfeil",
+          "warum": "kunde.knr ist ein Primärschlüssel: Hier endet ein Pfeil, es beginnt keiner."
+        }
+      ],
+      "hinweise": [
+        "Pfeile beginnen nur bei Fremdschlüsseln.",
+        "Primärschlüssel sind das Ziel der Pfeile, nie der Anfang."
+      ],
+      "erklaerung": "Pfeile beginnen bei Fremdschlüsseln und enden bei Primärschlüsseln. Es gibt in *flugbuchung* genau zwei Pfeile."
+    },
+    {
+      "id": "a-schema-bib",
+      "typ": "choice",
+      "titel": "Pfeile in der Bibliothek",
+      "lz": [
+        "L6",
+        "L4"
+      ],
+      "thema": "Schema aus Tabellen",
+      "db": "bibliothek",
+      "stufe": 2,
+      "story": "Auch die Bibliothek hat einen Bauplan. Du kennst die Tabellen schon.",
+      "frage": [
+        "Die Bibliothek hat unter anderem diese Tabellen (PK = Primärschlüssel):",
+        "```",
+        "verlag (PK verlagsid, name, ort)",
+        "buch   (PK buchid, titel, jahr, verlagsid)",
+        "autor  (PK autorid, nachname, vornamen)",
+        "```",
+        "Welche **Pfeile** (Fremdschlüssel --> Primärschlüssel) gehören ins Schema? Wähle alle richtigen."
+      ],
+      "mehrfach": true,
+      "mischen": true,
+      "optionen": [
+        {
+          "text": "buch.verlagsid --> verlag.verlagsid",
+          "richtig": true
+        },
+        {
+          "text": "verlag.verlagsid --> buch.verlagsid",
+          "warum": "Falsche Richtung: Ein Pfeil beginnt beim Fremdschlüssel (buch.verlagsid)."
+        },
+        {
+          "text": "buch.titel --> autor.nachname",
+          "warum": "Es gibt keinen Zusammenhang zwischen diesen Attributen. Titel und Nachname sind weder Schlüssel noch gleich."
+        },
+        {
+          "text": "autor.autorid --> verlag.verlagsid",
+          "warum": "Beide sind Primärschlüssel. Ein Pfeil beginnt aber nur bei einem Fremdschlüssel."
+        }
+      ],
+      "hinweise": [
+        "Ein Pfeil beginnt beim Fremdschlüssel und endet beim Primärschlüssel.",
+        "Wo kommen die Verlagsnummern in `buch` her? Aus `verlag`."
+      ],
+      "erklaerung": "Nur `buch.verlagsid` ist ein Fremdschlüssel; er zeigt auf `verlag.verlagsid`. Zwischen `autor` und `buch` gibt es noch keinen Pfeil, weil die Verbindung über eine weitere Tabelle läuft (siehe n:m, gleich)."
+    },
+    {
+      "id": "s-beziehungen",
+      "typ": "info",
+      "titel": "Beziehungen: 1:n",
+      "story": "Wie viele Buchungen darf ein Kunde haben? Wie viele Kunden gehören zu einer Buchung?",
+      "text": [
+        "Zwischen zwei Tabellen besteht eine **Beziehung**. Man beschreibt sie, indem man fragt: *Wie viele* Datensätze der einen Tabelle gehören zu einem Datensatz der anderen?",
+        "**Kunde – Buchung:**",
+        "- Ein Kunde kann **viele** Buchungen machen (Dirk Beyenburg hat zwei: 1003 und 1004).",
+        "- Eine Buchung gehört zu **genau einem** Kunden.",
+        "Das nennt man eine **1:n-Beziehung** (sprich: eins zu n, oder «eins zu viele»). Genauso: Ein Verlag gibt viele Bücher heraus, ein Buch hat einen Verlag.",
+        "> Regel: Bei einer 1:n-Beziehung steht der **Fremdschlüssel auf der n-Seite** (bei den «vielen»). Darum hat `buchung` das Attribut `knr`, nicht `kunde` ein Attribut `bnr`.",
+        "Warum? Bei `buchung.knr` steht in jeder Zeile genau ein Wert. Beim anderen Weg müsste ein Kunde in einer einzigen Zelle mehrere Buchungsnummern speichern. Das geht nicht (eine Zelle = ein Wert)."
+      ]
+    },
+    {
+      "id": "a-1n-seite",
+      "typ": "text",
+      "titel": "Wo steht der Fremdschlüssel?",
+      "lz": [
+        "L6",
+        "L7"
+      ],
+      "thema": "1:n-Beziehung",
+      "stufe": 2,
+      "story": "Du kennst die Regel: Fremdschlüssel auf die n-Seite.",
+      "frage": "Ein {{eins}} hat viele {{viele}}, aber jede dieser {{viele}} gehört zu genau einem {{eins}}. In welcher **Tabelle** steht der Fremdschlüssel? (Tabellenname eintragen)",
+      "antworten": [
+        "{{tab}}"
+      ],
+      "parameter": [
+        {
+          "eins": "Kunde",
+          "viele": "Buchungen",
+          "tab": "buchung"
+        },
+        {
+          "eins": "Flug",
+          "viele": "Buchungen",
+          "tab": "buchung"
+        },
+        {
+          "eins": "Verlag",
+          "viele": "Bücher",
+          "tab": "buch"
+        }
+      ],
+      "hinweise": [
+        "Der Fremdschlüssel steht auf der Seite der «vielen».",
+        "Auf der n-Seite stehen die {{viele}}."
+      ],
+      "erklaerung": "Die vielen {{viele}} bekommen je einen Verweis auf ihr {{eins}}: Der Fremdschlüssel steht in der Tabelle **{{tab}}**."
+    },
+    {
+      "id": "s-nm",
+      "typ": "info",
+      "titel": "n:m-Beziehungen brauchen eine eigene Tabelle",
+      "story": [
+        {
+          "sprecher": "ammann",
+          "text": "Bei uns in der Bibliothek gibt es Bücher mit mehreren Autoren. Und Autoren, die viele Bücher geschrieben haben."
+        }
+      ],
+      "text": [
+        "**Buch – Autor** ist anders als Kunde – Buchung:",
+        "- Ein Buch kann **mehrere** Autoren haben (Buch 3002: Ottmann und Widmayer).",
+        "- Ein Autor kann **mehrere** Bücher geschrieben haben (Niklaus Wirth: 3001, 3016 und 3032).",
+        "Auf *beiden* Seiten steht «viele». Das ist eine **n:m-Beziehung** (n zu m, «viele zu viele»).",
+        "Wo könnte der Fremdschlüssel stehen? Wir probieren es aus.",
+        "**Versuch 1: `autorid` in `buch`.** Für Buch 3002 bräuchten wir zwei Autoren in *einer* Zelle: `214, 215`. Eine Zelle darf aber nur **einen** Wert enthalten. Ausserdem könnte man danach nicht mehr sauber verknüpfen.",
+        "**Versuch 2: zwei Spalten `autor1`, `autor2`.** Was ist mit einem Buch mit drei Autoren? Und bei den vielen Büchern mit nur einem Autor blieben Zellen leer. Es ist nie genug Platz und trotzdem zu viel.",
+        "**Versuch 3: Buch mehrmals eintragen**, einmal pro Autor. Dann stehen Titel, ISBN usw. doppelt: Das ist **Redundanz** (siehe Kapitel Redundanz).",
+        "**Lösung: eine eigene Tabelle für die Zuordnung.** Jede Zeile sagt: «Dieses Buch hat diesen Autor».",
+        "| buchid | autorid |",
+        "|---|---|",
+        "| 3001 | 207 |",
+        "| 3002 | 214 |",
+        "| 3002 | 215 |",
+        "| 3016 | 207 |",
+        "| 3032 | 207 |",
+        "",
+        "Das ist die Tabelle `buch_aut` (**Zwischentabelle**, auch Verknüpfungs- oder Mapping-Tabelle). Sie enthält:",
+        "- **zwei Fremdschlüssel**: `buchid` (auf `buch`) und `autorid` (auf `autor`),",
+        "- als Primärschlüssel die **Kombination** (`buchid`, `autorid`): ein zusammengesetzter Primärschlüssel. Dasselbe Paar darf nur einmal vorkommen.",
+        "Aus der n:m-Beziehung sind zwei 1:n-Beziehungen geworden: Ein Buch hat viele Zeilen in `buch_aut`, ein Autor hat viele Zeilen in `buch_aut`.",
+        "```",
+        "autor  1 ----- n  buch_aut  n ----- 1  buch",
+        "```",
+        "Im Flughafen gibt es dasselbe Muster: Ein Kunde bucht viele Flüge, ein Flug wird von vielen Kunden gebucht (n:m). Die Zwischentabelle ist `buchung` mit den Fremdschlüsseln `knr` und `flugnr`. Sie enthält zusätzlich Angaben zur Buchung selbst (`sitz`, `datum`).",
+        "> Merke: Eine n:m-Beziehung lässt sich in einer relationalen Datenbank **nur mit einer eigenen Tabelle** umsetzen. Diese Zwischentabelle hat zwei Fremdschlüssel."
+      ]
+    },
+    {
+      "id": "a-nm-warum",
+      "typ": "choice",
+      "titel": "Warum eine eigene Tabelle?",
+      "lz": [
+        "L7"
+      ],
+      "thema": "n:m begründen",
+      "stufe": 2,
+      "story": "Herr Ammann fragt: «Könnte ich nicht einfach eine Spalte autorid in meine Tabelle buch setzen?»",
+      "frage": "Warum reicht eine einzelne Spalte `autorid` in der Tabelle `buch` **nicht**, um alle Autoren-Zuordnungen zu speichern?",
+      "mischen": true,
+      "optionen": [
+        {
+          "text": "Weil ein Buch mehrere Autoren haben kann, aber in einer Zelle nur ein Wert Platz hat.",
+          "richtig": true
+        },
+        {
+          "text": "Weil Fremdschlüssel nie in der Tabelle `buch` stehen dürfen.",
+          "warum": "Doch: `buch.verlagsid` ist ein Fremdschlüssel in `buch`. Hier liegt das Problem woanders: Es gibt mehrere Autoren pro Buch."
+        },
+        {
+          "text": "Weil die Tabelle `autor` sonst zu gross würde.",
+          "warum": "Es geht nicht um Grösse. Es geht darum, dass beide Seiten «viele» sind."
+        },
+        {
+          "text": "Weil `autorid` eine Zahl ist und Bücher Texte sind.",
+          "warum": "Datentypen spielen hier keine Rolle. Das Problem ist die Anzahl: viele Autoren pro Buch."
+        }
+      ],
+      "hinweise": [
+        "Denk an Buch 3002 mit zwei Autoren.",
+        "Eine Zelle enthält nur einen Wert."
+      ],
+      "erklaerung": "Bei n:m gibt es auf beiden Seiten «viele». Ein Fremdschlüssel in nur einer der beiden Tabellen kann pro Zeile nur *einen* Verweis speichern. Darum braucht man eine **eigene Tabelle** mit einer Zeile pro Zuordnung."
+    },
+    {
+      "id": "a-nm-erkennen",
+      "typ": "zuordnen",
+      "titel": "1:n oder n:m?",
+      "lz": [
+        "L7"
+      ],
+      "thema": "Beziehungsart",
+      "stufe": 2,
+      "story": "Erkenne den Beziehungstyp.",
+      "frage": "Welche Beziehung besteht zwischen diesen Dingen: 1:n oder n:m?",
+      "kategorien": [
+        "1:n",
+        "n:m"
+      ],
+      "elemente": [
+        {
+          "text": "Verlag – Buch (ein Buch hat genau einen Verlag)",
+          "antwort": "1:n",
+          "warum": "Ein Verlag hat viele Bücher, ein Buch aber nur einen Verlag."
+        },
+        {
+          "text": "Buch – Autor",
+          "antwort": "n:m",
+          "warum": "Ein Buch kann mehrere Autoren haben und ein Autor mehrere Bücher."
+        },
+        {
+          "text": "Kunde – Flug",
+          "antwort": "n:m",
+          "warum": "Ein Kunde kann mehrere Flüge buchen, ein Flug wird von mehreren Kunden gebucht."
+        },
+        {
+          "text": "Kunde – Buchung",
+          "antwort": "1:n",
+          "warum": "Eine Buchung gehört zu genau einem Kunden."
+        },
+        {
+          "text": "Buch – Schlagwort",
+          "antwort": "n:m",
+          "warum": "Ein Buch hat mehrere Schlagwörter, ein Schlagwort passt zu mehreren Büchern."
+        }
+      ],
+      "hinweise": [
+        "Frage dich für beide Richtungen: Kann es mehrere geben?",
+        "Wenn es in *beide* Richtungen «viele» gibt, ist es n:m."
+      ],
+      "erklaerung": "1:n: Auf einer Seite genau einer. n:m: auf beiden Seiten viele; dann braucht man eine Zwischentabelle (`buch_aut`, `buch_sw`, `buchung`)."
+    },
+    {
+      "id": "a-nm-tabelle",
+      "typ": "tabelle",
+      "titel": "Die Zwischentabelle füllen",
+      "lz": [
+        "L7",
+        "L8"
+      ],
+      "thema": "Zwischentabelle füllen",
+      "db": "bibliothek",
+      "stufe": 2,
+      "story": "Herr Ammann hat zwei neue Schlagwörter vergeben.",
+      "frage": [
+        "Die Zwischentabelle `buch_sw` ordnet Büchern Schlagwörter zu (`swid` ist die Nummer des Schlagworts). Das Buch **3005** «Datenbanksysteme» bekommt die Schlagwörter **Datenbanken (swid 2)** und **SQL (swid 3)**.",
+        "Ergänze die beiden fehlenden Zeilen."
+      ],
+      "zeigen": [
+        "schlagwort"
+      ],
+      "tabellenname": "buch_sw (Ausschnitt)",
+      "spalten": [
+        "buchid",
+        "swid"
+      ],
+      "zeilen": [
+        [
+          "3003",
+          "4"
+        ],
+        [
+          "3003",
+          "5"
+        ],
+        [
+          "3004",
+          "5"
+        ],
+        [
+          {
+            "loesung": "3005"
+          },
+          {
+            "loesung": "2"
+          }
+        ],
+        [
+          {
+            "loesung": "3005"
+          },
+          {
+            "loesung": "3"
+          }
+        ]
+      ],
+      "hinweise": [
+        "Jede Zuordnung ist eine eigene Zeile: ein Buch, ein Schlagwort.",
+        "Das Buch kommt zweimal vor (3005), mit je einer swid."
+      ],
+      "erklaerung": "Zwei Schlagwörter für ein Buch ergeben **zwei Zeilen**: (3005, 2) und (3005, 3). Genau so funktioniert eine Zwischentabelle: viele Zeilen pro Buch, jede mit einem Schlagwort."
+    },
+    {
+      "id": "s-entwerfen",
+      "typ": "info",
+      "titel": "Aus einem Text Tabellen entwerfen",
+      "story": "Auch das kann in der Prüfung drankommen: Du bekommst einen Text und sollst Tabellen zeichnen und ausfüllen.",
+      "text": [
+        "Beispiel: *Eine Schule speichert Schüler (Nummer, Name) und Wahlkurse (Kürzel, Titel). Ein Schüler kann mehrere Kurse besuchen, und in jedem Kurs sitzen mehrere Schüler.*",
+        "Vorgehen:",
+        "1. **Sachen finden**: Schüler und Kurse. Jede Sache bekommt eine Tabelle mit eigenem Primärschlüssel: `schueler` (snr, name), `kurs` (kuerzel, titel).",
+        "2. **Beziehung prüfen**: Schüler – Kurs ist **n:m**.",
+        "3. **Zwischentabelle** anlegen: `kurs_wahl` mit den beiden Fremdschlüsseln `snr` und `kuerzel`. Der Primärschlüssel ist die Kombination (snr, kuerzel).",
+        "4. **Füllen**: Pro Zuordnung eine Zeile.",
+        "Ausgefüllt, wenn Lena (snr 1) INF und MAT besucht und Jonas (snr 2) INF besucht:",
+        "| snr | kuerzel |",
+        "|---|---|",
+        "| 1 | INF |",
+        "| 1 | MAT |",
+        "| 2 | INF |",
+        "",
+        "Bei einer 1:n-Beziehung (z. B. *jeder Schüler gehört zu genau einer Klasse*) braucht es keine Zwischentabelle: Ein Fremdschlüssel `klasse` in `schueler` genügt.",
+        "> Merke: Pro Sache eine Tabelle. Bei n:m eine Zwischentabelle mit zwei Fremdschlüsseln. Bei 1:n ein Fremdschlüssel auf der n-Seite."
+      ]
+    },
+    {
+      "id": "a-entwerfen-anzahl",
+      "typ": "choice",
+      "titel": "Wie viele Tabellen?",
+      "lz": [
+        "L7",
+        "L6"
+      ],
+      "thema": "Tabellen entwerfen",
+      "stufe": 2,
+      "story": "Probier den Entwurf an einem neuen Fall.",
+      "frage": "Ein Sportverein speichert **Mitglieder** und **Sportarten**. Jedes Mitglied kann mehrere Sportarten betreiben, und jede Sportart wird von mehreren Mitgliedern betrieben. Wie viele Tabellen braucht die Datenbank mindestens?",
+      "optionen": [
+        {
+          "text": "3 (mitglied, sportart und eine Zwischentabelle)",
+          "richtig": true
+        },
+        {
+          "text": "2 (mitglied und sportart)",
+          "warum": "Bei n:m reichen zwei Tabellen nicht. Die Zuordnungen brauchen eine eigene Tabelle."
+        },
+        {
+          "text": "1",
+          "warum": "Mitglieder und Sportarten sind verschiedene Sachen. In einer einzigen Tabelle gäbe es Redundanz."
+        },
+        {
+          "text": "4",
+          "warum": "Mehr als eine Zwischentabelle braucht es für diese eine n:m-Beziehung nicht."
+        }
+      ],
+      "mischen": true,
+      "hinweise": [
+        "Eine Tabelle pro Sache. Dann: Welche Art Beziehung?",
+        "n:m braucht eine zusätzliche Tabelle."
+      ],
+      "erklaerung": "Zwei Sachen (Mitglied, Sportart) = 2 Tabellen. Die Beziehung ist n:m, also kommt eine **Zwischentabelle** dazu: insgesamt 3."
+    },
+    {
+      "id": "a-entwerfen-fuellen",
+      "typ": "tabelle",
+      "titel": "Kurswahl eintragen",
+      "lz": [
+        "L8",
+        "L7"
+      ],
+      "thema": "Zwischentabelle füllen",
+      "stufe": 2,
+      "story": "Jetzt füllst du die Zwischentabelle der Schule.",
+      "frage": [
+        "Tabelle `kurs_wahl` mit den Spalten `snr` (Schüler) und `kuerzel` (Kurs). Trage die Kürzel ein:",
+        "- Lena (snr 1) besucht INF und MAT.",
+        "- Jonas (snr 2) besucht INF."
+      ],
+      "tabellenname": "kurs_wahl",
+      "spalten": [
+        "snr",
+        "kuerzel"
+      ],
+      "zeilen": [
+        [
+          "1",
+          {
+            "loesung": "INF"
+          }
+        ],
+        [
+          "1",
+          {
+            "loesung": "MAT"
+          }
+        ],
+        [
+          "2",
+          {
+            "loesung": "INF"
+          }
+        ]
+      ],
+      "hinweise": [
+        "Jede Zeile ist ein Paar (Schüler, Kurs).",
+        "Lena erscheint zweimal, weil sie zwei Kurse besucht."
+      ],
+      "erklaerung": "Drei Zuordnungen ergeben drei Zeilen. Es sind nur Nummern bzw. Kürzel gespeichert, keine Namen: Die Namen stehen in `schueler` und `kurs`. Über die Fremdschlüssel sind sie verknüpft."
+    },
+    {
+      "id": "s-ende",
+      "typ": "info",
+      "titel": "Der Bauplan steht",
+      "story": [
+        {
+          "sprecher": "tabea",
+          "text": "Jetzt verstehe ich, wie der Flughafen seine Tabellen zusammenhält: Die Buchung verbindet Kunden und Flüge."
+        },
+        {
+          "sprecher": "pilotin",
+          "text": "Die Buchungen sind also der Schlüssel zur Kiste. Aber zuerst muss man Daten gezielt herausfiltern, sonst ertrinkt man in Zeilen."
+        }
+      ],
+      "text": [
+        "## Zusammenfassung",
+        "- Ein **Datenbankschema** zeigt Tabellen, Attribute, Datentypen, Primär- und Fremdschlüssel und die Verknüpfungen (Pfeile), aber keine Datensätze.",
+        "- Ein Pfeil geht vom **Fremdschlüssel** zum **Primärschlüssel**.",
+        "- **1:n**: Fremdschlüssel auf der n-Seite.",
+        "- **n:m**: braucht zwingend eine **eigene Tabelle** (Zwischentabelle) mit zwei Fremdschlüsseln; der Primärschlüssel ist meist die Kombination beider.",
+        "- Beispiele: `buchung` (Kunde–Flug), `buch_aut` (Buch–Autor), `buch_sw` (Buch–Schlagwort)."
+      ]
+    }
+  ],
+  "pool": [
+    {
+      "id": "p-schema-inhalt",
+      "typ": "choice",
+      "lz": [
+        "L6"
+      ],
+      "thema": "Schema Begriff",
+      "stufe": 1,
+      "frage": "Was gehört in ein **Datenbankschema**? Wähle alle richtigen Antworten.",
+      "mehrfach": true,
+      "mischen": true,
+      "optionen": [
+        {
+          "text": "Tabellen mit Attributen und Datentypen",
+          "richtig": true
+        },
+        {
+          "text": "Primär- und Fremdschlüssel mit Pfeilen",
+          "richtig": true
+        },
+        {
+          "text": "Alle Datensätze der Tabellen",
+          "warum": "Die Daten gehören nicht ins Schema, nur die Struktur."
+        },
+        {
+          "text": "Die SQL-Abfragen, die man gerne stellt",
+          "warum": "Abfragen sind kein Teil des Schemas."
+        }
+      ],
+      "hinweise": [
+        "Das Schema ist der Bauplan, nicht der Inhalt."
+      ],
+      "erklaerung": "Ein Schema beschreibt den **Aufbau**: Tabellen, Attribute, Datentypen, Schlüssel, Verknüpfungen. Die Datensätze sind der **Inhalt**."
+    },
+    {
+      "id": "p-pfeil-richtung",
+      "typ": "choice",
+      "lz": [
+        "L6",
+        "L4"
+      ],
+      "thema": "Pfeile im Schema",
+      "stufe": 1,
+      "frage": "In einem Datenbankschema ist ein Pfeil eingezeichnet. Wo beginnt er und wo endet er?",
+      "mischen": true,
+      "optionen": [
+        {
+          "text": "Er beginnt beim Fremdschlüssel und endet beim Primärschlüssel.",
+          "richtig": true
+        },
+        {
+          "text": "Er beginnt beim Primärschlüssel und endet beim Fremdschlüssel.",
+          "warum": "Umgekehrt: Der Fremdschlüssel «zeigt auf» den Primärschlüssel."
+        },
+        {
+          "text": "Er verbindet zwei Primärschlüssel.",
+          "warum": "Ein Pfeil gehört immer zu einem Fremdschlüssel."
+        },
+        {
+          "text": "Er verbindet zwei beliebige Attribute mit gleichem Datentyp.",
+          "warum": "Es zählt nicht der Datentyp, sondern die Fremdschlüssel-Beziehung."
+        }
+      ],
+      "hinweise": [
+        "Ein Fremdschlüssel verweist auf etwas."
+      ],
+      "erklaerung": "Der Pfeil geht vom **Fremdschlüssel** (z. B. `buchung.knr`) zum **Primärschlüssel** (`kunde.knr`)."
+    },
+    {
+      "id": "p-schema-symbole",
+      "typ": "zuordnen",
+      "lz": [
+        "L6"
+      ],
+      "thema": "Schema lesen",
+      "stufe": 1,
+      "frage": "Im Schema steht bei der Tabelle `flug` unter anderem `[PK] flugnr TEXT`. Was bedeutet jedes Zeichen?",
+      "kategorien": [
+        "Primärschlüssel",
+        "Attribut",
+        "Datentyp"
+      ],
+      "elemente": [
+        {
+          "text": "`[PK]`",
+          "antwort": "Primärschlüssel",
+          "warum": "PK = Primary Key = Primärschlüssel."
+        },
+        {
+          "text": "`flugnr`",
+          "antwort": "Attribut",
+          "warum": "Der Name der Spalte."
+        },
+        {
+          "text": "`TEXT`",
+          "antwort": "Datentyp",
+          "warum": "Sagt, welche Art Werte erlaubt sind."
+        }
+      ],
+      "hinweise": [
+        "Die drei Teile stehen von links nach rechts: Schlüssel, Name, Typ."
+      ],
+      "erklaerung": "`[PK] flugnr TEXT`: Das Attribut `flugnr` ist Primärschlüssel und hat den Datentyp TEXT."
+    },
+    {
+      "id": "p-fk-zaehlen",
+      "typ": "text",
+      "lz": [
+        "L6",
+        "L4"
+      ],
+      "thema": "Schema lesen",
+      "db": "bibliothek",
+      "stufe": 2,
+      "frage": [
+        "Zusammenstellung der Bibliothek:",
+        "```",
+        "buch      [PK] buchid, titel, jahr, [FK] verlagsid --> verlag",
+        "buch_aut  [PK,FK] buchid --> buch, [PK,FK] autorid --> autor, rolle, rang",
+        "buch_sw   [PK,FK] buchid --> buch, [PK,FK] swid --> schlagwort",
+        "verlag    [PK] verlagsid, name, ort",
+        "```",
+        "Wie viele **Fremdschlüssel** hat die Tabelle `{{tab}}`? (Zahl eintragen)"
+      ],
+      "antworten": [
+        "{{n}}"
+      ],
+      "parameter": [
+        {
+          "tab": "buch",
+          "n": "1"
+        },
+        {
+          "tab": "buch_aut",
+          "n": "2"
+        },
+        {
+          "tab": "buch_sw",
+          "n": "2"
+        },
+        {
+          "tab": "verlag",
+          "n": "0"
+        }
+      ],
+      "hinweise": [
+        "Zähle die Einträge mit FK in der Zeile von `{{tab}}`."
+      ],
+      "erklaerung": "Die Tabelle `{{tab}}` hat **{{n}}** Fremdschlüssel. (In den Zwischentabellen sind beide Attribute gleichzeitig Teil des Primärschlüssels und Fremdschlüssel.)"
+    },
+    {
+      "id": "p-pk-fk-bib",
+      "typ": "zuordnen",
+      "lz": [
+        "L4",
+        "L6"
+      ],
+      "thema": "PK und FK im Schema",
+      "db": "bibliothek",
+      "stufe": 2,
+      "frage": "Ordne zu. Beachte: Ein Attribut kann Primär- *und* Fremdschlüssel sein.",
+      "kategorien": [
+        "nur Primärschlüssel",
+        "nur Fremdschlüssel",
+        "Primär- und Fremdschlüssel",
+        "kein Schlüssel"
+      ],
+      "elemente": [
+        {
+          "text": "`verlag.verlagsid`",
+          "antwort": "nur Primärschlüssel",
+          "warum": "Identifiziert den Verlag, verweist auf nichts."
+        },
+        {
+          "text": "`buch.verlagsid`",
+          "antwort": "nur Fremdschlüssel",
+          "warum": "Verweist auf `verlag`; der Primärschlüssel von `buch` ist `buchid`."
+        },
+        {
+          "text": "`buch_aut.buchid`",
+          "antwort": "Primär- und Fremdschlüssel",
+          "warum": "Teil des zusammengesetzten Primärschlüssels (buchid, autorid) und Verweis auf `buch`."
+        },
+        {
+          "text": "`buch.titel`",
+          "antwort": "kein Schlüssel",
+          "warum": "Titel können doppelt vorkommen."
+        },
+        {
+          "text": "`buch_aut.rolle`",
+          "antwort": "kein Schlüssel",
+          "warum": "Eine zusätzliche Angabe zur Zuordnung."
+        }
+      ],
+      "hinweise": [
+        "Zwischentabellen haben einen zusammengesetzten Primärschlüssel aus ihren Fremdschlüsseln."
+      ],
+      "erklaerung": "In `buch_aut` sind `buchid` und `autorid` zugleich Fremdschlüssel (sie zeigen auf `buch` und `autor`) und zusammen der Primärschlüssel."
+    },
+    {
+      "id": "p-schema-buch",
+      "typ": "tabelle",
+      "lz": [
+        "L6",
+        "L8"
+      ],
+      "thema": "Schema zeichnen",
+      "db": "bibliothek",
+      "stufe": 2,
+      "frage": [
+        "Ergänze das Schema der Tabelle `buch`: Datentyp (INTEGER, TEXT oder REAL) und Schlüssel (`PK`, `FK` oder `kein`).",
+        "Ein Ausschnitt der Daten steht unten (`jahr` ist eine Jahreszahl, `preis` ein Betrag mit Nachkommastellen, `verlagsid` verweist auf `verlag`)."
+      ],
+      "zeigen": [
+        {
+          "titel": "Ausschnitt buch",
+          "sql": "SELECT buchid, titel, jahr, preis, verlagsid FROM buch ORDER BY buchid"
+        }
+      ],
+      "tabellenname": "buch (Schema)",
+      "spalten": [
+        "Attribut",
+        "Datentyp",
+        "Schlüssel"
+      ],
+      "zeilen": [
+        [
+          "buchid",
+          {
+            "loesung": "INTEGER"
+          },
+          {
+            "loesung": [
+              "PK",
+              "Primärschlüssel"
+            ]
+          }
+        ],
+        [
+          "titel",
+          {
+            "loesung": "TEXT"
+          },
+          {
+            "loesung": [
+              "kein",
+              "keiner",
+              "kein Schlüssel"
+            ]
+          }
+        ],
+        [
+          "jahr",
+          {
+            "loesung": "INTEGER"
+          },
+          {
+            "loesung": [
+              "kein",
+              "keiner",
+              "kein Schlüssel"
+            ]
+          }
+        ],
+        [
+          "preis",
+          {
+            "loesung": "REAL"
+          },
+          {
+            "loesung": [
+              "kein",
+              "keiner",
+              "kein Schlüssel"
+            ]
+          }
+        ],
+        [
+          "verlagsid",
+          {
+            "loesung": "INTEGER"
+          },
+          {
+            "loesung": [
+              "FK",
+              "Fremdschlüssel"
+            ]
+          }
+        ]
+      ],
+      "hinweise": [
+        "Ganze Zahl = INTEGER, Kommazahl = REAL, Text = TEXT.",
+        "Der Fremdschlüssel zeigt auf `verlag`."
+      ],
+      "erklaerung": "`buchid` ist Primärschlüssel, `verlagsid` Fremdschlüssel auf `verlag`. Der `preis` hat Nachkommastellen, also REAL."
+    },
+    {
+      "id": "p-schema-flug",
+      "typ": "tabelle",
+      "lz": [
+        "L6",
+        "L8"
+      ],
+      "thema": "Schema zeichnen",
+      "stufe": 2,
+      "frage": "Ergänze das Schema der Tabelle `flug`: Datentyp (INTEGER, TEXT oder NUMERIC) und Schlüssel (`PK` oder `kein`).",
+      "zeigen": [
+        "flug"
+      ],
+      "tabellenname": "flug (Schema)",
+      "spalten": [
+        "Attribut",
+        "Datentyp",
+        "Schlüssel"
+      ],
+      "zeilen": [
+        [
+          "flugnr",
+          {
+            "loesung": "TEXT"
+          },
+          {
+            "loesung": [
+              "PK",
+              "Primärschlüssel"
+            ]
+          }
+        ],
+        [
+          "fluglinie",
+          {
+            "loesung": "TEXT"
+          },
+          {
+            "loesung": [
+              "kein",
+              "keiner",
+              "kein Schlüssel"
+            ]
+          }
+        ],
+        [
+          "ab",
+          {
+            "loesung": [
+              "NUMERIC",
+              "DATE",
+              "Zeit",
+              "TIME"
+            ]
+          },
+          {
+            "loesung": [
+              "kein",
+              "keiner",
+              "kein Schlüssel"
+            ]
+          }
+        ],
+        [
+          "groesse",
+          {
+            "loesung": "INTEGER"
+          },
+          {
+            "loesung": [
+              "kein",
+              "keiner",
+              "kein Schlüssel"
+            ]
+          }
+        ]
+      ],
+      "hinweise": [
+        "Flugnummern wie LH7 enthalten Buchstaben: Text.",
+        "Uhrzeiten wie 11:20:00 sind in unserer Datenbank NUMERIC."
+      ],
+      "erklaerung": "`flugnr` (z. B. US1) ist ein Text und der Primärschlüssel. `ab` ist eine Uhrzeit (NUMERIC), `groesse` die Anzahl Plätze (INTEGER)."
+    },
+    {
+      "id": "p-schema-pfeil-bib",
+      "typ": "choice",
+      "lz": [
+        "L6"
+      ],
+      "thema": "Schema aus Tabellen",
+      "db": "bibliothek",
+      "stufe": 3,
+      "frage": [
+        "In der Bibliothek gibt es diese Tabellen mit Primärschlüssel (PK):",
+        "```",
+        "buch_sw     (PK buchid + swid)",
+        "schlagwort  (PK swid, schlagwort)",
+        "buch        (PK buchid, titel, ...)",
+        "```",
+        "Welche Pfeile müssen für die Zwischentabelle `buch_sw` gezeichnet werden?"
+      ],
+      "mischen": true,
+      "optionen": [
+        {
+          "text": "buch_sw.buchid --> buch.buchid  und  buch_sw.swid --> schlagwort.swid",
+          "richtig": true
+        },
+        {
+          "text": "buch.buchid --> buch_sw.buchid  und  schlagwort.swid --> buch_sw.swid",
+          "warum": "Falsche Richtung: Die Pfeile beginnen bei den Fremdschlüsseln in `buch_sw`."
+        },
+        {
+          "text": "Nur buch_sw.buchid --> buch.buchid",
+          "warum": "Auch `swid` ist ein Fremdschlüssel, es braucht zwei Pfeile."
+        },
+        {
+          "text": "buch.titel --> schlagwort.schlagwort",
+          "warum": "Titel und Schlagwort sind keine Schlüssel."
+        }
+      ],
+      "hinweise": [
+        "Eine Zwischentabelle hat zwei Fremdschlüssel, also zwei Pfeile.",
+        "Pfeile beginnen bei der Zwischentabelle."
+      ],
+      "erklaerung": "`buch_sw` verknüpft zwei Tabellen: Von `buch_sw.buchid` geht ein Pfeil zu `buch.buchid`, von `buch_sw.swid` einer zu `schlagwort.swid`."
+    },
+    {
+      "id": "p-1n-seite",
+      "typ": "zuordnen",
+      "lz": [
+        "L6",
+        "L7"
+      ],
+      "thema": "1:n-Beziehung",
+      "stufe": 2,
+      "frage": "Bei 1:n-Beziehungen steht der Fremdschlüssel auf der n-Seite. In welcher Tabelle steht der Fremdschlüssel?",
+      "kategorien": [
+        "buchung",
+        "buch",
+        "klasse",
+        "schueler"
+      ],
+      "elemente": [
+        {
+          "text": "Ein Kunde hat viele Buchungen (Verweis auf den Kunden)",
+          "antwort": "buchung",
+          "warum": "Auf der n-Seite: buchung.knr."
+        },
+        {
+          "text": "Ein Verlag hat viele Bücher (Verweis auf den Verlag)",
+          "antwort": "buch",
+          "warum": "Auf der n-Seite: buch.verlagsid."
+        },
+        {
+          "text": "Eine Klasse hat viele Schüler, jeder Schüler hat genau eine Klasse (Verweis auf die Klasse)",
+          "antwort": "schueler",
+          "warum": "Auf der n-Seite: schueler.klasse zeigt auf klasse."
+        }
+      ],
+      "hinweise": [
+        "Der Fremdschlüssel steht bei den «vielen»."
+      ],
+      "erklaerung": "Die n-Seite trägt den Verweis. In der Tabelle der «vielen» steht pro Zeile genau ein Wert, der auf das «eine» zeigt."
+    },
+    {
+      "id": "p-nm-zwischentabelle",
+      "typ": "text",
+      "lz": [
+        "L7"
+      ],
+      "thema": "Zwischentabelle",
+      "stufe": 1,
+      "frage": "Die n:m-Beziehung zwischen **{{paar}}** wird in einer eigenen Tabelle umgesetzt. Wie heisst diese Zwischentabelle in unseren Datenbanken?",
+      "antworten": [
+        "{{tab}}"
+      ],
+      "parameter": [
+        {
+          "paar": "Buch und Autor",
+          "tab": "buch_aut"
+        },
+        {
+          "paar": "Buch und Schlagwort",
+          "tab": "buch_sw"
+        },
+        {
+          "paar": "Kunde und Flug",
+          "tab": "buchung"
+        }
+      ],
+      "hinweise": [
+        "Der Name besteht oft aus den Namen der beiden verknüpften Tabellen.",
+        "Beim Flughafen heisst sie nicht so, sondern wie das Ereignis, das beide verbindet."
+      ],
+      "erklaerung": "Die Zwischentabelle für {{paar}} heisst `{{tab}}`. Sie enthält je einen Fremdschlüssel auf beide Tabellen."
+    },
+    {
+      "id": "p-nm-zaehlen-buch",
+      "typ": "text",
+      "lz": [
+        "L7",
+        "L3"
+      ],
+      "thema": "Zwischentabelle lesen",
+      "db": "bibliothek",
+      "stufe": 2,
+      "frage": "Unten steht die Zwischentabelle `buch_aut`. Wie viele Autoren hat das Buch mit der `buchid` **{{b}}**? (Zahl eintragen)",
+      "zeigen": [
+        {
+          "titel": "buch_aut",
+          "sql": "SELECT buchid, autorid FROM buch_aut ORDER BY buchid, autorid"
+        }
+      ],
+      "antworten": [
+        "{{n}}"
+      ],
+      "parameter": [
+        {
+          "b": "3002",
+          "n": "2"
+        },
+        {
+          "b": "3001",
+          "n": "1"
+        },
+        {
+          "b": "3004",
+          "n": "2"
+        },
+        {
+          "b": "3026",
+          "n": "2"
+        }
+      ],
+      "hinweise": [
+        "Zähle die Zeilen, in denen in der Spalte buchid die {{b}} steht."
+      ],
+      "erklaerung": "Jede Zeile mit buchid {{b}} ist ein Autor dieses Buchs: **{{n}}**."
+    },
+    {
+      "id": "p-nm-zaehlen-autor",
+      "typ": "text",
+      "lz": [
+        "L7",
+        "L3"
+      ],
+      "thema": "Zwischentabelle lesen",
+      "db": "bibliothek",
+      "stufe": 2,
+      "frage": "Wie viele Bücher hat der Autor mit der `autorid` **{{a}}** laut der Zwischentabelle `buch_aut` geschrieben? (Zahl eintragen)",
+      "zeigen": [
+        {
+          "titel": "buch_aut nach Autor sortiert",
+          "sql": "SELECT autorid, buchid FROM buch_aut ORDER BY autorid, buchid"
+        }
+      ],
+      "antworten": [
+        "{{n}}"
+      ],
+      "parameter": [
+        {
+          "a": "207",
+          "n": "3"
+        },
+        {
+          "a": "214",
+          "n": "2"
+        },
+        {
+          "a": "141",
+          "n": "2"
+        },
+        {
+          "a": "220",
+          "n": "1"
+        }
+      ],
+      "hinweise": [
+        "Zähle die Zeilen mit dieser autorid."
+      ],
+      "erklaerung": "Der Autor {{a}} kommt in **{{n}}** Zeilen vor, also hat er {{n}} Bücher. Dieselbe autorid taucht mehrmals auf (das ist in einer Zwischentabelle erlaubt), nur das Paar (buchid, autorid) ist eindeutig."
+    },
+    {
+      "id": "p-nm-pk",
+      "typ": "choice",
+      "lz": [
+        "L7",
+        "L4"
+      ],
+      "thema": "Zwischentabelle",
+      "db": "bibliothek",
+      "stufe": 3,
+      "frage": "Was ist der Primärschlüssel der Zwischentabelle `buch_aut`?",
+      "mischen": true,
+      "optionen": [
+        {
+          "text": "Die Kombination (buchid, autorid)",
+          "richtig": true
+        },
+        {
+          "text": "Nur buchid",
+          "warum": "Ein Buch mit zwei Autoren steht zweimal in der Tabelle: buchid ist nicht eindeutig."
+        },
+        {
+          "text": "Nur autorid",
+          "warum": "Ein Autor mit mehreren Büchern steht mehrmals: autorid ist nicht eindeutig."
+        },
+        {
+          "text": "rolle",
+          "warum": "rolle ('V') kommt in vielen Zeilen vor."
+        }
+      ],
+      "hinweise": [
+        "Welche Werte wiederholen sich? Welches Paar nie?"
+      ],
+      "erklaerung": "Weder buchid noch autorid allein ist eindeutig. Die **Kombination** (buchid, autorid) ist es. Das ist ein **zusammengesetzter Primärschlüssel**."
+    },
+    {
+      "id": "p-nm-warum2",
+      "typ": "choice",
+      "lz": [
+        "L7"
+      ],
+      "thema": "n:m begründen",
+      "stufe": 2,
+      "frage": "In einer Datenbank *flugbuchung* ohne Tabelle `buchung` müsste man festhalten, welcher Kunde welche Flüge gebucht hat. Was ist daran bei einer einzigen Spalte `flugnr` in `kunde` das Problem?",
+      "mischen": true,
+      "optionen": [
+        {
+          "text": "Ein Kunde kann mehrere Flüge buchen, aber die Zelle hat nur Platz für einen Wert.",
+          "richtig": true
+        },
+        {
+          "text": "Fluggesellschaften verbieten das.",
+          "warum": "Das ist keine technische Begründung."
+        },
+        {
+          "text": "Flugnummern sind Text und dürfen nicht in kunde stehen.",
+          "warum": "Der Datentyp ist nicht das Problem."
+        },
+        {
+          "text": "Weil jeder Flug nur einen Kunden hat.",
+          "warum": "Im Gegenteil: Ein Flug hat viele Kunden. Beide Seiten sind «viele»."
+        }
+      ],
+      "hinweise": [
+        "Dirk Beyenburg hat zwei Buchungen."
+      ],
+      "erklaerung": "Kunde–Flug ist n:m. Man braucht eine Zwischentabelle (`buchung`) mit den Fremdschlüsseln `knr` und `flugnr`."
+    },
+    {
+      "id": "p-nm-tabelle-buchaut",
+      "typ": "tabelle",
+      "lz": [
+        "L8",
+        "L7"
+      ],
+      "thema": "Zwischentabelle füllen",
+      "db": "bibliothek",
+      "stufe": 2,
+      "frage": [
+        "Das Buch **3002** hat die Autoren **214** (Thomas Ottmann) und **215** (Peter Widmayer). Das Buch **3001** hat nur den Autor **207** (Niklaus Wirth). Fülle die Zwischentabelle `buch_aut` (Spalten buchid, autorid) in der Reihenfolge: zuerst 3001, dann 3002 mit der kleineren autorid zuerst."
+      ],
+      "tabellenname": "buch_aut (Ausschnitt)",
+      "spalten": [
+        "buchid",
+        "autorid"
+      ],
+      "zeilen": [
+        [
+          {
+            "loesung": "3001"
+          },
+          {
+            "loesung": "207"
+          }
+        ],
+        [
+          {
+            "loesung": "3002"
+          },
+          {
+            "loesung": "214"
+          }
+        ],
+        [
+          {
+            "loesung": "3002"
+          },
+          {
+            "loesung": "215"
+          }
+        ]
+      ],
+      "hinweise": [
+        "Pro Buch-Autor-Paar eine Zeile.",
+        "Buch 3002 hat zwei Autoren, also zwei Zeilen."
+      ],
+      "erklaerung": "Drei Paare, drei Zeilen: (3001, 207), (3002, 214), (3002, 215)."
+    },
+    {
+      "id": "p-entwerfen-mitglied",
+      "typ": "tabelle",
+      "lz": [
+        "L8"
+      ],
+      "thema": "Tabelle füllen",
+      "stufe": 1,
+      "frage": "Ein Sportverein führt die Tabelle `mitglied` mit den Spalten `mnr`, `name`, `vorname`, `eintritt` (Jahr). Neue Mitglieder: Nr. **101** Lea Berger, Eintritt **2024**; Nr. **102** Tim Roth, Eintritt **2025**. Trage beide ein.",
+      "tabellenname": "mitglied",
+      "spalten": [
+        "mnr",
+        "name",
+        "vorname",
+        "eintritt"
+      ],
+      "zeilen": [
+        [
+          {
+            "loesung": "101"
+          },
+          {
+            "loesung": "Berger"
+          },
+          {
+            "loesung": "Lea"
+          },
+          {
+            "loesung": "2024"
+          }
+        ],
+        [
+          {
+            "loesung": "102"
+          },
+          {
+            "loesung": "Roth"
+          },
+          {
+            "loesung": "Tim"
+          },
+          {
+            "loesung": "2025"
+          }
+        ]
+      ],
+      "hinweise": [
+        "name = Nachname, vorname = Vorname.",
+        "Eine Person = eine Zeile."
+      ],
+      "erklaerung": "Jede Person ist ein Datensatz; jede Angabe kommt ins passende Attribut."
+    },
+    {
+      "id": "p-entwerfen-zwischen",
+      "typ": "tabelle",
+      "lz": [
+        "L8",
+        "L7"
+      ],
+      "thema": "Zwischentabelle füllen",
+      "stufe": 3,
+      "frage": [
+        "Sportverein: Mitglied 101 spielt Tennis (`TEN`) und Fussball (`FUS`). Mitglied 102 spielt Fussball. Mitglied 103 spielt Tennis.",
+        "Fülle die Zwischentabelle `mitglied_sport`. Trage die Kürzel ein, jede Zeile hat vorgegebene mnr."
+      ],
+      "tabellenname": "mitglied_sport",
+      "spalten": [
+        "mnr",
+        "sport"
+      ],
+      "zeilen": [
+        [
+          "101",
+          {
+            "loesung": "TEN"
+          }
+        ],
+        [
+          "101",
+          {
+            "loesung": "FUS"
+          }
+        ],
+        [
+          "102",
+          {
+            "loesung": "FUS"
+          }
+        ],
+        [
+          "103",
+          {
+            "loesung": "TEN"
+          }
+        ]
+      ],
+      "hinweise": [
+        "Eine Zeile pro Mitglied-Sportart-Paar.",
+        "Mitglied 101 hat zwei Sportarten, also zwei Zeilen."
+      ],
+      "erklaerung": "4 Paare = 4 Zeilen. Die Zwischentabelle enthält nur die beiden Fremdschlüssel."
+    },
+    {
+      "id": "p-entwerfen-3tab",
+      "typ": "choice",
+      "lz": [
+        "L7",
+        "L6"
+      ],
+      "thema": "Tabellen entwerfen",
+      "stufe": 2,
+      "frage": "Ein Restaurant speichert **Gerichte** und **Zutaten**. Ein Gericht braucht mehrere Zutaten, und eine Zutat (z. B. Tomate) wird in mehreren Gerichten verwendet. Wie setzt man das um?",
+      "mischen": true,
+      "optionen": [
+        {
+          "text": "Drei Tabellen: gericht, zutat und eine Zwischentabelle mit zwei Fremdschlüsseln.",
+          "richtig": true
+        },
+        {
+          "text": "Zwei Tabellen: Die Tabelle gericht bekommt eine Spalte «zutaten» mit allen Zutaten durch Komma getrennt.",
+          "warum": "Mehrere Werte in einer Zelle verletzen die Regel «eine Zelle = ein Wert»."
+        },
+        {
+          "text": "Zwei Tabellen: zutat bekommt einen Fremdschlüssel auf gericht.",
+          "warum": "Dann könnte jede Zutat nur zu einem Gericht gehören."
+        },
+        {
+          "text": "Eine Tabelle, in der jedes Gericht mehrmals steht.",
+          "warum": "Das ergibt Redundanz."
+        }
+      ],
+      "hinweise": [
+        "Ist es 1:n oder n:m?"
+      ],
+      "erklaerung": "n:m = Zwischentabelle: `gericht`, `zutat`, `gericht_zutat` (Fremdschlüssel auf beide)."
+    },
+    {
+      "id": "p-entwerfen-1n",
+      "typ": "choice",
+      "lz": [
+        "L7",
+        "L6"
+      ],
+      "thema": "Tabellen entwerfen",
+      "stufe": 2,
+      "frage": "Eine Schule speichert **Klassen** und **Schüler**. Jede Schülerin gehört zu **genau einer** Klasse, eine Klasse hat viele Schüler. Braucht man eine Zwischentabelle?",
+      "mischen": true,
+      "optionen": [
+        {
+          "text": "Nein: Ein Fremdschlüssel `klasse` in der Tabelle `schueler` genügt.",
+          "richtig": true
+        },
+        {
+          "text": "Ja, jede Beziehung zwischen zwei Tabellen braucht eine Zwischentabelle.",
+          "warum": "Nur n:m braucht eine. Bei 1:n genügt ein Fremdschlüssel auf der n-Seite."
+        },
+        {
+          "text": "Nein: Ein Fremdschlüssel `schueler` in der Tabelle `klasse` genügt.",
+          "warum": "Dann könnte jede Klasse nur einen Schüler speichern."
+        }
+      ],
+      "hinweise": [
+        "Ist die Beziehung 1:n oder n:m?"
+      ],
+      "erklaerung": "1:n braucht keine Zwischentabelle. Der Fremdschlüssel steht auf der n-Seite (`schueler.klasse`)."
+    },
+    {
+      "id": "p-zuordnen-attribute",
+      "typ": "zuordnen",
+      "lz": [
+        "L6",
+        "L8"
+      ],
+      "thema": "Tabellen entwerfen",
+      "stufe": 2,
+      "frage": "Eine Schule hat die Tabellen `schueler`, `kurs` und `kurs_wahl`. Zu welcher Tabelle gehört jedes Attribut?",
+      "kategorien": [
+        "schueler",
+        "kurs",
+        "kurs_wahl"
+      ],
+      "elemente": [
+        {
+          "text": "Name der Schülerin",
+          "antwort": "schueler",
+          "warum": "Eigenschaft eines Schülers."
+        },
+        {
+          "text": "Titel des Kurses",
+          "antwort": "kurs",
+          "warum": "Eigenschaft eines Kurses."
+        },
+        {
+          "text": "Paar aus Schülernummer und Kurskürzel (zusammengesetzter Primärschlüssel)",
+          "antwort": "kurs_wahl",
+          "warum": "Die Zwischentabelle enthält beide Fremdschlüssel."
+        },
+        {
+          "text": "Kurskürzel als Primärschlüssel",
+          "antwort": "kurs",
+          "warum": "Das Kürzel identifiziert den Kurs."
+        }
+      ],
+      "hinweise": [
+        "Eigenschaften einer Sache gehören in deren Tabelle, die Zuordnung in die Zwischentabelle."
+      ],
+      "erklaerung": "Pro Sache eine Tabelle, die n:m-Zuordnung in der Zwischentabelle."
+    }
+  ]
+}

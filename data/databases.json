@@ -1,0 +1,30 @@
+[
+  {
+    "id": "flugbuchung",
+    "titel": "Flugbuchung",
+    "datei": "data/flugbuchung.sql",
+    "beschreibung": "Kunden, Flüge und Buchungen (Original-Daten aus dem Unterricht). Achtung: Die Spalte \"alter\" muss in Anführungszeichen stehen.",
+    "lerndaten": false
+  },
+  {
+    "id": "bibliothek",
+    "titel": "Bibliothek",
+    "datei": "data/bibliothek.sql",
+    "beschreibung": "Bücher, Autoren, Verlage, Schlagwörter. Schema wie im Unterricht, Daten grösstenteils erfundene Lern-Daten (die Tipp-Zahlen der Arbeitsblätter passen nicht).",
+    "lerndaten": true
+  },
+  {
+    "id": "obst",
+    "titel": "Obst-Tagespreise",
+    "datei": "data/obst.sql",
+    "beschreibung": "Zwei Mini-Tabellen aus der Folie zum Kreuzprodukt.",
+    "lerndaten": false
+  },
+  {
+    "id": "insel",
+    "titel": "Insel",
+    "datei": "data/insel.sql",
+    "beschreibung": "Dörfer, Bewohner und Gegenstände einer Insel. Eigene, erfundene Lern-Daten.",
+    "lerndaten": true
+  }
+]

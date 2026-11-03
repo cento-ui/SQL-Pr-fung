@@ -2,11 +2,21 @@
 <html lang="de-CH">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>SQL-Detektei</title>
   <meta name="description" content="Lernumgebung zur Prüfung Relationale Datenbanken und SQL: Schritt für Schritt, mit Aufgaben direkt im Browser.">
   <meta name="color-scheme" content="light dark">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23c2410c'/%3E%3Ctext x='16' y='22' font-size='15' font-family='sans-serif' font-weight='700' text-anchor='middle' fill='white'%3ESQL%3C/text%3E%3C/svg%3E">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1b1b1d" media="(prefers-color-scheme: dark)">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="SQL-Detektei">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   <link rel="stylesheet" href="css/style.css">
   <!-- sql.js (SQLite als WebAssembly), exakt gepinnte Version von cdnjs. Fallback: vendor/ (siehe README). -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"
@@ -53,6 +63,7 @@
       <div id="drawer-body" class="drawer-body" tabindex="-1"></div>
     </aside>
   </div>
+  <button type="button" class="fab" id="fab-help" data-drawer-tab="hilfsblatt" aria-pressed="false">Hilfsblatt</button>
   <footer class="footer small muted">
     Lernumgebung zur Prüfung «Relationale Datenbanken» (5.11.2026). SQL läuft lokal im Browser (sql.js 1.10.3). Fortschritt wird nur in diesem Browser gespeichert.
   </footer>

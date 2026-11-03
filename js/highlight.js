@@ -36,7 +36,18 @@ export function sqlEditor(textarea) {
     layer.scrollLeft = textarea.scrollLeft;
   };
   textarea.classList.add('editor-input');
-  textarea.addEventListener('input', sync);
+  // iOS/Safari und Einfügen aus Notizen können typografische Zeichen liefern: durch SQL-taugliche ersetzen
+  const SMART = /[\u2018\u2019\u201A\u201B\u201C\u201D\u201E\u2013\u2014\u00A0]/g;
+  const plain = { '\u2018': "'", '\u2019': "'", '\u201A': "'", '\u201B': "'", '\u201C': '"', '\u201D': '"', '\u201E': '"', '\u2013': '-', '\u2014': '-', '\u00A0': ' ' };
+  const fixSmart = () => {
+    const v = textarea.value;
+    if (!SMART.test(v)) return;
+    SMART.lastIndex = 0;
+    const a = textarea.selectionStart, b = textarea.selectionEnd;
+    textarea.value = v.replace(SMART, (c) => plain[c]);
+    try { textarea.setSelectionRange(a, b); } catch { /* ignorieren */ }
+  };
+  textarea.addEventListener('input', () => { fixSmart(); sync(); });
   textarea.addEventListener('scroll', sync);
   wrap.appendChild(layer);
   wrap.appendChild(textarea);

@@ -133,7 +133,7 @@ function viewHome() {
           ch && !ch.fehlt ? progressBar(prog, `Fortschritt ${k.titel}`) : el('span', { class: 'small muted' }, 'Kapitel folgt')))));
   });
   frag.appendChild(list);
-  if (!P.storageAvailable()) frag.appendChild(el('p', { class: 'note' }, 'Hinweis: Der Browser erlaubt keinen lokalen Speicher. Dein Fortschritt geht beim Schliessen verloren – exportiere ihn unter «Fortschritt».'));
+  if (!P.storageAvailable()) frag.appendChild(el('p', { class: 'note' }, 'Hinweis: Der Browser erlaubt keinen lokalen Speicher (z. B. im privaten Modus). Dein Fortschritt geht beim Schliessen verloren – exportiere ihn unter «Fortschritt».'));
   return frag;
 }
 
@@ -391,7 +391,7 @@ function viewPruefung() {
     root.appendChild(el('div', { class: 'form-row' }, el('label', { for: 'ex-n' }, 'Umfang '), nSel, el('label', { for: 'ex-t' }, ' Zeit '), tSel));
     root.appendChild(el('ul', null,
       el('li', null, 'SQL-Abfragen kannst du nicht ausführen – wie auf Papier. Ausgewertet wird bei der Abgabe.'),
-      el('li', null, 'Das Hilfsblatt öffnest du oben rechts (oder mit der Taste H ausserhalb von Eingabefeldern).'),
+      el('li', null, 'Das Hilfsblatt öffnest du oben rechts (oder mit der Taste H ausserhalb von Eingabefeldern; auf dem Handy mit dem Knopf «Hilfsblatt»).'),
       el('li', null, 'Nach Ablauf der Zeit wird automatisch abgegeben.')));
     const prev = P.get().pruefungen.slice(-3).reverse();
     if (prev.length) root.appendChild(el('p', { class: 'muted' }, 'Letzte Ergebnisse: ' + prev.map((p) => `${formatDate(p.t)}: ${p.punkte}/${p.max}`).join(' · ')));
@@ -423,7 +423,7 @@ function viewPruefung() {
       root.appendChild(el('article', { class: 'step-card' }, el('p', { class: 'exam-num' }, `Aufgabe ${i + 1}`), v.node));
       return v;
     });
-    root.appendChild(confirmButton('Prüfung abgeben', 'Wirklich abgeben? Nochmals klicken', submitExam, 'btn btn-primary'));
+    root.appendChild(confirmButton('Prüfung abgeben', 'Wirklich abgeben? Nochmals tippen', submitExam, 'btn btn-primary'));
     return root;
   }
   // Auswertung
@@ -518,9 +518,10 @@ function viewFortschritt() {
   }
 
   root.appendChild(el('h2', null, 'Daten sichern'));
+  root.appendChild(storageHint());
   root.appendChild(el('p', { class: 'small muted' }, 'Der Fortschritt liegt nur in diesem Browser. Exportiere ihn, um das Gerät zu wechseln oder ihn zu sichern.'));
   const importMsg = el('p', { class: 'small', role: 'status' });
-  const file = el('input', { type: 'file', accept: 'application/json,.json', id: 'import-file', class: 'sr-only' });
+  const file = el('input', { type: 'file', accept: 'application/json,.json,text/plain', id: 'import-file', class: 'sr-only' });
   file.addEventListener('change', async () => {
     const f = file.files[0];
     if (!f) return;
@@ -528,19 +529,75 @@ function viewFortschritt() {
     catch (e) { importMsg.textContent = 'Import fehlgeschlagen: ' + e.message; }
   });
   root.appendChild(el('div', { class: 'actions' },
-    el('button', { class: 'btn', type: 'button', onclick: () => {
-      const blob = new Blob([P.exportJson()], { type: 'application/json' });
-      const a = el('a', { href: URL.createObjectURL(blob), download: `sql-fortschritt-${new Date().toISOString().slice(0, 10)}.json` });
-      document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-    } }, 'Exportieren (JSON)'),
-    el('label', { class: 'btn', for: 'import-file' }, 'Importieren'), file,
-    confirmButton('Zurücksetzen', 'Wirklich alles löschen? Nochmals klicken', () => { P.reset(); render(); }, 'btn btn-danger')));
+    el('button', { class: 'btn', type: 'button', onclick: () => exportFile(importMsg) }, 'Exportieren (Datei)'),
+    el('label', { class: 'btn', for: 'import-file' }, 'Importieren (Datei)'), file,
+    confirmButton('Zurücksetzen', 'Wirklich alles löschen? Nochmals tippen', () => { P.reset(); render(); }, 'btn btn-danger')));
+
+  // Alternative ohne Datei (iPhone/iPad): Text kopieren und wieder einfügen
+  const box = el('textarea', { id: 'export-text', class: 'export-text', rows: 5, spellcheck: 'false', autocapitalize: 'off', autocorrect: 'off', autocomplete: 'off', 'aria-label': 'Fortschritt als Text', placeholder: 'Hier erscheint der Fortschritt als Text, oder füge einen gesicherten Text ein.' });
+  const copyBtn = el('button', { class: 'btn', type: 'button', onclick: async () => {
+    box.value = P.exportJson();
+    const ok = await copyText(box.value, box);
+    importMsg.textContent = ok ? 'Fortschritt in die Zwischenablage kopiert. Bewahre den Text z. B. in Notizen auf.' : 'Kopieren nicht möglich: Markiere den Text im Feld und kopiere ihn von Hand.';
+  } }, 'In Zwischenablage kopieren');
+  const pasteBtn = el('button', { class: 'btn', type: 'button', onclick: () => {
+    if (!box.value.trim()) { importMsg.textContent = 'Füge zuerst den gesicherten Text in das Feld ein.'; return; }
+    try { P.importJson(box.value); render(); } catch (e) { importMsg.textContent = 'Import fehlgeschlagen: ' + e.message; }
+  } }, 'Aus Text importieren');
+  root.appendChild(el('details', { class: 'text-backup' },
+    el('summary', null, 'Als Text sichern oder einfügen (für iPhone und iPad)'),
+    el('p', { class: 'small muted' }, 'Kopieren, in Notizen oder eine Nachricht einfügen. Zum Wiederherstellen den Text hier einfügen und «Aus Text importieren» tippen. Das ersetzt den aktuellen Fortschritt.'),
+    box, el('div', { class: 'actions' }, copyBtn, pasteBtn)));
   root.appendChild(importMsg);
   return root;
 }
 
-/** Zweistufiger Knopf statt Bestätigungsdialog: erster Klick fragt nach, zweiter führt aus. */
+function isStandalone() {
+  return !!(window.navigator.standalone || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches));
+}
+
+/** Ruhiger, einmaliger Hinweis zum Browser-Speicher (schliessbar, gemerkt in den Einstellungen). */
+function storageHint() {
+  if (P.setting('hinweisSpeicher') || isStandalone()) return document.createDocumentFragment();
+  const box = el('aside', { class: 'storage-hint', 'aria-label': 'Hinweis zum Speicher' },
+    el('p', null, el('strong', null, 'Gut zu wissen: '), 'Safari auf iPhone und iPad löscht die Daten einer Webseite, wenn du sie 7 Tage lang nicht besuchst; im privaten Modus bleibt nichts gespeichert. Sichere deinen Fortschritt darum ab und zu mit «Exportieren» oder als Text. Mit «Teilen → Zum Home-Bildschirm» wird die Seite zur App, die dieses Problem nicht hat.'),
+    el('button', { class: 'btn btn-small', type: 'button', onclick: () => { P.setting('hinweisSpeicher', true); box.remove(); } }, 'Verstanden'));
+  return box;
+}
+
+async function copyText(text, fallbackField) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); return true; }
+  } catch { /* weiter mit Ersatz */ }
+  try {
+    fallbackField.focus();
+    fallbackField.select();
+    fallbackField.setSelectionRange(0, text.length);
+    return document.execCommand('copy');
+  } catch { return false; }
+}
+
+/** Export als Datei: auf Touch-Geräten zuerst das Teilen-Menü (zuverlässiger als download), sonst Download-Link. */
+async function exportFile(msg) {
+  const name = `sql-fortschritt-${new Date().toISOString().slice(0, 10)}.json`;
+  const text = P.exportJson();
+  try {
+    const f = new File([text], name, { type: 'application/json' });
+    if (window.matchMedia('(pointer: coarse)').matches && navigator.canShare && navigator.canShare({ files: [f] })) {
+      await navigator.share({ files: [f], title: 'SQL-Fortschritt' });
+      return;
+    }
+  } catch (e) {
+    if (e && e.name === 'AbortError') return;
+  }
+  const blob = new Blob([text], { type: 'application/json' });
+  const a = el('a', { href: URL.createObjectURL(blob), download: name });
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  msg.textContent = 'Falls kein Download startet (iPhone/iPad), nutze «Als Text sichern».';
+}
+
+/** Zweistufiger Knopf statt Bestätigungsdialog: erstes Tippen fragt nach, zweites führt aus (6 s Zeit). */
 function confirmButton(label, askLabel, action, cls) {
   let armed = false;
   let timer = null;
@@ -549,7 +606,7 @@ function confirmButton(label, askLabel, action, cls) {
       armed = true;
       b.textContent = askLabel;
       b.classList.add('armed');
-      timer = setTimeout(() => { armed = false; b.textContent = label; b.classList.remove('armed'); }, 5000);
+      timer = setTimeout(() => { armed = false; b.textContent = label; b.classList.remove('armed'); }, 6000);
       return;
     }
     clearTimeout(timer);
@@ -572,7 +629,7 @@ async function viewSpielwiese() {
   const sel = el('select', { id: 'pg-db' }, dbs.map((d) => el('option', { value: d.id, selected: d.id === ui.currentDb }, d.titel)));
   const info = el('p', { class: 'small muted' });
   const schemaSlot = el('div');
-  const area = el('textarea', { id: 'pg-sql', class: 'sql-input', rows: 6, spellcheck: 'false', autocapitalize: 'off' });
+  const area = el('textarea', { id: 'pg-sql', class: 'sql-input', rows: 6, spellcheck: 'false', autocapitalize: 'off', autocorrect: 'off', autocomplete: 'off', enterkeyhint: 'enter' });
   const out = el('div', { class: 'sql-output', 'aria-live': 'polite' });
   const run = async () => {
     clear(out);
@@ -597,7 +654,7 @@ async function viewSpielwiese() {
   root.appendChild(el('div', { class: 'form-row' }, el('label', { for: 'pg-db' }, 'Datenbank '), sel));
   root.appendChild(info);
   root.appendChild(schemaSlot);
-  root.appendChild(el('label', { for: 'pg-sql', class: 'label' }, 'SQL (Ctrl/Cmd + Enter = Ausführen)'));
+  root.appendChild(el('label', { for: 'pg-sql', class: 'label' }, 'SQL ', el('span', { class: 'muted small kbd-hint' }, '(Ctrl/Cmd + Enter = Ausführen)')));
   root.appendChild(sqlEditor(area));
   root.appendChild(el('div', { class: 'actions' }, el('button', { class: 'btn btn-primary', type: 'button', onclick: run }, 'Ausführen')));
   root.appendChild(out);
@@ -724,6 +781,11 @@ async function boot() {
     if (!typing && !e.ctrlKey && !e.metaKey && !e.altKey && (e.key === 'h' || e.key === 'H')) toggleDrawer('hilfsblatt');
   });
   window.addEventListener('hashchange', render);
+  const topbar = document.querySelector('.topbar');
+  if (topbar && 'ResizeObserver' in window) {
+    new ResizeObserver(() => document.documentElement.style.setProperty('--topbar-h', topbar.offsetHeight + 'px')).observe(topbar);
+  }
+  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
   try {
     await loadBasics();
     await loadAllChapters();

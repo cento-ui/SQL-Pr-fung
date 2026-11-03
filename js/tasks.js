@@ -223,7 +223,7 @@ IMPL.sql = {
   render(task, { db, ctx, extra }) {
     const id = nextId('sql');
     const area = el('textarea', {
-      id, class: 'sql-input', rows: 5, spellcheck: 'false', autocapitalize: 'off', autocomplete: 'off', autocorrect: 'off',
+      id, class: 'sql-input', rows: 5, spellcheck: 'false', autocapitalize: 'off', autocomplete: 'off', autocorrect: 'off', enterkeyhint: 'enter',
       placeholder: 'SELECT ... FROM ... WHERE ...',
     });
     area.value = txt(task.vorlage);
@@ -231,7 +231,7 @@ IMPL.sql = {
     const schemaSlot = el('div');
     schemaOf(db).then((s) => schemaSlot.appendChild(schemaLine(s))).catch(() => {});
     const node = el('div', { class: 'sql-box' },
-      el('label', { for: id, class: 'label' }, 'Deine SQL-Abfrage ', el('span', { class: 'muted small' }, '(Ctrl/Cmd + Enter = ' + (ctx.exam || ctx.deferred ? 'Abgeben' : 'Prüfen') + ')')),
+      el('label', { for: id, class: 'label' }, 'Deine SQL-Abfrage ', el('span', { class: 'muted small kbd-hint' }, '(Ctrl/Cmd + Enter = ' + (ctx.exam || ctx.deferred ? 'Abgeben' : 'Prüfen') + ')')),
       sqlEditor(area), schemaSlot, out);
 
     let submit = null;
@@ -454,7 +454,7 @@ IMPL.choice = {
 IMPL.text = {
   render(task, { ctx }) {
     const id = nextId('txt');
-    const input = el('input', { id, type: 'text', class: 'text-input', autocomplete: 'off', spellcheck: 'false' });
+    const input = el('input', { id, type: 'text', class: 'text-input', autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false', enterkeyhint: 'done' });
     const node = el('div', null, el('label', { for: id, class: 'label' }, task.eingabeLabel || 'Deine Antwort:'), input);
     const answers = (task.antworten || []).map((a) => normAnswer(a));
     return {
@@ -518,7 +518,7 @@ IMPL.tabelle = {
     (task.zeilen || []).forEach((row, ri) => {
       tb.appendChild(el('tr', null, row.map((c, ci) => {
         if (c && typeof c === 'object' && 'loesung' in c) {
-          const inp = el('input', { type: 'text', class: 'cell-input', autocomplete: 'off', spellcheck: 'false', 'aria-label': `Zeile ${ri + 1}, Spalte ${task.spalten[ci]}`, placeholder: c.platzhalter || '' });
+          const inp = el('input', { type: 'text', class: 'cell-input', autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false', 'aria-label': `Zeile ${ri + 1}, Spalte ${task.spalten[ci]}`, placeholder: c.platzhalter || '' });
           const sol = Array.isArray(c.loesung) ? c.loesung : [c.loesung];
           cells.push({ inp, sol: sol.map((s) => normAnswer(s)), raw: sol[0] });
           return el('td', null, inp);

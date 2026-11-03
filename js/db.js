@@ -4,6 +4,7 @@
 import { fetchText, fetchJson } from './util.js';
 
 export const SQLJS_VERSION = '1.10.3';
+const MAX_ROWS = 20000; // Schutz vor riesigen Ergebnissen (Speicher auf dem Handy)
 const CDN = `https://cdnjs.cloudflare.com/ajax/libs/sql.js/${SQLJS_VERSION}/`;
 
 let sqlPromise = null;
@@ -100,7 +101,10 @@ export async function runSql(id, sql) {
       out.statements++;
       const cols = stmt.getColumnNames();
       const rows = [];
-      while (stmt.step()) rows.push(stmt.get());
+      while (stmt.step()) {
+        rows.push(stmt.get());
+        if (rows.length > MAX_ROWS) throw new Error(`Das Ergebnis hat mehr als ${MAX_ROWS} Zeilen. Schränke die Abfrage ein (WHERE) oder prüfe die Verknüpfung der Tabellen.`);
+      }
       if (cols.length) {
         out.resultSets++;
         out.columns = cols;
